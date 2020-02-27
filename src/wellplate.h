@@ -15,7 +15,9 @@ private:
 	int max_timepoint;
 	unsigned long int total_time_experiment;
 	bool active = false;
-	std::vector<well> led_array;		 // array with well data with calculated start and endpoint.
+	std::vector<well> led_array; // array with well data with calculated start and endpoint.
+	std::vector<well>::iterator ptr;
+	int number_of_elements_led_array;
 	std::vector<well_raw> led_array_raw; // array with well data given by the user (timepoint/ duration)
 	int time_remaining;
 

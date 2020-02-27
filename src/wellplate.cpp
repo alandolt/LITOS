@@ -7,7 +7,7 @@ wellplate::wellplate()
 void wellplate::set_well_internal(int row, int col, unsigned long int start, unsigned long int end, int intensity, uint8_t red,
 								  uint8_t blue, uint8_t green)
 {
-	led_array.push_back(well{row, col, start, end, intensity, red, blue, green, false});
+	led_array.push_back(well{row, col, start, end, intensity, red, blue, green, false, false});
 }
 
 void wellplate::set_well(int row, int col, float exposure, int timepoint, int intensity, uint8_t red,
@@ -51,7 +51,7 @@ void wellplate::translate_raw_to_internal()
 						  led_array_raw[i].red, led_array_raw[i].blue, led_array_raw[i].green);
 	}
 
-	Serial.print(led_array.size());
+	number_of_elements_led_array = led_array.size();
 }
 
 int wellplate::well_to_x(int row) // transform from well to x/y matrix
@@ -84,31 +84,40 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 		}
 		lcd.setCursor(0, 3);
 		lcd.print((total_time_experiment - time_ref) / 1000);*/
-		int size_array = led_array.size();
-		for (int i = 0; i < size_array; i++)
+		for (ptr = led_array.begin(); ptr != led_array.end(); ++ptr)
 		{
-			if (led_array[i].start < time_ref and not led_array[i].active)
+			if (not(*ptr).finish)
 			{
-				well_col(i);
-				led_array[i].active = true;
-			}
-			if (led_array[i].end < time_ref and led_array[i].active)
-			{
-				well_black(i);
-
-				if (led_array.size() > 1)
+				if ((*ptr).start < time_ref and not(*ptr).active)
 				{
-					//led_array.erase(led_array.begin() + i);
-					//led_array.erase(led_array);
+					int index = ptr - led_array.begin();
+					well_col(index);
+					(*ptr).active = true;
+					Serial.println("");
+					Serial.print(index);
+					Serial.print(", ");
+					Serial.print((*ptr).active);
 				}
-				else
+				if ((*ptr).end < time_ref and (*ptr).active)
 				{
-					//led_array.clear();
-					//lcd.clear();
-					//lcd.print("Fixation");*/
-					active = false;
+					int index = ptr - led_array.begin();
+					well_black(index);
+					(*ptr).active = false;
+					(*ptr).finish = true;
+					Serial.println("");
+					Serial.print(index);
+					Serial.print(", ");
+					Serial.print((*ptr).active);
+					Serial.println("executed");
+					number_of_elements_led_array -= 1;
+					Serial.println(number_of_elements_led_array);
 				}
 			}
+		}
+		if (number_of_elements_led_array == 0)
+		{
+			active = false;
+			Serial.print("finish");
 		}
 	}
 }
