@@ -112,29 +112,36 @@ void setup()
 	backgroundLayer.swapBuffers();
 	backgroundLayer.fillScreen({0, 0, 0});
 
-	int timepoint = 0;
+	int timepoint = 3;
 	float exposure = 10;
 
-	upper_plate.set_well(2, 2, 10, 1, 7, 0, 0, 255);
-	upper_plate.set_well(3, 2, 40, 1, 7, 0, 0, 255);
-	upper_plate.set_well(5, 2, 30, 2, 7, 0, 255, 0);
-
 	/*
-	for (int i = 2; i <= 12; i++) // col, Spalte
+	upper_plate.set_well(1, 2, exposure, 0, 7, 0, 255, 0);
+	upper_plate.set_well(3, 2, exposure, 0, 7, 0, 255, 0);
+	upper_plate.set_well(2, 4, exposure, 1, 7, 0, 255, 0);
+	upper_plate.set_well(2, 5, exposure, 2, 7, 0, 255, 0);
+	upper_plate.set_well(2, 6, exposure, 3, 7, 0, 255, 0);
+
+	*/
+	for (int i = 3; i <= 8; i++) // row
 	{
-		for (int j = 3; j <= 8; j++) // row, Zeile
+		for (int j = 2; j <= 12; j++) // col
 		{
-			upper_plate.set_well(j, i, exposure, timepoint, 7, 0, 0, 255);
-			timepoint += 3;
+			upper_plate.set_well(i, j, exposure, timepoint, 7, 0, 255, 0);
 		}
+		timepoint = timepoint + 1;
 	}
-*/
-	backgroundLayer.swapBuffers(false);
+
+	upper_plate.begin(millis());
+	upper_plate.debug_print_led_array();
+
 	delay(1000);
 }
 
 void loop()
 {
+
+	/*
 	if (millis() > 300)
 	{
 		if (not matrix_in_use)
@@ -146,9 +153,10 @@ void loop()
 		{
 			Serial.print("button pressed");
 			matrix_in_use = true;
-			upper_plate.begin(millis());
+			//upper_plate.begin(millis());
 		}
 	}
+	*/
 	upper_plate.check(millis());
 	backgroundLayer.swapBuffers();
 }

@@ -50,6 +50,8 @@ void wellplate::translate_raw_to_internal()
 						  max_timepoint_mil - timepoint_long + exposure_long, led_array_raw[i].intensity,
 						  led_array_raw[i].red, led_array_raw[i].blue, led_array_raw[i].green);
 	}
+
+	Serial.print(led_array.size());
 }
 
 int wellplate::well_to_x(int row) // transform from well to x/y matrix
@@ -86,7 +88,6 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 		for (int i = 0; i < size_array; i++)
 		{
 			if (led_array[i].start < time_ref and not led_array[i].active)
-			//if (led_array[i].start < time_ref)
 			{
 				well_col(i);
 				led_array[i].active = true;
@@ -97,11 +98,12 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 
 				if (led_array.size() > 1)
 				{
-					led_array.erase(led_array.begin() + i);
+					//led_array.erase(led_array.begin() + i);
+					//led_array.erase(led_array);
 				}
 				else
 				{
-					led_array.clear();
+					//led_array.clear();
 					//lcd.clear();
 					//lcd.print("Fixation");*/
 					active = false;
@@ -119,4 +121,15 @@ bool wellplate::is_active()
 int wellplate::get_time_remaining()
 {
 	return time_remaining;
+}
+
+void wellplate::debug_print_led_array()
+{
+	for (int i = 0; i < led_array.size(); i++)
+	{
+		Serial.println("");
+		Serial.print(led_array[i].start);
+		Serial.print(", ");
+		Serial.print(led_array[i].end);
+	}
 }
