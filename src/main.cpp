@@ -27,7 +27,7 @@ const uint8_t kBackgroundLayerOptions = (SM_BACKGROUND_OPTIONS_NONE);
 SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions);
 SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);
 
-const int defaultBrightness = (25 * 255) / 100; // (10%) brightness
+const int defaultBrightness = (10 * 255) / 100; // (10%) brightness
 
 // here defined as can not access to backgroundlayer in class (extern not working, as type of backgroundLayer is runtime defined by SMARTMATRIX_ALLOCATE_BUFFERS)
 void wellplate::well_col(int index)
@@ -56,7 +56,7 @@ wellplate upper_plate;
 
 void setup()
 {
-	pinMode(buttonPin, INPUT_PULLUP);
+	pinMode(buttonPin, INPUT);
 	Serial.begin(115200);
 	delay(100);
 	Serial.println("Started");
@@ -112,9 +112,25 @@ void setup()
 	backgroundLayer.swapBuffers();
 	backgroundLayer.fillScreen({0, 0, 0});
 
-	upper_plate.set_well(3, 6, 30, 2, 4, 0, 255, 0);
+	int timepoint = 0;
+	float exposure = 10;
+
+	upper_plate.set_well(2, 2, 10, 1, 7, 0, 0, 255);
+	upper_plate.set_well(3, 2, 40, 1, 7, 0, 0, 255);
+	upper_plate.set_well(5, 2, 30, 2, 7, 0, 255, 0);
+
+	/*
+	for (int i = 2; i <= 12; i++) // col, Spalte
+	{
+		for (int j = 3; j <= 8; j++) // row, Zeile
+		{
+			upper_plate.set_well(j, i, exposure, timepoint, 7, 0, 0, 255);
+			timepoint += 3;
+		}
+	}
+*/
+	backgroundLayer.swapBuffers(false);
 	delay(1000);
-	Serial.print("vor loop");
 }
 
 void loop()

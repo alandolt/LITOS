@@ -62,8 +62,6 @@ int wellplate::well_to_y(int col)
 	return -3 * col + 34;
 }
 
-
-
 void wellplate::begin(unsigned int long act_time) // called when experiment should start
 {
 	time_started = act_time;
@@ -88,10 +86,10 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 		for (int i = 0; i < size_array; i++)
 		{
 			if (led_array[i].start < time_ref and not led_array[i].active)
+			//if (led_array[i].start < time_ref)
 			{
 				well_col(i);
 				led_array[i].active = true;
-
 			}
 			if (led_array[i].end < time_ref and led_array[i].active)
 			{
@@ -99,13 +97,13 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 
 				if (led_array.size() > 1)
 				{
-					//led_array.erase(led_array.begin() + i);
+					led_array.erase(led_array.begin() + i);
 				}
 				else
 				{
-					/*led_array.clear();
-					lcd.clear();
-					lcd.print("Fixation");*/
+					led_array.clear();
+					//lcd.clear();
+					//lcd.print("Fixation");*/
 					active = false;
 				}
 			}
