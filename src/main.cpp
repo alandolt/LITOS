@@ -27,7 +27,7 @@ const uint8_t kBackgroundLayerOptions = (SM_BACKGROUND_OPTIONS_NONE);
 SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions);
 SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);
 
-const int defaultBrightness = (10 * 255) / 100; // (10%) brightness
+const int defaultBrightness = (100 * 255) / 100; // (10%) brightness
 
 // here defined as can not access to backgroundlayer in class (extern not working, as type of backgroundLayer is runtime defined by SMARTMATRIX_ALLOCATE_BUFFERS)
 void wellplate::well_col(int index)
@@ -51,7 +51,7 @@ void wellplate::well_black(int index) // well shutoff light for well
 const char *ssid = "pilatus";
 const char *password = "%Fortress123&";
 
-AsyncWebServer server(80);
+//AsyncWebServer server(80);
 wellplate upper_plate;
 
 void setup()
@@ -60,7 +60,7 @@ void setup()
 	Serial.begin(115200);
 	delay(100);
 	Serial.println("Started");
-
+/*
 	// Initialize SPIFFS
 	if (!SPIFFS.begin(true))
 	{
@@ -101,7 +101,7 @@ void setup()
 	});
 
 	// Start server
-	server.begin();
+	server.begin();*/
 
 	// initialize the digital pin as an output.
 	matrix.addLayer(&backgroundLayer);
@@ -129,11 +129,11 @@ void setup()
 		{
 			upper_plate.set_well(i, j, exposure, timepoint, 7, 0, 255, 0);
 		}
-		timepoint = timepoint + 1;
+		timepoint = timepoint + 3;
 	}
 
-	upper_plate.begin(millis());
-	upper_plate.debug_print_led_array();
+	//upper_plate.begin(millis());
+//	upper_plate.debug_print_led_array();
 
 	delay(1000);
 }
@@ -141,7 +141,7 @@ void setup()
 void loop()
 {
 
-	/*
+	
 	if (millis() > 300)
 	{
 		if (not matrix_in_use)
@@ -153,10 +153,10 @@ void loop()
 		{
 			Serial.print("button pressed");
 			matrix_in_use = true;
-			//upper_plate.begin(millis());
+			upper_plate.begin(millis());
 		}
 	}
-	*/
+	
 	upper_plate.check(millis());
 	backgroundLayer.swapBuffers();
 }
