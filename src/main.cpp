@@ -51,7 +51,11 @@ void wellplate::well_black(int index) // well shutoff light for well
 const char *ssid = "pilatus";
 const char *password = "%Fortress123&";
 
-//AsyncWebServer server(80);
+
+
+
+
+AsyncWebServer server(80);
 wellplate upper_plate;
 
 void setup()
@@ -60,7 +64,7 @@ void setup()
 	Serial.begin(115200);
 	delay(100);
 	Serial.println("Started");
-/*
+
 	// Initialize SPIFFS
 	if (!SPIFFS.begin(true))
 	{
@@ -68,7 +72,12 @@ void setup()
 		return;
 	}
 	// Connect to Wi-Fi
-	WiFi.begin(ssid, password);
+
+
+	WiFi.begin(ssid, password)
+
+
+	//WiFi.begin(ssid, password);
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		delay(1000);
@@ -101,7 +110,7 @@ void setup()
 	});
 
 	// Start server
-	server.begin();*/
+	server.begin();
 
 	// initialize the digital pin as an output.
 	matrix.addLayer(&backgroundLayer);
@@ -112,8 +121,8 @@ void setup()
 	backgroundLayer.swapBuffers();
 	backgroundLayer.fillScreen({0, 0, 0});
 
-	int timepoint = 3;
-	float exposure = 10;
+	int timepoint = 0;
+	float exposure = 360;
 
 	/*
 	upper_plate.set_well(1, 2, exposure, 0, 7, 0, 255, 0);
@@ -123,6 +132,8 @@ void setup()
 	upper_plate.set_well(2, 6, exposure, 3, 7, 0, 255, 0);
 
 	*/
+// week 2 
+/*
 	for (int i = 3; i <= 8; i++) // row
 	{
 		for (int j = 2; j <= 12; j++) // col
@@ -131,6 +142,13 @@ void setup()
 		}
 		timepoint = timepoint + 3;
 	}
+*/
+/* Test gleiche Helligkeit
+    for (int j = 2; j <= 12; j++) // col
+    {
+      upper_plate.set_well(1, j, exposure, timepoint, 7, 0, 255, 0);
+    }
+*/
 
 	//upper_plate.begin(millis());
 //	upper_plate.debug_print_led_array();
