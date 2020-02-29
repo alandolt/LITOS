@@ -13,7 +13,6 @@ int buttonState = 0;	  // variable for reading the pushbutton status
 const int buttonPin = 36; // the number of the pushbutton pin
 bool matrix_in_use = false;
 
-#include <SmartMatrix3.h>
 #define GPIOPINOUT ESP32_FORUM_PINOUT
 #define COLOR_DEPTH 24										  // known working: 24, 48 - If the sketch uses type `rgb24` directly, COLOR_DEPTH must be 24
 const uint8_t kMatrixWidth = 64;							  // known working: 32, 64, 96, 128
@@ -74,7 +73,7 @@ void setup()
 	// Connect to Wi-Fi
 
 
-	WiFi.begin(ssid, password)
+	WiFi.begin(ssid, password);
 
 
 	//WiFi.begin(ssid, password);
