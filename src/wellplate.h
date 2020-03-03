@@ -4,6 +4,9 @@
 #include <vector>
 #include "struct.h"
 
+#include <lcdgfx.h>
+
+
 class wellplate
 {
 private:

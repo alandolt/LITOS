@@ -3,14 +3,17 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
-//#include <vector>
+
 #include <SmartMatrix3.h>
+
+#include <SPI.h>
+#include <lcdgfx.h>
 
 #include "struct.h"
 #include "wellplate.h"
 
 int buttonState = 0;	  // variable for reading the pushbutton status
-const int buttonPin = 36; // the number of the pushbutton pin
+const int buttonPin = 35; // the number of the pushbutton pin
 bool matrix_in_use = false;
 
 #define GPIOPINOUT ESP32_FORUM_PINOUT
@@ -26,7 +29,14 @@ const uint8_t kBackgroundLayerOptions = (SM_BACKGROUND_OPTIONS_NONE);
 SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions);
 SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);
 
-const int defaultBrightness = (100 * 255) / 100; // (10%) brightness
+const int defaultBrightness = (10 * 255) / 100; // (10%) brightness
+
+DisplaySSD1351_128x128x16_SPI display(-1, {-1, 5, 15, 0, -1, -1}); // Use this line for ESP32 (VSPI)  (gpio22=RST, gpio5=CE for VSPI, gpio21=D/C
+NanoEngine16<DisplaySSD1351_128x128x16_SPI> engine(display);
+
+int display_width = 128;
+int display_heigh = 128;
+unsigned int long last_refreshed = 0;
 
 // here defined as can not access to backgroundlayer in class (extern not working, as type of backgroundLayer is runtime defined by SMARTMATRIX_ALLOCATE_BUFFERS)
 void wellplate::well_col(int index)
@@ -50,20 +60,17 @@ void wellplate::well_black(int index) // well shutoff light for well
 const char *ssid = "pilatus";
 const char *password = "%Fortress123&";
 
-
-
-
-
 AsyncWebServer server(80);
 wellplate upper_plate;
 
 void setup()
 {
+
 	pinMode(buttonPin, INPUT);
 	Serial.begin(115200);
 	delay(100);
 	Serial.println("Started");
-
+	/*
 	// Initialize SPIFFS
 	if (!SPIFFS.begin(true))
 	{
@@ -110,18 +117,29 @@ void setup()
 
 	// Start server
 	server.begin();
-
+*/
 	// initialize the digital pin as an output.
 	matrix.addLayer(&backgroundLayer);
 	matrix.begin();
 	matrix.setBrightness(defaultBrightness);
 
-	backgroundLayer.fillRectangle(0, 0, matrix.getScreenWidth(), matrix.getScreenHeight(), {1, 1, 1});
+	backgroundLayer.fillRectangle(0, 0, matrix.getScreenWidth(), matrix.getScreenHeight(), {0, 0, 0});
 	backgroundLayer.swapBuffers();
 	backgroundLayer.fillScreen({0, 0, 0});
+	backgroundLayer.swapBuffers();
 
 	int timepoint = 0;
-	float exposure = 360;
+	float exposure = 10;
+
+	NanoEngine16<DisplaySSD1351_128x128x16_SPI> engine(display);
+	display.begin();
+	display.setFixedFont(ssd1306xled_font8x16);
+	display.clear();
+	display.setColor(RGB_COLOR16(255, 0, 0));
+	display.printFixed(0, 8, "Pertz Lab", STYLE_BOLD);
+	display.setColor(RGB_COLOR16(255, 0, 255));
+	display.printFixed(0, 40, "Press button", STYLE_NORMAL);
+	display.printFixed(0, 60, "to start", STYLE_NORMAL);
 
 	/*
 	upper_plate.set_well(1, 2, exposure, 0, 7, 0, 255, 0);
@@ -131,8 +149,8 @@ void setup()
 	upper_plate.set_well(2, 6, exposure, 3, 7, 0, 255, 0);
 
 	*/
-// week 2 
-/*
+	// week 2
+
 	for (int i = 3; i <= 8; i++) // row
 	{
 		for (int j = 2; j <= 12; j++) // col
@@ -141,8 +159,8 @@ void setup()
 		}
 		timepoint = timepoint + 3;
 	}
-*/
-/* Test gleiche Helligkeit
+
+	/* Test gleiche Helligkeit
     for (int j = 2; j <= 12; j++) // col
     {
       upper_plate.set_well(1, j, exposure, timepoint, 7, 0, 255, 0);
@@ -150,7 +168,7 @@ void setup()
 */
 
 	//upper_plate.begin(millis());
-//	upper_plate.debug_print_led_array();
+	//	upper_plate.debug_print_led_array();
 
 	delay(1000);
 }
@@ -158,7 +176,6 @@ void setup()
 void loop()
 {
 
-	
 	if (millis() > 300)
 	{
 		if (not matrix_in_use)
@@ -171,9 +188,25 @@ void loop()
 			Serial.print("button pressed");
 			matrix_in_use = true;
 			upper_plate.begin(millis());
+			display.clear();
+			display.printFixed(0, 0, "Time until", STYLE_BOLD);
+			display.printFixed(0, 20, "fixation", STYLE_BOLD);
+		}
+
+		if (matrix_in_use)
+		{
+			upper_plate.check(millis());
+			backgroundLayer.swapBuffers();
+
+			if (millis() - last_refreshed >= 1000)
+			{
+				display.setColor(BLACK);
+				display.fillRect(0, 50, 90, 128);
+				display.setTextCursor(0, 50);
+				display.print(upper_plate.get_time_remaining());
+				last_refreshed += millis();
+				Serial.println(upper_plate.get_time_remaining());
+			}
 		}
 	}
-	
-	upper_plate.check(millis());
-	backgroundLayer.swapBuffers();
 }

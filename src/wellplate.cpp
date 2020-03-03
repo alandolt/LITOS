@@ -76,7 +76,7 @@ void wellplate::check(unsigned long int time) // 2nd heart, loop through led_arr
 	if (active)
 	{
 		unsigned long int time_ref = time - time_started;
-		int time_remaining = (total_time_experiment - time_ref) / 1000;
+		time_remaining = (total_time_experiment - time_ref) / 1000;
 		/*if (time_restant < 100)
 		{
 			lcd.setCursor(3, 3);
