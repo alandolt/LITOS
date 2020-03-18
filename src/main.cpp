@@ -16,6 +16,9 @@ int buttonState = 0;	  // variable for reading the pushbutton status
 const int buttonPin = 35; // the number of the pushbutton pin
 bool matrix_in_use = false;
 
+int last_value;
+
+
 #define GPIOPINOUT ESP32_FORUM_PINOUT
 #define COLOR_DEPTH 24										  // known working: 24, 48 - If the sketch uses type `rgb24` directly, COLOR_DEPTH must be 24
 const uint8_t kMatrixWidth = 64;							  // known working: 32, 64, 96, 128
@@ -200,12 +203,19 @@ void loop()
 
 			if (millis() - last_refreshed >= 1000)
 			{
-				display.setColor(BLACK);
-				display.fillRect(0, 50, 90, 128);
+				if(upper_plate.get_time_remaining() != last_value)
+				{
+									display.setColor(WHITE);
+
+									display.clear();
+												display.printFixed(0, 0, "Time until", STYLE_BOLD);
+			display.printFixed(0, 20, "fixation", STYLE_BOLD);
 				display.setTextCursor(0, 50);
 				display.print(upper_plate.get_time_remaining());
 				last_refreshed += millis();
-				Serial.println(upper_plate.get_time_remaining());
+				last_value = upper_plate.get_time_remaining();
+				}
+
 			}
 		}
 	}
