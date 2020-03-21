@@ -12,12 +12,9 @@
 #include "struct.h"
 #include "wellplate.h"
 
-int buttonState = 0;	  // variable for reading the pushbutton status
-const int buttonPin = 35; // the number of the pushbutton pin
+#define DEBUG
+
 bool matrix_in_use = false;
-
-int last_value;
-
 
 #define GPIOPINOUT ESP32_FORUM_PINOUT
 #define COLOR_DEPTH 24										  // known working: 24, 48 - If the sketch uses type `rgb24` directly, COLOR_DEPTH must be 24
@@ -42,23 +39,11 @@ int display_heigh = 128;
 unsigned int long last_refreshed = 0;
 
 // here defined as can not access to backgroundlayer in class (extern not working, as type of backgroundLayer is runtime defined by SMARTMATRIX_ALLOCATE_BUFFERS)
-void wellplate::well_col(int index)
-{
-	int size = 1;
-	int x = well_to_x(led_array[index].row);
-	int y = well_to_y(led_array[index].col);
-	backgroundLayer.fillRectangle(x, y, x + size, y + size, rgb24{led_array[index].red, led_array[index].blue, led_array[index].green});
-}
 
-void wellplate::well_black(int index) // well shutoff light for well
+void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
-	int size = 1;
-	int x = well_to_x(led_array[index].row);
-	int y = well_to_y(led_array[index].col);
-	backgroundLayer.fillRectangle(x, y, x + size, y + size, rgb24{0, 0, 0});
+	backgroundLayer.fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
 }
-
-// hier eventuell Vektor mit class well
 
 const char *ssid = "pilatus";
 const char *password = "%Fortress123&";
@@ -69,22 +54,28 @@ wellplate upper_plate;
 void setup()
 {
 
-	pinMode(buttonPin, INPUT);
 	Serial.begin(115200);
 	delay(100);
 	Serial.println("Started");
-	/*
+
 	// Initialize SPIFFS
 	if (!SPIFFS.begin(true))
 	{
 		Serial.println("An Error has occurred while mounting SPIFFS");
 		return;
 	}
+
+	char file[] = "/demo.csv";
+	wellplate main_plate;
+	enum type_wellplate main_plate_type = center_96;
+	main_plate.wellplate_setup(file, main_plate_type);
+
+	/*
+
+	
 	// Connect to Wi-Fi
 
-
 	WiFi.begin(ssid, password);
-
 
 	//WiFi.begin(ssid, password);
 	while (WiFi.status() != WL_CONNECTED)
@@ -120,64 +111,21 @@ void setup()
 
 	// Start server
 	server.begin();
-*/
+
 	// initialize the digital pin as an output.
 	matrix.addLayer(&backgroundLayer);
 	matrix.begin();
 	matrix.setBrightness(defaultBrightness);
-
-	backgroundLayer.fillRectangle(0, 0, matrix.getScreenWidth(), matrix.getScreenHeight(), {0, 0, 0});
-	backgroundLayer.swapBuffers();
 	backgroundLayer.fillScreen({0, 0, 0});
 	backgroundLayer.swapBuffers();
 
-	int timepoint = 0;
-	float exposure = 10;
-
-	NanoEngine16<DisplaySSD1351_128x128x16_SPI> engine(display);
-	display.begin();
-	display.setFixedFont(ssd1306xled_font8x16);
-	display.clear();
-	display.setColor(RGB_COLOR16(255, 0, 0));
-	display.printFixed(0, 8, "Pertz Lab", STYLE_BOLD);
-	display.setColor(RGB_COLOR16(255, 0, 255));
-	display.printFixed(0, 40, "Press button", STYLE_NORMAL);
-	display.printFixed(0, 60, "to start", STYLE_NORMAL);
-
-	/*
-	upper_plate.set_well(1, 2, exposure, 0, 7, 0, 255, 0);
-	upper_plate.set_well(3, 2, exposure, 0, 7, 0, 255, 0);
-	upper_plate.set_well(2, 4, exposure, 1, 7, 0, 255, 0);
-	upper_plate.set_well(2, 5, exposure, 2, 7, 0, 255, 0);
-	upper_plate.set_well(2, 6, exposure, 3, 7, 0, 255, 0);
-
-	*/
-	// week 2
-
-	for (int i = 3; i <= 8; i++) // row
-	{
-		for (int j = 2; j <= 12; j++) // col
-		{
-			upper_plate.set_well(i, j, exposure, timepoint, 7, 0, 255, 0);
-		}
-		timepoint = timepoint + 3;
-	}
-
-	/* Test gleiche Helligkeit
-    for (int j = 2; j <= 12; j++) // col
-    {
-      upper_plate.set_well(1, j, exposure, timepoint, 7, 0, 255, 0);
-    }
-*/
-
-	//upper_plate.begin(millis());
-	//	upper_plate.debug_print_led_array();
-
 	delay(1000);
+	*/
 }
 
 void loop()
 {
+	/*
 
 	if (millis() > 300)
 	{
@@ -188,35 +136,14 @@ void loop()
 		}
 		if (buttonState == LOW and not matrix_in_use)
 		{
-			Serial.print("button pressed");
-			matrix_in_use = true;
-			upper_plate.begin(millis());
-			display.clear();
-			display.printFixed(0, 0, "Time until", STYLE_BOLD);
-			display.printFixed(0, 20, "fixation", STYLE_BOLD);
 		}
 
 		if (matrix_in_use)
 		{
 			upper_plate.check(millis());
 			backgroundLayer.swapBuffers();
-
-			if (millis() - last_refreshed >= 1000)
-			{
-				if(upper_plate.get_time_remaining() != last_value)
-				{
-									display.setColor(WHITE);
-
-									display.clear();
-												display.printFixed(0, 0, "Time until", STYLE_BOLD);
-			display.printFixed(0, 20, "fixation", STYLE_BOLD);
-				display.setTextCursor(0, 50);
-				display.print(upper_plate.get_time_remaining());
-				last_refreshed += millis();
-				last_value = upper_plate.get_time_remaining();
-				}
-
-			}
 		}
 	}
+
+	*/
 }
