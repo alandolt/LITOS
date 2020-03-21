@@ -29,7 +29,10 @@ private:
 
 public:
 	wellplate(); // evtl. offset hineinnehmen
-	void wellplate_setup(char *name_config_file, type_wellplate _type_wellplate);
+	void wellplate_setup_u(char *name_config_file, type_wellplate a_type_wellplate);
+	void wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate);
+	void wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col,
+						 int a_end_well_row, int a_end_well_col);
 
 	int well_to_x(int row);
 	int well_to_y(int col);
@@ -43,7 +46,9 @@ public:
 	int get_time_remaining();
 
 	void what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
-	int letter_to_row(char letter);
+	void start_end_well_col_row(type_wellplate &_type_wellplate);
+
+	int letter_to_row(char &letter);
 
 	int unit_correction(char *ptr);
 };

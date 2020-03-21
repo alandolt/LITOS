@@ -26,14 +26,34 @@ int wellplate::unit_correction(char *ptr)
 	{
 		return 86400;
 	}
+	if (ptr[0] == 'w' || ptr[0] == 'W')
+	{
+		return 604800;
+	}
+
 	return 1;
 }
 
-void wellplate::wellplate_setup(char *name_config_file, type_wellplate _type_wellplate)
+void wellplate::wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate)
 {
-#ifdef DEBUG
-	Serial.println("in wellplate_setup");
-#endif
+	start_end_well_col_row(_type_wellplate);
+	wellplate_setup_u(name_config_file, a_type_wellplate);
+}
+
+void wellplate::wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col, int a_end_well_row, int a_end_well_col)
+{
+	start_well_col = a_start_well_col;
+	start_well_row = a_start_well_row;
+	end_well_row = a_end_well_row;
+	end_well_col = a_end_well_col;
+	wellplate_setup_u(name_config_file, a_type_wellplate);
+}
+
+void wellplate::wellplate_setup_u(char *name_config_file, type_wellplate a_type_wellplate)
+{
+
+	_type_wellplate = a_type_wellplate;
+
 	byte buffer_size = 200;
 	char buffer[buffer_size];
 	File file = SPIFFS.open(name_config_file);
@@ -62,26 +82,16 @@ void wellplate::wellplate_setup(char *name_config_file, type_wellplate _type_wel
 		{
 			file.readBytesUntil('\n', buffer, buffer_size);
 			first_line = false;
-#ifdef DEBUG
-			Serial.println("first line");
-			Serial.println(buffer);
-#endif
 		}
 		else
 		{
 
 			byte length = file.readBytesUntil('\n', buffer, buffer_size);
 			buffer[length] = 0;
-
-			if (isAlpha(buffer[strlen(buffer) - 1]))
+			if (isAlpha(buffer[strlen(buffer) - 2]))
 			{
 				last_cycle_defined = true;
-
-#ifdef DEBUG
-				Serial.println("last cycle_defined");
-#endif
 			}
-			last_cycle_defined = true;
 
 			ptr = strtok(buffer, delimiter); //what
 			strcpy(_well.what, ptr);
@@ -101,43 +111,17 @@ void wellplate::wellplate_setup(char *name_config_file, type_wellplate _type_wel
 
 			ptr = strtok(NULL, delimiter); //repeat_every
 			unsigned int repeat_every = atoi(ptr);
-#ifdef DEBUG
-			Serial.println("\n in repeat_every: ");
-			Serial.print(ptr);
-#endif
+
 			ptr = strtok(NULL, delimiter); //repeat_every unit
 			_well.repeat_every = repeat_every * unit_correction(ptr);
-#ifdef DEBUG
-			Serial.println("\n in repeat_every_unit: ");
-			Serial.print(ptr);
-#endif
 
 			if (last_cycle_defined)
 			{
 				ptr = strtok(NULL, delimiter); //last_cycle
 				unsigned int last_cycle = atoi(ptr);
 
-#ifdef DEBUG
-				Serial.println("\n last cycle: ");
-				Serial.print(ptr);
-#endif
 				ptr = strtok(NULL, delimiter); //last_cycle unit
 				_well.start_last_cycle = last_cycle * unit_correction(ptr);
-
-#ifdef DEBUG
-				Serial.println("\n last cycle unit: ");
-				Serial.print(ptr);
-#endif
-
-#ifdef DEBUG
-				ptr = strtok(NULL, delimiter); //n cycle
-				Serial.println("\n cycle_number: ");
-				Serial.print(ptr);
-
-				ptr = strtok(NULL, delimiter); //n cycle
-				Serial.println("\n sollte error geben: ");
-				Serial.print(ptr);
-#endif
 
 				_well.total_cycle = (_well.start_last_cycle - _well.start) / (_well.repeat_every + _well.stimulation_time) + 1;
 			}
@@ -180,8 +164,6 @@ void wellplate::wellplate_setup(char *name_config_file, type_wellplate _type_wel
 			}
 
 			well_vector.push_back(_well);
-
-			Serial.println("\n");
 		}
 	}
 
@@ -207,13 +189,7 @@ void wellplate::wellplate_setup(char *name_config_file, type_wellplate _type_wel
 		Serial.print(", ");
 		Serial.print((*iter).blue);
 		Serial.print(", ");
-		Serial.print((*iter).cycle_count);
-		Serial.print(", ");
 		Serial.print((*iter).total_cycle);
-		Serial.print(", ");
-		Serial.print((*iter).running);
-		Serial.print(", ");
-		Serial.print((*iter).finished);
 	}
 
 #endif
@@ -298,7 +274,7 @@ int wellplate::get_time_remaining()
 	return time_remaining;
 }
 
-int wellplate::letter_to_row(char letter)
+int wellplate::letter_to_row(char &letter)
 {
 	int row;
 	switch (letter)
@@ -331,6 +307,28 @@ int wellplate::letter_to_row(char letter)
 	return row;
 }
 
+void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
+{
+	// falls nicht via User defined
+	switch (_type_wellplate)
+	{
+	case upper_96:
+		start_well_col = 2;
+		start_well_row = 2;
+		end_well_col = 11;
+		end_well_row = 7;
+		break;
+	default:
+		start_well_col = 1;
+		start_well_row = 1;
+		end_well_col = 12;
+		end_well_row = 8;
+
+		Serial.println("standard");
+		break;
+	}
+}
+
 void wellplate::what_switch(char *what, uint8_t r, uint8_t g, uint8_t b)
 {
 	char first_char = what[0];
@@ -342,36 +340,76 @@ void wellplate::what_switch(char *what, uint8_t r, uint8_t g, uint8_t b)
 
 		if (first_char == 'P') // Pixel definition
 		{
+			char *pEnd = strtok(&what[0] + 3, "_,;");
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_,;");
+			y = atoi(pEnd);
+
+			well_col(x, y, r, g, b);
+
+#ifdef DEBUG
+			Serial.print("pixel defined, x: ");
+			Serial.print(x);
+			Serial.print(", y: ");
+			Serial.print(y);
+			Serial.println("");
+#endif
 		}
 
 		else if (strlen(what) == 1) // only row defined
 		{
 			row = letter_to_row(first_char);
 			x = well_to_x(row);
-			for (int i = 1; i <= 12; i++)
+			for (int i = start_well_col; i <= end_well_col; i++)
 			{
+				col = i;
 				y = well_to_y(i);
 				well_col(x, y, r, g, b);
+#ifdef DEBUG
+				Serial.print("only row defined: col: ");
+				Serial.print(col);
+				Serial.print(", row: ");
+				Serial.print(row);
+				Serial.println("");
+
+#endif
 			}
 		}
 		else // individual well defined, like A04 or B4 or C12
 		{
 			row = letter_to_row(first_char);
-			//col = (what.substring(1)).toInt();
 			col = strtol(&what[0] + 1, NULL, 10);
 			x = well_to_x(row);
 			y = well_to_y(col);
 			well_col(x, y, r, g, b);
+#ifdef DEBUG
+			Serial.print("ind defined: ");
+			Serial.print("col: ");
+			Serial.print(col);
+			Serial.print(", row: ");
+			Serial.print(row);
+			Serial.println("");
+#endif
 		}
 	}
 	else if (isDigit(first_char)) // only col defined
 	{
-		col = strtol(&what[0] + 1, NULL, 10);
+		col = strtol(&what[0], NULL, 10);
 		y = well_to_y(col);
-		for (int i = 1; i <= 8; i++)
+		for (int i = start_well_row; i <= end_well_row; i++)
 		{
+			row = i;
 			x = well_to_x(i);
 			well_col(x, y, r, g, b);
+#ifdef DEBUG
+			Serial.print("Only col defined: ");
+			Serial.print("col: ");
+			Serial.print(col);
+			Serial.print(", row: ");
+			Serial.print(row);
+			Serial.println("");
+
+#endif
 		}
 	}
 }

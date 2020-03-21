@@ -69,6 +69,29 @@ void setup()
 	wellplate main_plate;
 	enum type_wellplate main_plate_type = center_96;
 	main_plate.wellplate_setup(file, main_plate_type);
+	char test1[15] = "A1";
+	main_plate.what_switch(test1, 255, 0, 0);
+	Serial.println("\n");
+
+	char test2[] = "A2";
+	main_plate.what_switch(test2, 255, 0, 0);
+	Serial.println("\n");
+
+	char test3[] = "A3";
+	main_plate.what_switch(test3, 255, 0, 0);
+	Serial.println("\n");
+
+	char test4[] = "5";
+	main_plate.what_switch(test4, 255, 0, 0);
+	Serial.println("\n");
+
+	char test5[] = "Px 20,42";
+	main_plate.what_switch(test5, 255, 0, 0);
+	Serial.println("\n");
+
+	char test6[] = "Px_20_42";
+	main_plate.what_switch(test6, 255, 0, 0);
+	Serial.println("\n");
 
 	/*
 
