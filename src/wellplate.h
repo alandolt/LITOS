@@ -53,4 +53,8 @@ public:
 	int unit_correction(char *ptr);
 };
 
+//two plates on one matrix
+extern wellplate upper_plate;
+extern wellplate lower_plate;
+
 #endif

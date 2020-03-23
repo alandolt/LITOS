@@ -1,6 +1,5 @@
 #include <Arduino.h>
 
-
 #include <SmartMatrix3.h>
 
 #include <SPI.h>
@@ -8,52 +7,43 @@
 
 #include "init_webserver.h"
 #include "struct.h"
-#include "wellplate.h"
-#include "init_matrix.h"
-#include "init_display.h"
+
+//#include "wellplate.h"
+//#include "init_matrix.h"
+
+//#include "init_display.h"
 
 #define DEBUG
 
 bool matrix_in_use = false;
+//AsyncWebServer server(80);
 
-wellplate upper_plate;
 
 void setup()
 {
 
 	Serial.begin(115200);
 	delay(100);
-	Serial.println("Started");
-
-	// Initialize SPIFFS
-
 
 	init_wlan();
 	init_webserver();
 
-	char file[] = "/demo.csv";
-	wellplate main_plate;
-	enum type_wellplate main_plate_type = center_96;
-	main_plate.wellplate_setup(file, main_plate_type);
+/*
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", "ts World!");
+    });
 
+	    server.begin();
+
+/*
 	matrix.addLayer(&backgroundLayer);
 	matrix.begin();
 	matrix.setBrightness(defaultBrightness);
 	backgroundLayer.fillScreen({0, 0, 0});
 	backgroundLayer.swapBuffers();
 
-	File root = SPIFFS.open("/");
-
-	File datei = root.openNextFile();
-
-	while (datei)
-	{
-
-		Serial.print("FILE: ");
-		Serial.println(datei.name());
-
-		datei = root.openNextFile();
-	}
+	*/
+	Serial.println("Started");
 }
 
 void loop()

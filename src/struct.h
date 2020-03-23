@@ -29,12 +29,12 @@ typedef struct color_struct
 
 enum type_wellplate : byte
 {
-  center_96,
-  upper_96,
-  lower_96,
-  corner_96,
-  center_24,
-  center_12
+  center_96 = 1,
+  upper_96 = 2,
+  lower_96 = 3,
+  corner_96 = 4,
+  center_24 = 5,
+  center_12 = 6
 };
 
 #endif

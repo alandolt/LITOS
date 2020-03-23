@@ -3,6 +3,9 @@
 
 #define DEBUG
 
+wellplate upper_plate;
+wellplate lower_plate;
+
 wellplate::wellplate()
 {
 }

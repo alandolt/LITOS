@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+	<h1>Upload page</h1>
+	<div>
+
+		<form method='POST' action='/upload' enctype='multipart/form-data' name='upload'>
+			<input type='file' name='file'>
+			<input type='submit' value='Upload'>
+		</form>
+
+		<form method='POST' action='/select_programm' name='select_config'>
+			<label for="select_config"></label>
+			<select id="select_config" name="select_config">
+			</select>
+
+			<label for="select_wellplate"></label>
+			<select id="select_wellplate" name="select_wellplate">
+				<option value="1">96 Well plate (center)</option>
+				<option value="2">96 Well plate (upper plate)</option>
+				<option value="3">96 Well plate (lower plate)</option>
+				<option value="4">96 Well plate (corner)</option>
+				<option value="5">24 well plate (center)</option>
+				<option value="6">12 well palte (center)</option>
+			</select>
+
+		</form>
+
+
+	</div>
+</body>
+
+</html>
