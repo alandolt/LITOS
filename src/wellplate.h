@@ -2,9 +2,8 @@
 #define WELLPLATE_H
 #include <Arduino.h>
 #include <vector>
-#include "struct.h"
 
-#include <lcdgfx.h>
+#include "struct.h"
 
 class wellplate
 {
@@ -16,7 +15,9 @@ private:
 
 	type_wellplate _type_wellplate;
 
-	bool active = false;
+	bool started = false;
+	bool finished = false;
+	bool illumination_in_process;
 
 	unsigned long int time_started; // time when we start with illumination
 	float max_exposure;
@@ -25,13 +26,16 @@ private:
 	std::vector<well> well_vector;
 	std::vector<well>::iterator iter;
 	int time_remaining;
+	int number_of_wells;
+	int number_of_finished_wells;
 	int size_of_illumination;
 
 public:
 	wellplate(); // evtl. offset hineinnehmen
-	void wellplate_setup_u(char *name_config_file, type_wellplate a_type_wellplate);
-	void wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate);
-	void wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col,
+	void init_wellpalte();
+	void wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate);
+	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate);
+	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col,
 						 int a_end_well_row, int a_end_well_col);
 
 	int well_to_x(int row);
@@ -41,8 +45,9 @@ public:
 	void well_black(int x, int y);											  // will shutoff light for well
 
 	void begin(unsigned int long act_time);
-	void check(unsigned long int time); //loop through led_array to check if well should be illuminated or not.
+	bool check(unsigned long int time); //loop through led_array to check if well should be illuminated or not.
 	bool is_active();
+	bool prog_finished();
 	int get_time_remaining();
 
 	void what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);

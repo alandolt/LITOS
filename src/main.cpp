@@ -1,72 +1,43 @@
 #include <Arduino.h>
+#include <SPIFFS.h>
 
-#include <SmartMatrix3.h>
-
-#include <SPI.h>
-#include <lcdgfx.h>
-
+#include "save_restore_config.h"
 #include "init_webserver.h"
-#include "struct.h"
+#include "wellplate.h"
+#include "init_matrix.h"
+#include "init_display.h"
+#include "button.h"
 
-//#include "wellplate.h"
-//#include "init_matrix.h"
-
-//#include "init_display.h"
-
-#define DEBUG
-
-bool matrix_in_use = false;
-//AsyncWebServer server(80);
-
+unsigned long int current_time;
 
 void setup()
 {
-
-	Serial.begin(115200);
 	delay(100);
+	Serial.begin(115200);
+	SPIFFS.begin();
 
-	init_wlan();
-	init_webserver();
+	config.load_configuration();
+	upper_plate.init_wellpalte();
 
-/*
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, "text/plain", "ts World!");
-    });
+	//init_wlan();
+	//init_webserver();
+	//init_matrix();
 
-	    server.begin();
-
-/*
-	matrix.addLayer(&backgroundLayer);
-	matrix.begin();
-	matrix.setBrightness(defaultBrightness);
-	backgroundLayer.fillScreen({0, 0, 0});
-	backgroundLayer.swapBuffers();
-
-	*/
-	Serial.println("Started");
+	//matrix_on();
+	display.fill(RGB_COLOR16(255, 0, 0));
 }
 
 void loop()
 {
+	current_time = millis();
+
 	/*
-
-	if (millis() > 300)
-	{
-		if (not matrix_in_use)
-		{
-			buttonState = digitalRead(buttonPin);
-			delay(200);
-		}
-		if (buttonState == LOW and not matrix_in_use)
-		{
-		}
-
-		if (matrix_in_use)
-		{
-			upper_plate.check(millis());
-			backgroundLayer.swapBuffers();
-		}
+	if (upper_plate.check(current_time) | lower_plate.check(current_time))
+	{ 
+		matrix_on();
 	}
-
-	*/
+	else
+	{
+		matrix_off();
+	}*/
 }

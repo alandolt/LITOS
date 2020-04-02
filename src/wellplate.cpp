@@ -1,5 +1,9 @@
 #include "wellplate.h"
-#include "SPIFFS.h"
+
+#include <SPIFFS.h>
+
+#include "save_restore_config.h"
+#include "init_matrix.h"
 
 #define DEBUG
 
@@ -8,6 +12,11 @@ wellplate lower_plate;
 
 wellplate::wellplate()
 {
+}
+
+void wellplate::init_wellpalte()
+{
+	wellplate_setup(config.get_last_config_file(), config.get_last_wellplate());
 }
 
 int wellplate::unit_correction(char *ptr)
@@ -38,13 +47,13 @@ int wellplate::unit_correction(char *ptr)
 	return 1;
 }
 
-void wellplate::wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate)
+void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate)
 {
 	start_end_well_col_row(_type_wellplate);
 	wellplate_setup_u(name_config_file, a_type_wellplate);
 }
 
-void wellplate::wellplate_setup(char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col, int a_end_well_row, int a_end_well_col)
+void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col, int a_end_well_row, int a_end_well_col)
 {
 	start_well_col = a_start_well_col;
 	start_well_row = a_start_well_row;
@@ -53,7 +62,7 @@ void wellplate::wellplate_setup(char *name_config_file, type_wellplate a_type_we
 	wellplate_setup_u(name_config_file, a_type_wellplate);
 }
 
-void wellplate::wellplate_setup_u(char *name_config_file, type_wellplate a_type_wellplate)
+void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
 
 	_type_wellplate = a_type_wellplate;
@@ -68,7 +77,6 @@ void wellplate::wellplate_setup_u(char *name_config_file, type_wellplate a_type_
 	char *ptr;
 
 	well _well;
-	bool color_keyword_defined;
 	char color_string[13];
 
 	if (!file)
@@ -151,6 +159,12 @@ void wellplate::wellplate_setup_u(char *name_config_file, type_wellplate a_type_
 					_well.blue = 255;
 					_well.green = 0;
 				}
+				else if (strcmp(color_string, "GREEN") == 0)
+				{
+					_well.red = 0;
+					_well.blue = 0;
+					_well.green = 255;
+				}
 			}
 			else
 			{
@@ -172,6 +186,7 @@ void wellplate::wellplate_setup_u(char *name_config_file, type_wellplate a_type_
 	}
 
 	file.close();
+	number_of_wells = well_vector.size();
 
 #ifdef DEBUG
 	for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
@@ -212,13 +227,14 @@ int wellplate::well_to_y(int col)
 void wellplate::begin(unsigned int long act_time) // called when experiment should start
 {
 	time_started = act_time;
-	active = true;
+	started = true;
 }
 
-void wellplate::check(unsigned long int time)
+bool wellplate::check(unsigned long int time)
 {
-	if (active)
+	if (started && !finished)
 	{
+		illumination_in_process = false;
 		unsigned long int time_ref = time - time_started;
 		time_remaining = (total_time_experiment - time_ref) / 1000;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
@@ -233,6 +249,7 @@ void wellplate::check(unsigned long int time)
 					what_switch((*iter).what, (*iter).red, (*iter).blue, (*iter).green);
 					(*iter).running = true;
 					(*iter).cycle_count++;
+					illumination_in_process = true;
 #ifdef DEBUG
 					Serial.println("");
 					Serial.print((*iter).what);
@@ -253,6 +270,7 @@ void wellplate::check(unsigned long int time)
 					if ((*iter).cycle_count >= (*iter).total_cycle)
 					{
 						(*iter).finished = true;
+						number_of_finished_wells += 1;
 					}
 #ifdef DEBUG
 					Serial.println("");
@@ -265,12 +283,20 @@ void wellplate::check(unsigned long int time)
 				}
 			}
 		}
+		ref_backgroundLayer().swapBuffers();
 	}
+	finished = (number_of_wells - number_of_finished_wells == 0);
+	return illumination_in_process;
 }
 
-bool wellplate::is_active()
+bool wellplate::is_active() // wird glaubs nicht mehr benötigt
 {
-	return active;
+	return started;
+}
+
+bool wellplate::prog_finished()
+{
+	return finished;
 }
 
 int wellplate::get_time_remaining()
@@ -280,7 +306,7 @@ int wellplate::get_time_remaining()
 
 int wellplate::letter_to_row(char &letter)
 {
-	int row;
+	int row = 0;
 	switch (letter)
 	{
 	case 'A':
@@ -327,8 +353,6 @@ void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
 		start_well_row = 1;
 		end_well_col = 12;
 		end_well_row = 8;
-
-		Serial.println("standard");
 		break;
 	}
 }
@@ -416,4 +440,10 @@ void wellplate::what_switch(char *what, uint8_t r, uint8_t g, uint8_t b)
 #endif
 		}
 	}
+}
+
+void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b) // here defined as can not access to backgroundlayer in class (extern not working, as type of backgroundLayer is runtime defined by SMARTMATRIX_ALLOCATE_BUFFERS)
+
+{
+	ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
 }

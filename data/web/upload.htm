@@ -13,8 +13,8 @@
 		<form method='POST' action='/select_programm' name='select_config'>
 			<label for="select_config"></label>
 			<select id="select_config" name="select_config">
+				%LIST_FILES%
 			</select>
-
 			<label for="select_wellplate"></label>
 			<select id="select_wellplate" name="select_wellplate">
 				<option value="1">96 Well plate (center)</option>
@@ -24,6 +24,19 @@
 				<option value="5">24 well plate (center)</option>
 				<option value="6">12 well palte (center)</option>
 			</select>
+			<br>
+
+			<h2>Offset</h2>
+			<label for="frow">First row:</label>
+			<input type="text" id="frow" name="frow"><br>
+			<label for="lrow">Last row:</label>
+			<input type="text" id="lrow" name="lrow"><br>
+			<label for="fcol">First column:</label>
+			<input type="text" id="fcol" name="fcol"><br>
+			<label for="lcolumn">Last column row:</label>
+			<input type="text" id="lcolumn" name="lcolumn"><br>
+
+			<input type='submit' value='Start'>
 
 		</form>
 
