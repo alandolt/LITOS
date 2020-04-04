@@ -7,6 +7,8 @@
 
 #include "struct.h"
 #include "wellplate.h"
+#include "init_display.h"
+#include "save_restore_config.h"
 static AsyncWebServer server(80);
 
 void init_webserver()
@@ -39,7 +41,7 @@ void init_webserver()
                 Serial.println((String) "UploadEnd: " + filename + ",size: " + index + len);
                 // close the file handle as the upload is now done
                 request->_tempFile.close();
-                request->redirect("/upload.htm");
+                request->redirect("/");
             }
         });
 
@@ -51,9 +53,11 @@ void init_webserver()
             strcpy(config_file, request->getParam("select_config", true)->value().c_str());
             select_wellplate_int = request->getParam("select_wellplate", true)->value().toInt();
             type_wellplate upper = type_wellplate(select_wellplate_int); // hier noch unterscheiden ob upper/ lower
-
-            plate_A.wellplate_setup(config_file, upper);
-            request->redirect("/upload.htm");
+            config.set_last_config_file(config_file, false);
+            config.set_last_wellplate(upper, true);
+            plate_A.wellplate_setup();
+            draw_home();
+            request->redirect("/");
         }
     });
 
@@ -91,14 +95,19 @@ String processor(const String &var)
     {
         File root = SPIFFS.open("/conf");
         File file = root.openNextFile();
-        char string_files[1500];
+        char string_files[2000];
         char file_name[35];
+        char file_buffer[150];
+        string_files[0] = '\0';
         while (file)
         {
             strcpy(file_name, file.name());
-            sprintf(string_files, "<option value=\'%s\'>%s</option>", file_name, &file_name[0] + 6);
+            Serial.println(file_name);
+            sprintf(file_buffer, "<option value=\'%s\'>%s</option>", file_name, &file_name[0] + 6);
+            strcat(string_files, file_buffer);
             file = root.openNextFile();
         }
+        Serial.println(string_files);
         return (string_files);
     }
 

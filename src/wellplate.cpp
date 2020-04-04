@@ -46,6 +46,13 @@ int wellplate::unit_correction(char *ptr)
 	return 1;
 }
 
+void wellplate::wellplate_setup()
+{
+	_type_wellplate = config.get_last_wellplate();
+	start_end_well_col_row(_type_wellplate);
+	wellplate_setup_u(config.get_last_config_file(), config.get_last_wellplate());
+}
+
 void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate)
 {
 	start_end_well_col_row(_type_wellplate);

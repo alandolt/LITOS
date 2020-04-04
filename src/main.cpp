@@ -18,18 +18,14 @@ void setup()
 	SPIFFS.begin();
 
 	config.load_configuration();
-	plate_A.init_wellpalte();
-
 	init_wlan();
 	init_webserver();
 	init_matrix();
 	init_display();
-
-	plate_A.begin(millis());
 }
 void loop()
 {
-	//	ArduinoOTA.handle();
+	//ArduinoOTA.handle();
 	current_time = millis();
 
 	switch (screen)
