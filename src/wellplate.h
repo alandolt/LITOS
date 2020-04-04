@@ -15,6 +15,7 @@ private:
 
 	type_wellplate _type_wellplate;
 
+	bool init = true;
 	bool started = false;
 	bool finished = false;
 	bool illumination_in_process;
@@ -25,7 +26,7 @@ private:
 	unsigned long int total_time_experiment;
 	std::vector<well> well_vector;
 	std::vector<well>::iterator iter;
-	int time_remaining;
+	unsigned long int time_remaining;
 	int number_of_wells;
 	int number_of_finished_wells;
 	int size_of_illumination;
@@ -38,15 +39,15 @@ public:
 	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col,
 						 int a_end_well_row, int a_end_well_col);
 
-	int well_to_x(int row);
-	int well_to_y(int col);
+	int well_to_x(int col);
+	int well_to_y(int row);
 
 	void well_col(int x, int y, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0); // will illuminate well
 	void well_black(int x, int y);											  // will shutoff light for well
 
 	void begin(unsigned int long act_time);
 	bool check(unsigned long int time); //loop through led_array to check if well should be illuminated or not.
-	bool is_active();
+	bool has_started();
 	bool prog_finished();
 	int get_time_remaining();
 
@@ -59,7 +60,7 @@ public:
 };
 
 //two plates on one matrix
-extern wellplate upper_plate;
-extern wellplate lower_plate;
+extern wellplate plate_A;
+extern wellplate plate_B;
 
 #endif

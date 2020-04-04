@@ -33,9 +33,11 @@ public:
     void set_last_config_file(const char *_last_config_file, bool update_config);
     void set_last_wellplate(int last_wellplate, bool update_config);
 
+    const bool get_acess_point();
     const char *get_ssid();
     const type_wellplate get_last_wellplate();
     const char *get_last_config_file();
+    const char *get_last_config_filename();
 };
 
 extern save_restore_config config;

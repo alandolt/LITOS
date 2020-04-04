@@ -118,6 +118,11 @@ const char *save_restore_config::get_ssid()
     return _config.ssid;
 }
 
+const bool save_restore_config::get_acess_point()
+{
+    return _config.access_point;
+}
+
 const type_wellplate save_restore_config::get_last_wellplate()
 {
     return type_wellplate(_config.last_wellplate);
@@ -125,4 +130,12 @@ const type_wellplate save_restore_config::get_last_wellplate()
 const char *save_restore_config::get_last_config_file()
 {
     return _config.last_config_file;
+}
+
+const char *save_restore_config::get_last_config_filename()
+{
+    char *ptr = _config.last_config_file;
+    ptr[strlen(ptr) - 4] = '\0';
+    ptr = &ptr[0] + 6;
+    return ptr;
 }

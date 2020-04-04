@@ -2,7 +2,6 @@
 
 #include <SPIFFS.h>
 
-#include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -53,7 +52,7 @@ void init_webserver()
             select_wellplate_int = request->getParam("select_wellplate", true)->value().toInt();
             type_wellplate upper = type_wellplate(select_wellplate_int); // hier noch unterscheiden ob upper/ lower
 
-            upper_plate.wellplate_setup(config_file, upper);
+            plate_A.wellplate_setup(config_file, upper);
             request->redirect("/upload.htm");
         }
     });

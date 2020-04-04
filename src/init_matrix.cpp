@@ -4,9 +4,10 @@
 
 #define GPIOPINOUT ESP32_FORUM_PINOUT
 
-const int defaultBrightness = (10 * 255) / 100; // (10%) brightness
+const int defaultBrightness = (50 * 255) / 100; // (10%) brightness
 const byte led_matrix_pins[] = {12, 13, 14, 16, 17, 19, 21, 22, 25, 26, 27, 32, 33};
 const byte led_matrix_mosfet = 4;
+static bool is_matrix_on;
 
 const uint8_t kMatrixWidth = 64;                              // known working: 32, 64, 96, 128
 const uint8_t kMatrixHeight = 32;                             // known working: 16, 32, 48, 64
@@ -35,6 +36,8 @@ void init_matrix()
     backgroundLayer.swapBuffers();
 
     digitalWrite(led_matrix_mosfet, LOW);
+    matrix_off();
+    is_matrix_on = false;
 }
 
 void matrix_off()
@@ -44,7 +47,11 @@ void matrix_off()
     {
         pinMode(led_matrix_pins[i], INPUT);
     }*/
-    digitalWrite(led_matrix_mosfet, LOW);
+    if (is_matrix_on)
+    {
+        digitalWrite(led_matrix_mosfet, LOW);
+        is_matrix_on = false;
+    }
 }
 
 void matrix_on()
@@ -54,13 +61,9 @@ void matrix_on()
     {
         pinMode(led_matrix_pins[i], INPUT);
     }*/
-    digitalWrite(led_matrix_mosfet, HIGH);
-#ifdef DEBUG
-    backgroundLayer.fillRectangle(2, 2, 4, 4, {0, 100, 0});
-    backgroundLayer.swapBuffers();
-    delay(7000);
-    backgroundLayer.fillScreen({100, 0, 0});
-
-    backgroundLayer.swapBuffers();
-#endif
+    if (!is_matrix_on)
+    {
+        digitalWrite(led_matrix_mosfet, HIGH);
+        is_matrix_on = true;
+    }
 }
