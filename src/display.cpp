@@ -1,6 +1,6 @@
-#include "init_display.h"
+#include "display.h"
 
-#include "init_webserver.h"
+#include "wifi_webserver.h"
 #include "save_restore_config.h"
 #include "wellplate.h"
 
@@ -111,7 +111,7 @@ void update_status_A_screen()
     }
 }
 
-void draw_button(const char *button_name, byte button_pos, int correction)
+void draw_button(const char *button_name, uint8_t button_pos, int correction)
 {
     int space_between = display.width() / 5;
     display.fillCircle((button_pos)*space_between, 120, 4, CYAN);

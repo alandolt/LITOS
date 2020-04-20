@@ -1,7 +1,7 @@
 {
     "port": 80,
     "access_point": false,
-    "hotname": "LIGHTOS",
+    "hostname": "LIGHT.OS",
     "ssid": "pilatus",
     "wlan_password": "%Fortress123&",
     "last_config_file": "/conf/demo.csv",

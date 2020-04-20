@@ -1,5 +1,5 @@
-#ifndef INIT_MATRIX
-#define INIT_MATRIX
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <SmartMatrix3.h>
 

@@ -16,6 +16,7 @@ private:
         char hostname[64];
         int port;
         char last_config_file[35];
+        char last_config_filename[35];
         byte last_wellplate;
     } struct_config;
 

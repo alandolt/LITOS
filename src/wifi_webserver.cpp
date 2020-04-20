@@ -1,4 +1,4 @@
-#include "init_webserver.h"
+#include "wifi_webserver.h"
 
 #include <SPIFFS.h>
 
@@ -7,7 +7,7 @@
 
 #include "struct.h"
 #include "wellplate.h"
-#include "init_display.h"
+#include "display.h"
 #include "save_restore_config.h"
 static AsyncWebServer server(80);
 
@@ -48,6 +48,7 @@ void init_webserver()
     server.on("/select_programm", HTTP_POST, [](AsyncWebServerRequest *request) {
         if (request->hasParam("select_config", true) && request->hasParam("select_wellplate", true))
         {
+            Serial.println("test");
             char config_file[35];
             int select_wellplate_int;
             strcpy(config_file, request->getParam("select_config", true)->value().c_str());
@@ -102,12 +103,10 @@ String processor(const String &var)
         while (file)
         {
             strcpy(file_name, file.name());
-            Serial.println(file_name);
             sprintf(file_buffer, "<option value=\'%s\'>%s</option>", file_name, &file_name[0] + 6);
             strcat(string_files, file_buffer);
             file = root.openNextFile();
         }
-        Serial.println(string_files);
         return (string_files);
     }
 

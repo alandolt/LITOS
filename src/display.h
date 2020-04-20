@@ -1,5 +1,5 @@
-#ifndef INIT_DISPLAY
-#define INIT_DISPLAY
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 #define BLACK 0x0000
 #define BLUE 0x001F

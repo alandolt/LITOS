@@ -3,11 +3,12 @@
 
 #include "init_ota.h"
 #include "save_restore_config.h"
-#include "init_webserver.h"
+#include "wifi_webserver.h"
 #include "wellplate.h"
-#include "init_matrix.h"
-#include "init_display.h"
+#include "matrix.h"
+#include "display.h"
 #include "button.h"
+#include "buzzer.h"
 
 unsigned long int current_time;
 
@@ -18,10 +19,14 @@ void setup()
 	SPIFFS.begin();
 
 	config.load_configuration();
+
 	init_wlan();
 	init_webserver();
 	init_matrix();
 	init_display();
+
+	buzzer.init_buzzer();
+	plate_A.init_wellpalte();
 }
 void loop()
 {
@@ -50,4 +55,6 @@ void loop()
 	{
 		matrix_off();
 	}
+
+	buzzer.check_beep(current_time);
 }

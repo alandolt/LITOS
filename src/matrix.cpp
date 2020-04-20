@@ -1,4 +1,4 @@
-#include "init_matrix.h"
+#include "matrix.h"
 #define DEBUG
 #define COLOR_DEPTH 24
 

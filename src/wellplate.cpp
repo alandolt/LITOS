@@ -3,8 +3,10 @@
 #include <SPIFFS.h>
 
 #include "save_restore_config.h"
-#include "init_matrix.h"
-#include "init_display.h"
+#include "matrix.h"
+#include "display.h"
+
+#define DEBUG
 
 wellplate plate_A;
 wellplate plate_B;
@@ -91,7 +93,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		return;
 	}
 
-	bool first_line = false;
+	bool first_line = true;
 	while (file.available())
 	{
 
@@ -106,12 +108,27 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 			byte length = file.readBytesUntil('\n', buffer, buffer_size);
 			buffer[length] = '\0';
+
+			if (buffer[0] == ';' || (buffer[0] == ';' && buffer[1] == ';') || (buffer[3] == ';' && buffer[4] == ';'))
+			{
+#ifdef DEBUG
+				Serial.println("empty lines detected");
+#endif
+				goto end_of_file;
+			}
 			if (isAlpha(buffer[strlen(buffer) - 2]))
 			{
 				last_cycle_defined = true;
+#ifdef DEBUG
+				Serial.println("last cycle defined");
+#endif
 			}
-
 			ptr = strtok(buffer, delimiter); //what
+
+			/*if (isAlpha(buffer[strlen(buffer) - 2]))
+			{
+				last_cycle_defined = true;
+			}*/
 
 			uint8_t i_is_alpha_num = 0;
 			uint8_t j_index = 0;
@@ -173,19 +190,19 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			// color interpretation
 			if (isAlpha(color_string[0]))
 			{
-				if (strcmp(color_string, "RED") == 0)
+				if (strcasecmp(color_string, "RED") == 0)
 				{
 					_well.red = 255;
 					_well.blue = 0;
 					_well.green = 0;
 				}
-				else if (strcmp(color_string, "BLUE") == 0)
+				else if (strcasecmp(color_string, "BLUE") == 0)
 				{
 					_well.red = 0;
 					_well.blue = 255;
 					_well.green = 0;
 				}
-				else if (strcmp(color_string, "GREEN") == 0)
+				else if (strcasecmp(color_string, "GREEN") == 0)
 				{
 					_well.red = 0;
 					_well.blue = 0;
@@ -209,7 +226,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			well_vector.push_back(_well);
 		}
 	}
-
+end_of_file:
 	file.close();
 	number_of_wells = well_vector.size();
 
@@ -232,7 +249,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 #ifdef DEBUG
 	for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 	{
-		Serial.println("");
+		Serial.println("content");
 		Serial.print((*iter).what);
 		Serial.print(", ");
 		Serial.print((*iter).start);
@@ -248,7 +265,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		Serial.print((*iter).green);
 		Serial.print(", ");
 		Serial.print((*iter).blue);
-		Serial.print("finished: ");
+		Serial.print(", finished: ");
 		Serial.print((*iter).finished);
 		Serial.print(", ");
 		Serial.println((*iter).total_cycle);
@@ -444,7 +461,11 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 	int x, y;
 	if (isAlpha(first_char))
 	{
-		if (first_char == 'P') // Pixel definition
+		if (first_char == 'W' || first_char == 'w') // whole plate
+		{
+			ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+		}
+		if (first_char == 'P' || first_char == 'p') // Pixel definition
 		{
 			char *pEnd = strtok(&what[0] + 3, "_,;");
 			x = atoi(pEnd);

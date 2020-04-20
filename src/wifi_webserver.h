@@ -1,5 +1,5 @@
-#ifndef INIT_WEBSERVER
-#define INIT_WEBSERVER
+#ifndef WIFI_WEBSERVER_H
+#define WIFI_WEBSERVER_H
 #include <Arduino.h>
 #include <WiFi.h>
 

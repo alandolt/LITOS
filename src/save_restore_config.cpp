@@ -22,13 +22,22 @@ void save_restore_config::load_configuration()
     strlcpy(_config.hostname, doc["hostname"] | "LIGHTOS", sizeof(_config.hostname));
     strlcpy(_config.ssid, doc["ssid"], sizeof(_config.ssid));
     strlcpy(_config.wlan_password, doc["wlan_password"], sizeof(_config.wlan_password));
-    strlcpy(_config.last_config_file, doc["last_config_file"] | "/demo.csv", sizeof(_config.hostname));
-
+    strlcpy(_config.last_config_file, doc["last_config_file"] | "/demo.csv", sizeof(_config.last_config_file));
     file.close();
+
+    int file_length = strlen(_config.last_config_file);
+
+    for (uint8_t i = 6; i <= file_length; i++)
+    {
+        char c = _config.last_config_file[i];
+        _config.last_config_filename[i - 6] = c;
+    }
+    _config.last_config_filename[file_length - 10] = '\0';
 }
 
 void save_restore_config::save_configuration()
 {
+    Serial.println("save invoked");
     SPIFFS.remove(config_file);
 
     File file = SPIFFS.open(config_file, FILE_WRITE);
@@ -134,8 +143,5 @@ const char *save_restore_config::get_last_config_file()
 
 const char *save_restore_config::get_last_config_filename()
 {
-    char *ptr = _config.last_config_file;
-    ptr[strlen(ptr) - 4] = '\0';
-    ptr = &ptr[0] + 6;
-    return ptr;
+    return _config.last_config_filename;
 }
