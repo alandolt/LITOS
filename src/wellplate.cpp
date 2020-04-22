@@ -8,17 +8,19 @@
 
 #define DEBUG
 
-wellplate plate_A;
-wellplate plate_B;
+wellplate plate_A('A');
+wellplate plate_B('B');
 
-wellplate::wellplate()
+wellplate::wellplate(const char _identifier)
+	: identifier(_identifier)
 {
 }
-
-void wellplate::init_wellpalte()
+/*
+void wellplate::init_wellplate() deprecated
 {
-	wellplate_setup(config.get_last_config_file(), config.get_last_wellplate());
-}
+
+	wellplate_setup();
+}*/
 
 int wellplate::unit_correction(char *ptr)
 {
@@ -48,14 +50,14 @@ int wellplate::unit_correction(char *ptr)
 	return 1;
 }
 
-void wellplate::wellplate_setup()
+void wellplate::wellplate_setup() // default file from config
 {
-	_type_wellplate = config.get_last_wellplate();
+	_type_wellplate = config.get_last_wellplate(identifier);
 	start_end_well_col_row(_type_wellplate);
-	wellplate_setup_u(config.get_last_config_file(), config.get_last_wellplate());
+	wellplate_setup_u(config.get_last_config_file(identifier), config.get_last_wellplate(identifier));
 }
 
-void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate)
+void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate) // given file
 {
 	start_end_well_col_row(_type_wellplate);
 	wellplate_setup_u(name_config_file, a_type_wellplate);
@@ -72,9 +74,12 @@ void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_t
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
-
+	init = true;
+	started = false;
+	finished = false;
 	_type_wellplate = a_type_wellplate;
 	size_of_illumination = 1;
+	well_vector.clear();
 
 	byte buffer_size = 200;
 	char buffer[buffer_size];
@@ -217,10 +222,10 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				_well.red = atoi(ptr_color_string);
 
 				ptr_color_string = strtok(NULL, delim_color);
-				_well.blue = atoi(ptr_color_string);
+				_well.green = atoi(ptr_color_string);
 
 				ptr_color_string = strtok(NULL, delim_color);
-				_well.green = atoi(ptr_color_string);
+				_well.blue = atoi(ptr_color_string);
 			}
 
 			well_vector.push_back(_well);
@@ -239,12 +244,13 @@ end_of_file:
 			total_time_experiment = temp_longest;
 		}
 	}
+	draw_home();
 
-	if (!init)
+	/*	if (!init)
 	{
 		draw_home();
 	}
-	init = false;
+	init = false;*/
 
 #ifdef DEBUG
 	for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
@@ -288,6 +294,33 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 	case two_96_B:
 		return 3 * col + 33;
 		break;
+	case one_48_center:
+		return 4.3 * col + 11.6;
+		break;
+	case two_48_A:
+		return 4.5 * col - 0.4;
+		break;
+	case two_48_B:
+		return 4.5 * col + 30;
+		break;
+	case one_24_center:
+		return 6.2 * col + 10;
+		break;
+	case two_24_A:
+		return 6.2 * col + 1;
+		break;
+	case two_24_B:
+		return 6.2 * col + 32;
+		break;
+	case one_12_center:
+		return 8.5 * col + 11;
+		break;
+	case two_12_A:
+		return 8.5 * col - 1;
+		break;
+	case two_12_B:
+		return 8.5 * col + 30;
+		break;
 	default:
 		return 3 * col + 12;
 		break;
@@ -304,6 +337,27 @@ int wellplate::well_to_y(int row)
 	case two_96_A:
 	case two_96_B:
 		return -3 * row + 34;
+		break;
+	case one_48_center:
+		return 4.3 * row - 1;
+		break;
+	case two_48_A:
+	case two_48_B:
+		return -4.5 * row + 34;
+		break;
+	case one_24_center:
+		return 6.2 * row;
+		break;
+	case two_24_A:
+	case two_24_B:
+		return -6.2 * row + 38;
+		break;
+	case one_12_center:
+		return 8.5 * row - 1;
+		break;
+	case two_12_A:
+	case two_12_B:
+		return -8.5 * row + 36;
 		break;
 	default:
 		return 3 * row + 1;
@@ -343,7 +397,7 @@ bool wellplate::check(unsigned long int time)
 					Serial.print(": ");
 					Serial.print("aktiv");
 #endif
-					what_switch(((*iter).what), (*iter).red, (*iter).blue, (*iter).green);
+					what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
 					(*iter).running = true;
 					(*iter).cycle_count++;
 				}
@@ -377,7 +431,7 @@ bool wellplate::check(unsigned long int time)
 			}
 		}
 
-		ref_backgroundLayer().swapBuffers();
+		//ref_backgroundLayer().swapBuffers(); deprecated as now, refresh is done in main loop
 		finished = (number_of_wells - number_of_finished_wells == 0);
 	}
 	return illumination_in_process;
@@ -434,21 +488,20 @@ int wellplate::letter_to_row(char &letter)
 void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
 {
 	// falls nicht via User defined
-	switch (_type_wellplate)
+	if (_type_wellplate > 100)
 	{
-	case two_96_A:
-	case two_96_B:
+
 		start_well_col = 2;
 		start_well_row = 2;
 		end_well_col = 11;
 		end_well_row = 7;
-		break;
-	default:
+	}
+	else
+	{
 		start_well_col = 1;
 		start_well_row = 1;
 		end_well_col = 12;
 		end_well_row = 8;
-		break;
 	}
 }
 
@@ -463,7 +516,18 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 	{
 		if (first_char == 'W' || first_char == 'w') // whole plate
 		{
-			ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+			if (_type_wellplate < 100)
+			{
+				ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+			}
+			else if (_type_wellplate > 150) // lower wellplate
+			{
+				ref_backgroundLayer().fillRectangle(35, 0, 63, 31, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
+			}
+			else
+			{
+				ref_backgroundLayer().fillRectangle(1, 0, 30, 31, rgb24{r, g, b});
+			}
 		}
 		if (first_char == 'P' || first_char == 'p') // Pixel definition
 		{
@@ -486,28 +550,41 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		else if (strlen(what) == 1) // only row defined
 		{
 			row = letter_to_row(first_char);
-			y = well_to_y(row);
-			for (int i = start_well_col; i <= end_well_col; i++)
-			{
-				col = i;
-				x = well_to_x(i);
-				well_col(x, y, r, g, b);
-#ifdef DEBUG
-				Serial.print("only row defined: col: ");
-				Serial.print(col);
-				Serial.print(", row: ");
-				Serial.print(row);
-				Serial.println("");
 
-#endif
+			if (_type_wellplate > 100)
+			{
+				x = well_to_x(row);
+				for (int i = start_well_col; i <= end_well_col; i++)
+				{
+					y = well_to_y(i);
+					well_col(x, y, r, g, b);
+				}
+			}
+			else
+			{
+				y = well_to_y(row);
+				for (int i = start_well_col; i <= end_well_col; i++)
+				{
+					x = well_to_x(i);
+					well_col(x, y, r, g, b);
+				}
 			}
 		}
 		else // individual well defined, like A04 or B4 or C12
 		{
 			row = letter_to_row(first_char);
 			col = strtol(&what[0] + 1, NULL, 10);
-			x = well_to_x(col);
-			y = well_to_y(row);
+			if (_type_wellplate > 100)
+			{
+				x = well_to_x(row);
+				y = well_to_y(col);
+			}
+			else
+			{
+				x = well_to_x(col);
+				y = well_to_y(row);
+			}
+
 			well_col(x, y, r, g, b);
 #ifdef DEBUG
 			Serial.print("ind defined: ");
@@ -522,27 +599,40 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 	else if (isDigit(first_char)) // only col defined
 	{
 		col = strtol(&what[0], NULL, 10);
-		x = well_to_x(col);
-		for (int i = start_well_row; i <= end_well_row; i++)
-		{
-			row = i;
-			y = well_to_y(i);
-			well_col(x, y, r, g, b);
-#ifdef DEBUG
-			Serial.print("Only col defined: ");
-			Serial.print("col: ");
-			Serial.print(col);
-			Serial.print(", row: ");
-			Serial.print(row);
-			Serial.println("");
 
-#endif
+		if (_type_wellplate > 100)
+		{
+			y = well_to_y(col);
+			for (int i = start_well_row; i <= end_well_row; i++)
+			{
+				x = well_to_x(i);
+				well_col(x, y, r, g, b);
+			}
+		}
+		else
+		{
+			x = well_to_x(col);
+			for (int i = start_well_row; i <= end_well_row; i++)
+			{
+				y = well_to_y(i);
+				well_col(x, y, r, g, b);
+			}
 		}
 	}
 }
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
-
 {
 	ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+}
+
+void wellplate::abort_program()
+{
+	ref_backgroundLayer().fillScreen(rgb24{0, 0, 0});
+	wellplate_setup();
+}
+
+const char wellplate::get_identifier()
+{
+	return identifier;
 }

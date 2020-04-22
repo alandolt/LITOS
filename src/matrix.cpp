@@ -43,10 +43,10 @@ void init_matrix()
 void matrix_off()
 {
     //Thomas verwendet input, ich glaube pull down wäre besser, muss getestet werden
-    /*for (byte i = 0; i < 13; i++)
+    for (byte i = 0; i < 13; i++)
     {
         pinMode(led_matrix_pins[i], INPUT);
-    }*/
+    }
     if (is_matrix_on)
     {
         digitalWrite(led_matrix_mosfet, LOW);
@@ -57,10 +57,10 @@ void matrix_off()
 void matrix_on()
 {
     //Thomas verwendet input, ich glaube pull down wäre besser, muss getestet werden
-    /*for (byte i = 0; i < 13; i++)
+    for (byte i = 0; i < 13; i++)
     {
         pinMode(led_matrix_pins[i], INPUT);
-    }*/
+    }
     if (!is_matrix_on)
     {
         digitalWrite(led_matrix_mosfet, HIGH);

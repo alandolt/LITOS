@@ -4,6 +4,8 @@
     "hostname": "LIGHT.OS",
     "ssid": "pilatus",
     "wlan_password": "%Fortress123&",
-    "last_config_file": "/conf/demo.csv",
-    "last_wellplate": 1
+    "last_config_file_A": "/conf/plate_A.csv",
+    "last_wellplate_A": 101,
+    "last_config_file_B": "/conf/plate_B.csv",
+    "last_wellplate_B": 151
 }

@@ -48,16 +48,15 @@ void init_webserver()
     server.on("/select_programm", HTTP_POST, [](AsyncWebServerRequest *request) {
         if (request->hasParam("select_config", true) && request->hasParam("select_wellplate", true))
         {
-            Serial.println("test");
+            // hier noch alles machen für A und B
             char config_file[35];
             int select_wellplate_int;
             strcpy(config_file, request->getParam("select_config", true)->value().c_str());
             select_wellplate_int = request->getParam("select_wellplate", true)->value().toInt();
             type_wellplate upper = type_wellplate(select_wellplate_int); // hier noch unterscheiden ob upper/ lower
-            config.set_last_config_file(config_file, false);
-            config.set_last_wellplate(upper, true);
+            config.set_last_config_file(config_file, 'A');
+            config.set_last_wellplate(upper, 'A', true);
             plate_A.wellplate_setup();
-            draw_home();
             request->redirect("/");
         }
     });

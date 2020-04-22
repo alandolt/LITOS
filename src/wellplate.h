@@ -8,6 +8,7 @@
 class wellplate
 {
 private:
+	const char identifier;
 	byte start_well_row;
 	byte start_well_col;
 	byte end_well_row;
@@ -32,8 +33,8 @@ private:
 	int size_of_illumination;
 
 public:
-	wellplate(); // evtl. offset hineinnehmen
-	void init_wellpalte();
+	wellplate(const char _identifier); // evtl. offset hineinnehmen
+	//void init_wellplate();
 	void wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup();
@@ -58,6 +59,10 @@ public:
 	int letter_to_row(char &letter);
 
 	int unit_correction(char *ptr);
+
+	void abort_program();
+
+	const char get_identifier();
 };
 
 //two plates on one matrix

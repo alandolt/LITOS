@@ -19,20 +19,32 @@ void save_restore_config::load_configuration()
     deserializeJson(doc, bufferedFile);
     _config.port = doc["port"] | 80;
     _config.access_point = doc["access_point"] | true;
+    _config.last_wellplate_A = doc["last_wellplate_A"] | 1;
+    _config.last_wellplate_B = doc["last_wellplate_B"] | 1;
     strlcpy(_config.hostname, doc["hostname"] | "LIGHTOS", sizeof(_config.hostname));
     strlcpy(_config.ssid, doc["ssid"], sizeof(_config.ssid));
     strlcpy(_config.wlan_password, doc["wlan_password"], sizeof(_config.wlan_password));
-    strlcpy(_config.last_config_file, doc["last_config_file"] | "/demo.csv", sizeof(_config.last_config_file));
+    strlcpy(_config.last_config_file_A, doc["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
+    strlcpy(_config.last_config_file_B, doc["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
     file.close();
 
-    int file_length = strlen(_config.last_config_file);
+    int file_length = strlen(_config.last_config_file_A);
 
     for (uint8_t i = 6; i <= file_length; i++)
     {
-        char c = _config.last_config_file[i];
-        _config.last_config_filename[i - 6] = c;
+        char c = _config.last_config_file_A[i];
+        _config.last_config_filename_A[i - 6] = c;
     }
-    _config.last_config_filename[file_length - 10] = '\0';
+    _config.last_config_filename_A[file_length - 10] = '\0';
+
+    file_length = strlen(_config.last_config_file_B);
+
+    for (uint8_t i = 6; i <= file_length; i++)
+    {
+        char c = _config.last_config_file_B[i];
+        _config.last_config_filename_B[i - 6] = c;
+    }
+    _config.last_config_filename_B[file_length - 10] = '\0';
 }
 
 void save_restore_config::save_configuration()
@@ -54,8 +66,10 @@ void save_restore_config::save_configuration()
     doc["wlan_password"] = _config.wlan_password;
     doc["hostname"] = _config.hostname;
     doc["port"] = _config.port;
-    doc["last_config_file"] = _config.last_config_file;
-    doc["last_wellplate"] = _config.last_wellplate;
+    doc["last_config_file_A"] = _config.last_config_file_A;
+    doc["last_wellplate_A"] = _config.last_wellplate_A;
+    doc["last_config_file_B"] = _config.last_config_file_B;
+    doc["last_wellplate_B"] = _config.last_wellplate_B;
 
     if (serializeJson(doc, file) == 0)
     {
@@ -105,17 +119,32 @@ void save_restore_config::set_port(int _port, bool update_config)
         save_configuration();
     }
 }
-void save_restore_config::set_last_config_file(const char *_last_config_file, bool update_config)
+void save_restore_config::set_last_config_file(const char *_last_config_file, const char identifier, bool update_config)
 {
-    strcpy(_config.last_config_file, _last_config_file);
+    if (identifier == 'A')
+    {
+        strcpy(_config.last_config_file_A, _last_config_file);
+    }
+    else if (identifier == 'B')
+    {
+        strcpy(_config.last_config_file_B, _last_config_file);
+    }
+
     if (update_config)
     {
         save_configuration();
     }
 }
-void save_restore_config::set_last_wellplate(int last_wellplate, bool update_config)
+void save_restore_config::set_last_wellplate(int last_wellplate, const char identifier, bool update_config)
 {
-    _config.last_wellplate = last_wellplate;
+    if (identifier == 'A')
+    {
+        _config.last_wellplate_A = last_wellplate;
+    }
+    else if (identifier == 'B')
+    {
+        _config.last_wellplate_B = last_wellplate;
+    }
     if (update_config)
     {
         save_configuration();
@@ -132,16 +161,40 @@ const bool save_restore_config::get_acess_point()
     return _config.access_point;
 }
 
-const type_wellplate save_restore_config::get_last_wellplate()
+const type_wellplate save_restore_config::get_last_wellplate(const char identifier)
 {
-    return type_wellplate(_config.last_wellplate);
+    if (identifier == 'A')
+    {
+        return type_wellplate(_config.last_wellplate_A);
+    }
+    else if (identifier == 'B')
+    {
+        return type_wellplate(_config.last_wellplate_B);
+    }
+    return type_wellplate(_config.last_wellplate_A);
 }
-const char *save_restore_config::get_last_config_file()
+const char *save_restore_config::get_last_config_file(const char identifier)
 {
-    return _config.last_config_file;
+    if (identifier == 'A')
+    {
+        return _config.last_config_file_A;
+    }
+    else if (identifier == 'B')
+    {
+        return _config.last_config_file_B;
+    }
+    return _config.last_config_file_A;
 }
 
-const char *save_restore_config::get_last_config_filename()
+const char *save_restore_config::get_last_config_filename(const char identifier)
 {
-    return _config.last_config_filename;
+    if (identifier == 'A')
+    {
+        return _config.last_config_filename_A;
+    }
+    else if (identifier == 'B')
+    {
+        return _config.last_config_filename_B;
+    }
+    return _config.last_config_filename_A;
 }
