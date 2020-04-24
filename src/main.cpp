@@ -34,6 +34,7 @@ void setup()
 void loop()
 {
 	//ArduinoOTA.handle();
+	ref_DNSServer().processNextRequest();
 	current_time = millis();
 
 	switch (screen)
@@ -86,6 +87,8 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
+		break;
+	case setup_screen:
 		break;
 	}
 

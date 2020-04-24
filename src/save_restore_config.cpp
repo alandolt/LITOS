@@ -14,18 +14,30 @@ save_restore_config::save_restore_config(const char *_config_file)
 void save_restore_config::load_configuration()
 {
     File file = SPIFFS.open(config_file);
-    StaticJsonDocument<500> doc;
+    StaticJsonDocument<2000> doc;
     ReadBufferingStream bufferedFile(file, 64);
     deserializeJson(doc, bufferedFile);
-    _config.port = doc["port"] | 80;
-    _config.access_point = doc["access_point"] | true;
-    _config.last_wellplate_A = doc["last_wellplate_A"] | 1;
-    _config.last_wellplate_B = doc["last_wellplate_B"] | 1;
-    strlcpy(_config.hostname, doc["hostname"] | "LIGHTOS", sizeof(_config.hostname));
-    strlcpy(_config.ssid, doc["ssid"], sizeof(_config.ssid));
-    strlcpy(_config.wlan_password, doc["wlan_password"], sizeof(_config.wlan_password));
-    strlcpy(_config.last_config_file_A, doc["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
-    strlcpy(_config.last_config_file_B, doc["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
+
+    _config.port = doc["webserver"]["port"] | 80;
+    strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LIGHTOS", sizeof(_config.hostname));
+
+    strlcpy(_config.ssid, doc["wlan_connect"]["ssid"], sizeof(_config.ssid));
+    strlcpy(_config.wlan_password, doc["wlan_connect"]["wlan_password"], sizeof(_config.wlan_password));
+
+    _config.is_AP = doc["AP_mode"]["is_AP"] | false;
+    _config.AP_password_protected = doc["AP_mode"]["AP_password_protected"] | false;
+    strlcpy(_config.AP_ssid, doc["AP_mode"]["AP_ssid"], sizeof(_config.AP_ssid));
+    strlcpy(_config.AP_password, doc["AP_mode"]["AP_password"], sizeof(_config.AP_password));
+
+    _config.is_EAP = doc["EAP_mode"]["is_EAP"] | false;
+    strlcpy(_config.EAP_identity, doc["EAP_mode"]["EAP_identity"], sizeof(_config.EAP_identity));
+    strlcpy(_config.EAP_password, doc["EAP_mode"]["EAP_password"], sizeof(_config.EAP_password));
+
+    _config.last_wellplate_A = doc["wellplate_settings"]["last_wellplate_A"] | 1;
+    _config.last_wellplate_B = doc["wellplate_settings"]["last_wellplate_B"] | 1;
+    strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
+    strlcpy(_config.last_config_file_B, doc["wellplate_settings"]["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
+
     file.close();
 
     int file_length = strlen(_config.last_config_file_A);
@@ -59,17 +71,32 @@ void save_restore_config::save_configuration()
         Serial.println(F("Failed to create file"));
         return;
     }
-    StaticJsonDocument<500> doc;
+    StaticJsonDocument<2000> doc;
+    JsonObject webserver = doc.createNestedObject("webserver");
+    JsonObject wlan_connect = doc.createNestedObject("wlan_connect");
+    JsonObject AP_mode = doc.createNestedObject("AP_mode");
+    JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
+    JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
 
-    doc["access_point"] = _config.access_point;
-    doc["ssid"] = _config.ssid;
-    doc["wlan_password"] = _config.wlan_password;
-    doc["hostname"] = _config.hostname;
-    doc["port"] = _config.port;
-    doc["last_config_file_A"] = _config.last_config_file_A;
-    doc["last_wellplate_A"] = _config.last_wellplate_A;
-    doc["last_config_file_B"] = _config.last_config_file_B;
-    doc["last_wellplate_B"] = _config.last_wellplate_B;
+    webserver["port"] = _config.port;
+    webserver["hostname"] = _config.hostname;
+
+    wlan_connect["ssid"] = _config.ssid;
+    wlan_connect["wlan_password"] = _config.wlan_password;
+
+    AP_mode["is_AP"] = _config.is_AP;
+    AP_mode["AP_password_protected"] = _config.AP_password_protected;
+    AP_mode["AP_ssid"] = _config.AP_ssid;
+    AP_mode["AP_password"] = _config.AP_password;
+
+    EAP_mode["is_EAP"] = _config.is_EAP;
+    EAP_mode["EAP_identity"] = _config.EAP_identity;
+    EAP_mode["EAP_password"] = _config.EAP_password;
+
+    wellplate_settings["last_config_file_A"] = _config.last_config_file_A;
+    wellplate_settings["last_wellplate_A"] = _config.last_wellplate_A;
+    wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
+    wellplate_settings["last_wellplate_B"] = _config.last_wellplate_B;
 
     if (serializeJson(doc, file) == 0)
     {
@@ -79,9 +106,9 @@ void save_restore_config::save_configuration()
     file.close();
 }
 
-void save_restore_config::set_access_point(const char *_access_point, bool update_config)
+void save_restore_config::set_is_AP(bool is_AP, bool update_config)
 {
-    _config.access_point = _access_point;
+    _config.is_AP = is_AP;
     if (update_config)
     {
         save_configuration();
@@ -111,14 +138,55 @@ void save_restore_config::set_hostname(const char *_hostname, bool update_config
         save_configuration();
     }
 }
-void save_restore_config::set_port(int _port, bool update_config)
+void save_restore_config::set_is_EAP(bool is_EAP, bool update_config)
 {
-    _config.port = _port;
+    _config.is_EAP = is_EAP;
     if (update_config)
     {
         save_configuration();
     }
 }
+void save_restore_config::set_EAP_identity(const char *EAP_identity, bool update_config)
+{
+    strcpy(_config.EAP_identity, EAP_identity);
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+void save_restore_config::set_EAP_password(const char *EAP_password, bool update_config)
+{
+    strcpy(_config.EAP_password, EAP_password);
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+void save_restore_config::set_AP_password(const char *AP_password, bool update_config)
+{
+    strcpy(_config.AP_password, AP_password);
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+void save_restore_config::set_AP_password_protected(const bool password_protected, bool update_config)
+{
+    _config.AP_password_protected = password_protected;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+void save_restore_config::set_AP_ssid(const char *AP_ssid, bool update_config)
+{
+    strcpy(_config.AP_ssid, AP_ssid);
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
 void save_restore_config::set_last_config_file(const char *_last_config_file, const char identifier, bool update_config)
 {
     if (identifier == 'A')
@@ -151,14 +219,56 @@ void save_restore_config::set_last_wellplate(int last_wellplate, const char iden
     }
 }
 
+void save_restore_config::set_ip(const char *ip)
+{
+    strcpy(_config.ip, ip);
+}
+
 const char *save_restore_config::get_ssid()
 {
     return _config.ssid;
 }
-
-const bool save_restore_config::get_acess_point()
+const char *save_restore_config::get_wlan_password()
 {
-    return _config.access_point;
+    return _config.wlan_password;
+}
+
+const char *save_restore_config::get_ip()
+{
+    return _config.ip;
+}
+
+const bool save_restore_config::get_is_AP()
+{
+    return _config.is_AP;
+}
+const bool save_restore_config::get_AP_password_protected()
+{
+    return _config.AP_password_protected;
+}
+const char *save_restore_config::get_AP_password()
+{
+    return _config.AP_password;
+}
+const char *save_restore_config::get_AP_ssid()
+{
+    return _config.AP_ssid;
+}
+const char *save_restore_config::get_hostname()
+{
+    return _config.hostname;
+}
+const bool save_restore_config::get_is_EAP()
+{
+    return _config.is_EAP;
+}
+const char *save_restore_config::get_EAP_identity()
+{
+    return _config.EAP_identity;
+}
+const char *save_restore_config::get_EAP_password()
+{
+    return _config.EAP_password;
 }
 
 const type_wellplate save_restore_config::get_last_wellplate(const char identifier)

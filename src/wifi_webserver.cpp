@@ -1,15 +1,22 @@
 #include "wifi_webserver.h"
 
 #include <SPIFFS.h>
-
+#include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <esp_wpa2.h>
 
 #include "struct.h"
 #include "wellplate.h"
 #include "display.h"
 #include "save_restore_config.h"
 static AsyncWebServer server(80);
+static DNSServer dnsServer;
+
+extern DNSServer &ref_DNSServer()
+{
+    return dnsServer;
+}
 
 void init_webserver()
 {
@@ -66,27 +73,74 @@ void init_webserver()
 
 void init_wlan()
 {
-    const char ssid[] = "pilatus";
-    const char password[] = "%Fortress123&";
-    WiFi.begin(ssid, password);
-    byte connection_count = 0;
-
-    while (WiFi.status() != WL_CONNECTED)
+    if (config.get_is_AP())
     {
-        if (connection_count > 5)
-        {
-            ESP.restart();
-        }
-        else
-        {
-            delay(1000);
-            Serial.println("Connecting to WiFi..");
-            connection_count++;
-        }
+        init_AP_mode();
     }
+    else
+    {
+        uint8_t connection_count = 0;
 
-    // Print ESP32 Local IP Address
-    Serial.println(WiFi.localIP());
+        if (config.get_is_EAP())
+        {
+            esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); //provide identity
+            esp_wifi_sta_wpa2_ent_set_username((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); //provide username --> identity and username is same
+            esp_wifi_sta_wpa2_ent_set_password((uint8_t *)config.get_EAP_password(), strlen(config.get_EAP_password())); //provide password
+            esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();                                                       //set config settings to default
+            esp_wifi_sta_wpa2_ent_enable(&config);                                                                       //set config settings to enable function
+        }
+
+        while (WiFi.status() != WL_CONNECTED)
+        {
+            WiFi.disconnect(true);
+            WiFi.mode(WIFI_STA);
+
+            if (config.get_is_EAP())
+            {
+                WiFi.begin("eduroam");
+            }
+            else
+            {
+                WiFi.begin(config.get_ssid(), config.get_wlan_password());
+            }
+
+            if (connection_count > 7)
+            {
+                init_AP_mode();
+                return;
+                // ESP.restart();
+            }
+            else
+            {
+                Serial.println("Connecting to WiFi..");
+                connection_count++;
+                delay(1000);
+            }
+        }
+        config.set_ip(WiFi.localIP().toString().c_str());
+        Serial.println(WiFi.localIP());
+    }
+}
+
+void init_AP_mode()
+{
+    const byte DNS_PORT = 53;
+    const IPAddress apIP(192, 168, 1, 1);
+    //const IPAddress apIP(8, 8, 8, 8);
+
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    if (config.get_AP_password_protected())
+    {
+        WiFi.softAP(config.get_AP_ssid(), config.get_AP_password());
+    }
+    else
+    {
+        WiFi.softAP(config.get_AP_ssid());
+    }
+    dnsServer.start(DNS_PORT, "*", apIP);
 }
 
 String processor(const String &var)

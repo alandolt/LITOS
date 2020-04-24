@@ -1,6 +1,5 @@
 #include "display.h"
 
-#include "wifi_webserver.h"
 #include "save_restore_config.h"
 #include "wellplate.h"
 #include "buzzer.h"
@@ -29,12 +28,13 @@ void draw_home()
     display.print("LITOS");
     display.fillRect(0, 20, 128, 4, YELLOW);
 
-    if (config.get_acess_point())
+    if (config.get_is_AP())
     {
         display.setTextColor(WHITE);
         display.setCursor(5, 50);
         display.setTextSize(1);
-        display.print("AP mode, SSID:");
+        display.print("AP, ssid: ");
+        display.print(config.get_AP_ssid());
     }
     else
     {
@@ -43,7 +43,7 @@ void draw_home()
         display.setTextSize(1);
         display.print("IP: ");
         display.setTextColor(WHITE);
-        display.print(WiFi.localIP());
+        display.print(config.get_ip());
     }
     display.setCursor(5, 50);
     display.setTextColor(RED);

@@ -1,11 +1,27 @@
 {
-    "port": 80,
-    "access_point": false,
-    "hostname": "LIGHT.OS",
-    "ssid": "pilatus",
-    "wlan_password": "%Fortress123&",
-    "last_config_file_A": "/conf/plate_A.csv",
-    "last_wellplate_A": 101,
-    "last_config_file_B": "/conf/plate_B.csv",
-    "last_wellplate_B": 151
+    "webserver": {
+        "port": 80,
+        "hostname": "LITOS"
+    },
+    "wlan_connect": {
+        "ssid": "pilatus",
+        "wlan_password": "%Fortress123&"
+    },
+    "AP_mode": {
+        "is_AP": false,
+        "AP_password_protected": false,
+        "AP_ssid": "LITOS",
+        "AP_password": "demo"
+    },
+    "EAP_mode": {
+        "is_EAP": false,
+        "EAP_identity": "",
+        "EAP_password": ""
+    },
+    "wellplate_settings": {
+        "last_config_file_A": "/conf/plate_A.csv",
+        "last_wellplate_A": 101,
+        "last_config_file_B": "/conf/plate_B.csv",
+        "last_wellplate_B": 151
+    }
 }
