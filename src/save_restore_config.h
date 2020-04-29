@@ -33,6 +33,8 @@ private:
         char last_config_file_B[35];
         char last_config_filename_B[35];
         byte last_wellplate_B;
+
+        int file_count_spiffs;
     } struct_config;
 
     struct_config _config;
@@ -41,6 +43,9 @@ public:
     save_restore_config(const char *_config_file);
     void load_configuration();
     void save_configuration();
+    void calc_file_count_spiffs();
+
+    int get_file_count_spiffs();
 
     void set_is_AP(bool is_AP, bool update_config);
     void set_ssid(const char *_ssid, bool update_config);

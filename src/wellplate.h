@@ -37,9 +37,11 @@ public:
 	//void init_wellplate();
 	void wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate);
+	void wellplate_setup(const char *name_config_file, int a_type_wellplate);
+
 	void wellplate_setup();
-	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col,
-						 int a_end_well_row, int a_end_well_col);
+	void wellplate_setup(const char *name_config_file, int a_type_wellplate, char a_start_well_row, int a_start_well_col,
+						 char a_end_well_row, int a_end_well_col);
 
 	int well_to_x(int col);
 	int well_to_y(int row);

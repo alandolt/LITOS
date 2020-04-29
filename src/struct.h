@@ -29,7 +29,7 @@ typedef struct color_struct
 
 } color_struct;
 
-enum type_wellplate : byte
+enum type_wellplate : uint8_t
 { // upper wellplates are from 101-150
   // lower wellpaltes from 151-200
   // center plates from 1-50

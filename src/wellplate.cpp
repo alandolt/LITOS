@@ -15,12 +15,6 @@ wellplate::wellplate(const char _identifier)
 	: identifier(_identifier)
 {
 }
-/*
-void wellplate::init_wellplate() deprecated
-{
-
-	wellplate_setup();
-}*/
 
 int wellplate::unit_correction(char *ptr)
 {
@@ -62,14 +56,19 @@ void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_t
 	start_end_well_col_row(_type_wellplate);
 	wellplate_setup_u(name_config_file, a_type_wellplate);
 }
+void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellplate) // given file
+{
+	start_end_well_col_row(_type_wellplate);
+	wellplate_setup_u(name_config_file, type_wellplate(a_type_wellplate));
+}
 
-void wellplate::wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate, int a_start_well_row, int a_start_well_col, int a_end_well_row, int a_end_well_col)
+void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellplate, char a_start_well_row, int a_start_well_col, char a_end_well_row, int a_end_well_col)
 {
 	start_well_col = a_start_well_col;
-	start_well_row = a_start_well_row;
-	end_well_row = a_end_well_row;
+	start_well_row = letter_to_row(a_start_well_row);
+	end_well_row = letter_to_row(a_end_well_row);
 	end_well_col = a_end_well_col;
-	wellplate_setup_u(name_config_file, a_type_wellplate);
+	wellplate_setup_u(name_config_file, type_wellplate(a_type_wellplate));
 }
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)

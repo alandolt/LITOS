@@ -26,15 +26,20 @@ void setup()
 	init_display();
 
 	buzzer.init_buzzer();
-	//plate_A.init_wellplate(); deprecated
 	plate_A.wellplate_setup();
-	//plate_B.init_wellplate();
 	plate_B.wellplate_setup();
+
+	String test;
+	test = "";
+	//generate_file_list_response(test);
 }
 void loop()
 {
 	//ArduinoOTA.handle();
-	ref_DNSServer().processNextRequest();
+	if (config.get_is_AP())
+	{
+		ref_DNSServer().processNextRequest();
+	}
 	current_time = millis();
 
 	switch (screen)

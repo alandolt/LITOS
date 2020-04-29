@@ -57,6 +57,8 @@ void save_restore_config::load_configuration()
         _config.last_config_filename_B[i - 6] = c;
     }
     _config.last_config_filename_B[file_length - 10] = '\0';
+
+    calc_file_count_spiffs();
 }
 
 void save_restore_config::save_configuration()
@@ -104,6 +106,25 @@ void save_restore_config::save_configuration()
     }
 
     file.close();
+}
+
+void save_restore_config::calc_file_count_spiffs()
+{
+    int file_count = 0;
+    File root = SPIFFS.open("/conf");
+    File file = root.openNextFile();
+    while (file)
+    {
+        file_count++;
+        file = root.openNextFile();
+    }
+
+    _config.file_count_spiffs = file_count;
+}
+
+int save_restore_config::get_file_count_spiffs()
+{
+    return _config.file_count_spiffs;
 }
 
 void save_restore_config::set_is_AP(bool is_AP, bool update_config)
