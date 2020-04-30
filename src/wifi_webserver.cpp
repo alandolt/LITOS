@@ -10,6 +10,7 @@
 #include "wellplate.h"
 #include "display.h"
 #include "save_restore_config.h"
+
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/litosws");
 static DNSServer dnsServer;
@@ -21,6 +22,16 @@ extern DNSServer &ref_DNSServer()
 
 void init_webserver()
 {
+	//server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+
+	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+		// Send File
+		AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/w/index.htm", "text/plain");
+		request->send(response);
+	});
+
+	//server.serveStatic("/", SPIFFS, "/w/index.html");
+	/*
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/web/upload.htm", String(), false, processor);
 		response->addHeader("Server", "Async Web Server");
@@ -28,7 +39,7 @@ void init_webserver()
 	});
 	/*server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/web/upload.htm", "text/html");
-    });*/
+    });
 
 	server.on(
 		"/upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200); },
@@ -67,7 +78,7 @@ void init_webserver()
 			plate_A.wellplate_setup();
 			request->redirect("/");
 		}
-	});
+	});*/
 
 	ws.onEvent(onWsEvent);
 	server.addHandler(&ws);
