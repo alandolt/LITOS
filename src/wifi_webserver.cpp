@@ -22,25 +22,11 @@ extern DNSServer &ref_DNSServer()
 
 void init_webserver()
 {
-	//server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
 
-	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		// Send File
-		AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/w/index.htm", "text/plain");
-		request->send(response);
-	});
-
-	//server.serveStatic("/", SPIFFS, "/w/index.html");
+	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+	server.serveStatic("/js/", SPIFFS, "/js/");
+	server.serveStatic("/favicon.ico", SPIFFS, "/favicon.png");
 	/*
-	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/web/upload.htm", String(), false, processor);
-		response->addHeader("Server", "Async Web Server");
-		request->send(response);
-	});
-	/*server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/web/upload.htm", "text/html");
-    });
-
 	server.on(
 		"/upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200); },
 		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
