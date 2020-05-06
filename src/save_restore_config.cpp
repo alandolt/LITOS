@@ -59,6 +59,21 @@ void save_restore_config::load_configuration()
     _config.last_config_filename_B[file_length - 10] = '\0';
 
     calc_file_count_spiffs();
+
+    _config.file_list[0] = '\0';
+    File root_folder = SPIFFS.open("/conf");
+    file = root_folder.openNextFile();
+    while (file)
+    {
+        strcat(_config.file_list, file.name());
+        strcat(_config.file_list, ",");
+        file.close();
+        file = root_folder.openNextFile();
+    }
+    file.close();
+    root_folder.close();
+    _config.file_list[strlen(_config.file_list)] = '\0';
+    Serial.println(_config.file_list);
 }
 
 void save_restore_config::save_configuration()
@@ -328,4 +343,9 @@ const char *save_restore_config::get_last_config_filename(const char identifier)
         return _config.last_config_filename_B;
     }
     return _config.last_config_filename_A;
+}
+
+const char *save_restore_config::get_file_list()
+{
+    return _config.file_list;
 }

@@ -33,7 +33,7 @@ void draw_home()
         display.setTextColor(WHITE);
         display.setCursor(5, 50);
         display.setTextSize(1);
-        display.print("AP, ssid: ");
+        display.print("AP, SSID: ");
         display.print(config.get_AP_ssid());
     }
     else
@@ -42,29 +42,34 @@ void draw_home()
         display.setCursor(5, 35);
         display.setTextSize(1);
         display.print("IP: ");
+
         display.setTextColor(WHITE);
         display.print(config.get_ip());
     }
     display.setCursor(5, 50);
     display.setTextColor(RED);
-    display.print("plate A: ");
+    display.print("A: ");
     display.setTextColor(WHITE);
+    display.setCursor(30, 50);
+
     display.print(config.get_last_config_filename('A'));
     display.setTextColor(GREY);
-    display.setCursor(57, 62);
+    display.setCursor(45, 62);
     display.print(wellplate_abrev(config.get_last_wellplate('A')));
 
     display.setCursor(5, 75);
     display.setTextColor(RED);
-    display.print("plate B: ");
+    display.print("B: ");
     display.setTextColor(WHITE);
+    display.setCursor(30, 75);
+
     display.print(config.get_last_config_filename('B'));
     display.setTextColor(GREY);
-    display.setCursor(57, 87);
+    display.setCursor(45, 87);
     display.print(wellplate_abrev(config.get_last_wellplate('B')));
 
     //draw_button("Start", 1, -4);
-    draw_button("A+B", 1, -3);
+    draw_button("A+B", 1, -2);
     draw_button("A", 2);
     draw_button("B", 3);
     draw_button("Setup", 4);
@@ -146,7 +151,7 @@ void draw_button(const char *button_name, uint8_t button_pos, int correction)
     int space_between = display.width() / 5;
     display.fillCircle((button_pos)*space_between, 120, 4, button_color);
     int text_middle = (((strlen(button_name) - 1) * 5) / 2) + 1;
-    display.setCursor((button_pos)*space_between - text_middle + correction, 103);
+    display.setCursor((button_pos)*space_between - text_middle + correction - 1, 103);
     display.setTextColor(CYAN);
     display.print(button_name);
 }

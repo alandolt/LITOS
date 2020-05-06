@@ -35,16 +35,16 @@ enum type_wellplate : uint8_t
   // center plates from 1-50
   // corner plates from 51-99
   one_96_center = 1,
-  one_96_corner = 2,
+  one_96_corner = 51,
   two_96_A = 101,
   two_96_B = 151,
-  one_48_center = 4,
+  one_48_center = 2,
   two_48_A = 102,
   two_48_B = 152,
-  one_24_center = 5,
+  one_24_center = 3,
   two_24_A = 103,
   two_24_B = 153,
-  one_12_center = 6,
+  one_12_center = 4,
   two_12_A = 104,
   two_12_B = 154,
 };

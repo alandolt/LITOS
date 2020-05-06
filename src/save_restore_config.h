@@ -35,6 +35,7 @@ private:
         byte last_wellplate_B;
 
         int file_count_spiffs;
+        char file_list[550];
     } struct_config;
 
     struct_config _config;
@@ -80,6 +81,7 @@ public:
     const type_wellplate get_last_wellplate(const char identifier);
     const char *get_last_config_file(const char identifier);
     const char *get_last_config_filename(const char identifier);
+    const char *get_file_list();
 };
 
 extern save_restore_config config;

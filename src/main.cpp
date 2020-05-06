@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <SPIFFS.h>
 
-#include "init_ota.h"
 #include "save_restore_config.h"
 #include "wifi_webserver.h"
 #include "wellplate.h"
@@ -21,25 +20,22 @@ void setup()
 	config.load_configuration();
 
 	init_wlan();
+	init_display();
 	init_webserver();
 	init_matrix();
-	init_display();
 
 	buzzer.init_buzzer();
 	plate_A.wellplate_setup();
 	plate_B.wellplate_setup();
-
-	String test;
-	test = "";
-	//generate_file_list_response(test);
 }
 void loop()
 {
+	/*
 	//ArduinoOTA.handle();
 	if (config.get_is_AP())
 	{
 		ref_DNSServer().processNextRequest();
-	}
+	}*/
 	current_time = millis();
 
 	switch (screen)
@@ -60,8 +56,6 @@ void loop()
 		}
 		if (button_3.pressed())
 		{
-			Serial.println("gumba");
-
 			screen = status_B_screen;
 			plate_B.begin(current_time);
 			draw_status_screen();
@@ -105,7 +99,12 @@ void loop()
 	{
 		matrix_off();
 	}
-	ref_backgroundLayer().swapBuffers();
+	if (ref_backgroundLayer().isSwapPending())
+	{
+		ref_backgroundLayer().swapBuffers();
+	}
 	update_status_screen();
 	buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
+
+	//ref_websocket().cleanupClients();
 }

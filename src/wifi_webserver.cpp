@@ -13,23 +13,30 @@
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/litosws");
-static DNSServer dnsServer;
-
+//static DNSServer dnsServer;
+/*
 extern DNSServer &ref_DNSServer()
 {
 	return dnsServer;
-}
+}*/
+
+/*extern AsyncWebSocket &ref_websocket()
+{
+	return ws;
+}*/
 
 void init_webserver()
 {
+	server.reset();
+	server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+	server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.png");
+	server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
+	server.serveStatic("/conf/", SPIFFS, "/conf/");
 
-	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-	server.serveStatic("/js/", SPIFFS, "/js/");
-	server.serveStatic("/favicon.ico", SPIFFS, "/favicon.png");
-	/*
 	server.on(
 		"/upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200); },
 		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+			Serial.println("upload call received");
 			if (!index)
 			{
 				Serial.println((String) "UploadStart: " + filename);
@@ -46,25 +53,9 @@ void init_webserver()
 				Serial.println((String) "UploadEnd: " + filename + ",size: " + index + len);
 				// close the file handle as the upload is now done
 				request->_tempFile.close();
-				request->redirect("/");
+				//request->redirect("/");
 			}
 		});
-
-	server.on("/select_programm", HTTP_POST, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("select_config", true) && request->hasParam("select_wellplate", true))
-		{
-			// hier noch alles machen für A und B
-			char config_file[35];
-			int select_wellplate_int;
-			strcpy(config_file, request->getParam("select_config", true)->value().c_str());
-			select_wellplate_int = request->getParam("select_wellplate", true)->value().toInt();
-			type_wellplate upper = type_wellplate(select_wellplate_int); // hier noch unterscheiden ob upper/ lower
-			config.set_last_config_file(config_file, 'A');
-			config.set_last_wellplate(upper, 'A', true);
-			plate_A.wellplate_setup();
-			request->redirect("/");
-		}
-	});*/
 
 	ws.onEvent(onWsEvent);
 	server.addHandler(&ws);
@@ -104,7 +95,7 @@ void init_wlan()
 				WiFi.begin(config.get_ssid(), config.get_wlan_password());
 			}
 
-			if (connection_count > 7)
+			if (connection_count > 10)
 			{
 				init_AP_mode();
 				return;
@@ -124,7 +115,7 @@ void init_wlan()
 
 void init_AP_mode()
 {
-	const byte DNS_PORT = 53;
+	//const byte DNS_PORT = 53;
 	const IPAddress apIP(192, 168, 1, 1);
 	//const IPAddress apIP(8, 8, 8, 8);
 
@@ -140,7 +131,7 @@ void init_AP_mode()
 	{
 		WiFi.softAP(config.get_AP_ssid());
 	}
-	dnsServer.start(DNS_PORT, "*", apIP);
+	//dnsServer.start(DNS_PORT, "*", apIP);
 }
 
 String processor(const String &var)
@@ -203,7 +194,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 
 			Serial.println("[WEBSOCKET] Message Received: " + message);
 
-			DynamicJsonDocument doc(1000);
+			DynamicJsonDocument doc(800);
 			DeserializationError err = deserializeJson(doc, message);
 			if (err)
 			{
@@ -274,25 +265,28 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 }
 void generate_file_list_response(String &result)
 {
-	int file_count = config.get_file_count_spiffs();
-	size_t CAPACITY = JSON_OBJECT_SIZE(4) + JSON_ARRAY_SIZE(file_count) + file_count * JSON_OBJECT_SIZE(3);
-	DynamicJsonDocument doc(CAPACITY + 1000);
-	JsonObject root = doc.to<JsonObject>();
+	//int file_count = config.get_file_count_spiffs();
+	//size_t CAPACITY = JSON_OBJECT_SIZE(4) + JSON_ARRAY_SIZE(file_count) + file_count * JSON_OBJECT_SIZE(3);
+	//DynamicJsonDocument doc(CAPACITY + 100);
+	DynamicJsonDocument root(1000);
+	//StaticJsonDocument<1000> root;
+	//JsonObject root = doc.to<JsonObject>();
 	root["response"] = "get_file_list";
-	root["version"] = "1";
-	root["size"] = CAPACITY + 1000;
-	JsonArray file_list = root.createNestedArray("file_list");
-
-	File root_folder = SPIFFS.open("/conf");
-	File file = root_folder.openNextFile();
-	char file_name[35];
-	while (file)
+	JsonArray file_list = root.createNestedArray("files");
+	char copy_of_file_list[550];
+	strcpy(copy_of_file_list, config.get_file_list());
+	char *ptr_file_list;
+	ptr_file_list = strtok(copy_of_file_list, ",");
+	while (ptr_file_list != NULL)
 	{
-		strcpy(file_name, file.name());
-		JsonObject jsonfile = file_list.createNestedObject();
-		jsonfile["file"] = file_name;
-		jsonfile["filename"] = &file_name[0] + 6;
-		file = root_folder.openNextFile();
+		file_list.add(ptr_file_list);
+		ptr_file_list = strtok(NULL, ",");
 	}
-	serializeJson(doc, result);
+	/*file_list.add("/conf/dbkwmitvkirclyuaxurmlqduwb.conf");
+	file_list.add("/conf/nxhqwuebwuiagnopvpzsvrcare.conf");
+	file_list.add("/conf/jojgdpfyprlriwdsxsecxfufqi.conf");
+	file_list.add("/conf/xjgjcqvgulhpawshbdkqnowxkj.conf");
+	*/
+	serializeJson(root, result);
+	Serial.println(result);
 }
