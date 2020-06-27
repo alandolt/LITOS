@@ -1,3 +1,11 @@
+/**
+ * @file wellplate.cpp
+ * @author Alex Landolt 
+ * @brief Code file for wepllate class
+ * @version 0.3
+ * @date 2020-05-26
+ * 
+ */
 #include "wellplate.h"
 
 #include <SPIFFS.h>

@@ -1,14 +1,21 @@
+/**
+ * @file matrix.cpp
+ * @author Alex Landolt 
+ * @brief C file containing functions needed for controlling the LED matrix and the MOSFET
+ * @version 0.3
+ * @date 2020-05-25
+ */
 #include "matrix.h"
-#define DEBUG
 #define COLOR_DEPTH 24
 
 #define GPIOPINOUT ESP32_FORUM_PINOUT
 
-const int defaultBrightness = (50 * 255) / 100; // (10%) brightness
-const byte led_matrix_pins[] = {12, 13, 14, 16, 17, 19, 21, 22, 25, 26, 27, 32, 33};
-const byte led_matrix_mosfet = 4;
+const int defaultBrightness = (100 * 255) / 100;                                     /// at this part of the program global brightness levels can be adjusted
+const byte led_matrix_pins[] = {12, 13, 14, 16, 17, 19, 21, 22, 25, 26, 27, 32, 33}; /// ESP32 pins needed for the LED matrix
+const byte led_matrix_mosfet = 4;                                                    /// pin where the MOSFET is located
 static bool is_matrix_on;
 
+/// specific settings concerning smartmatrix
 const uint8_t kMatrixWidth = 64;                              // known working: 32, 64, 96, 128
 const uint8_t kMatrixHeight = 32;                             // known working: 16, 32, 48, 64
 const uint8_t kRefreshDepth = 24;                             // known working: 24, 36, 48
@@ -17,32 +24,49 @@ const uint8_t kPanelType = SMARTMATRIX_HUB75_32ROW_MOD16SCAN; // use SMARTMATRIX
 const uint8_t kMatrixOptions = (SMARTMATRIX_OPTIONS_NONE);    // see http://docs.pixelmatix.com/SmartMatrix for options
 const uint8_t kBackgroundLayerOptions = (SM_BACKGROUND_OPTIONS_NONE);
 
-SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions);
-SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);
+SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions); /// allocate space for buffer of LED matrix
+SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);    /// allocate space for background layer
 
+/**
+ * @brief Used to generate reference to LED matrix, as so we can control it in the wellplate part of LITOS code
+ * 
+ * @return SMLayerBackground<rgb24, 0u>&, that is nothing more than a reference to the LED matrix
+ */
 SMLayerBackground<rgb24, 0u> &ref_backgroundLayer()
 {
     return backgroundLayer;
 }
 
+/**
+ * @brief called in void setup to initialize matrix
+ * 
+ */
 void init_matrix()
 {
-    pinMode(led_matrix_mosfet, OUTPUT);
-    digitalWrite(led_matrix_mosfet, HIGH);
-    matrix.addLayer(&backgroundLayer);
-    matrix.begin(15000);
+    pinMode(led_matrix_mosfet, OUTPUT);    /// initialize MOSFET pin
+    digitalWrite(led_matrix_mosfet, HIGH); /// set this pin to HIGH to supply power to the matrix
+    matrix.addLayer(&backgroundLayer);     /// add allocated background layer to matrix construct
+    matrix.begin(15000);                   /// start LED matrix (allocate all the needed memory), however leaves 15K bytes free in Heap
     matrix.setBrightness(defaultBrightness);
-    backgroundLayer.fillScreen({0, 0, 0});
-    backgroundLayer.swapBuffers();
+    backgroundLayer.fillScreen({0, 0, 0}); /// fill matrix buffer black
+    backgroundLayer.swapBuffers();         /// swap buffer with background, so that the change is seen
 
-    digitalWrite(led_matrix_mosfet, LOW);
-    matrix_off();
+    digitalWrite(led_matrix_mosfet, LOW); /// cut off the power to the matrix
+    matrix_off();                         /// helper function to cut off data lines
     is_matrix_on = false;
 }
 
+/**
+ * @brief helper function to cut off data lines and power through MOSFET and internal pull down resistors 
+ * 
+ */
 void matrix_off()
 {
-    //Thomas verwendet input, ich glaube pull down wäre besser, muss getestet werden
+    /**
+     * @Thomas, you have used INPUT, personally I think that it is better to use the integrated pull down resistors, however should be tested with an infrared camera. 
+     * Personally I even think that it is not needed anymore to cut the data lines. 
+     */
+
     for (byte i = 0; i < 13; i++)
     {
         pinMode(led_matrix_pins[i], INPUT);
@@ -53,10 +77,12 @@ void matrix_off()
         is_matrix_on = false;
     }
 }
-
+/**
+ * @brief activate matrix by supplying power through internal MOSFET 
+ * 
+ */
 void matrix_on()
 {
-    //Thomas verwendet input, ich glaube pull down wäre besser, muss getestet werden
     for (byte i = 0; i < 13; i++)
     {
         pinMode(led_matrix_pins[i], INPUT);

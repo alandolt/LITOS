@@ -215,6 +215,32 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						ws.text(client->id(), result);
 					}
 
+					else if (command == "delete_file")
+					{
+						Serial.println("get_file_delete command");
+						const char *file_to_be_removed = object["file"];
+						Serial.println(file_to_be_removed);
+
+						SPIFFS.remove(file_to_be_removed);
+						char file_list_buffer[550];
+						char *ptr_file_list;
+
+						ptr_file_list = strtok(config.get_file_list(), ",");
+						while (ptr_file_list != NULL)
+						{
+
+							if (strcmp(ptr_file_list, file_to_be_removed) != 0)
+							{
+								strcat(file_list_buffer, ptr_file_list);
+								strcat(file_list_buffer, ",");
+							}
+							ptr_file_list = strtok(NULL, ",");
+						}
+						file_list_buffer[strlen(file_list_buffer) - 1] = '\0';
+						config.set_file_list(file_list_buffer);
+						Serial.println(config.get_file_list());
+					}
+
 					else if (command == "load_config")
 					{
 						bool two_wellplates_json = object["two_wellplates"];

@@ -1,13 +1,19 @@
+/**
+ * @file display.cpp
+ * @author Alex Landolt 
+ * @brief C file for display
+ * @version 0.3
+ * @date 2020-05-25
+ */
 #include "display.h"
-
 #include "save_restore_config.h"
 #include "wellplate.h"
 #include "buzzer.h"
 
-Adafruit_SSD1351 display = Adafruit_SSD1351(128, 128, &SPI, 5, 15);
+Adafruit_SSD1351 display = Adafruit_SSD1351(128, 128, &SPI, 5, 15); /// screen is connected over SPI (HSPI) with ESP32,
 status_screen screen;
 
-static show_countdown countdown_plate_A;
+static show_countdown countdown_plate_A; /// initialize countdown for plate A and B
 static show_countdown countdown_plate_B;
 
 void init_display()
@@ -68,8 +74,7 @@ void draw_home()
     display.setCursor(45, 87);
     display.print(wellplate_abrev(config.get_last_wellplate('B')));
 
-    //draw_button("Start", 1, -4);
-    draw_button("A+B", 1, -2);
+    draw_button("A+B", 1, -2); /// offset of -2 as it seems to be more centred this way
     draw_button("A", 2);
     draw_button("B", 3);
     draw_button("Setup", 4);
@@ -90,7 +95,7 @@ void draw_status_screen(bool with_buttons)
         display.setCursor(0, 30);
         display.print(F("B fin. in: "));
 
-        //here Detail information on A and B
+        //here Detail information on A and B (for future versions of LITOS)
     }
     else
     {
@@ -120,7 +125,7 @@ void update_status_screen()
         break;
     case status_A_B_screen:
         countdown_plate_A.update_countdown(plate_A.prog_finished(), plate_A.get_time_remaining());
-        countdown_plate_B.update_countdown(plate_B.prog_finished(), plate_B.get_time_remaining(), 75, 30); //offset
+        countdown_plate_B.update_countdown(plate_B.prog_finished(), plate_B.get_time_remaining(), 75, 30);
         break;
     default:
         break;

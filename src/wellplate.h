@@ -1,28 +1,39 @@
+/**
+ * @file wellplate.h
+ * @author Alex Landolt 
+ * @brief Header file for wellplate class
+ * @version 0.3
+ * @date 2020-05-26
+ * The wellplate class regulates which well of a microtiter plate should be illuminated at which timepoint. 
+ * It does also handle the parsing of the CSV which contain the illumination pattern 
+ */
 #ifndef WELLPLATE_H
 #define WELLPLATE_H
 #include <Arduino.h>
 #include <vector>
-
+/** instead of using arrays, vectors are used, as so we can adjust the size of the cotnainer containing the illumination pattern rows
+ * during the run of the program without recompilation
+*/
 #include "struct.h"
 
 class wellplate
 {
 private:
-	const char identifier;
+	const char identifier; /// unique identifier of an well plate type
 	byte start_well_row;
 	byte start_well_col;
 	byte end_well_row;
 	byte end_well_col;
 
-	type_wellplate _type_wellplate;
+	type_wellplate _type_wellplate; /// for ex. if it is a 96 plate
 
 	bool init = true;
 	bool started = false;
 	bool finished = false;
 	bool illumination_in_process;
 
-	unsigned long int time_started; // time when we start with illumination
-	float max_exposure;
+	unsigned long int time_started; /// time at which the illumination was started (offset from time at which the ESP32 has been started)
+	float max_exposure;				/// longest exposure in an illumination pattern, needed to calculate last timepoint
 	int max_timepoint;
 	unsigned long int total_time_experiment;
 	std::vector<well> well_vector;
@@ -33,8 +44,8 @@ private:
 	int size_of_illumination;
 
 public:
-	wellplate(const char _identifier); // evtl. offset hineinnehmen
-	//void init_wellplate();
+	wellplate(const char _identifier);
+	//void init_wellplate(); deprecated
 	void wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, int a_type_wellplate);

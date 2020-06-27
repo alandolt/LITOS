@@ -1,23 +1,35 @@
+/**
+ * @file save_restore_config.cpp
+ * @author Alex Landolt 
+ * @brief C file for save_restore_config class
+ * @version 0.3
+ * @date 2020-05-26
+ */
 #include "save_restore_config.h"
 #include <Arduino.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include <StreamUtils.h>
+#include <StreamUtils.h> /// used for buffering config json file during loading from SPIFFS
 
 save_restore_config config("/set/config.json");
 
+/**
+ * @brief Construct a new save restore config::save restore config object
+ * 
+ * @param _config_file config file that is used for loading
+ */
 save_restore_config::save_restore_config(const char *_config_file)
 {
     strcpy(config_file, _config_file);
 }
 
-void save_restore_config::load_configuration()
+void save_restore_config::load_configuration() /// called in setup to load configuration
 {
     File file = SPIFFS.open(config_file);
     StaticJsonDocument<2000> doc;
-    ReadBufferingStream bufferedFile(file, 64);
+    ReadBufferingStream bufferedFile(file, 64); /// read config file into buffer to be able to decode it faster
     deserializeJson(doc, bufferedFile);
-
+    /// in this part the decoded variables from the config file are copied into RAM
     _config.port = doc["webserver"]["port"] | 80;
     strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LIGHTOS", sizeof(_config.hostname));
 
@@ -48,6 +60,13 @@ void save_restore_config::load_configuration()
         _config.last_config_filename_A[i - 6] = c;
     }
     _config.last_config_filename_A[file_length - 10] = '\0';
+    /**
+     * in the config file only the filenames with the full path (SPIFFS does not have folder, path is encoded in filename) are stored
+     * In some application (e.g. display name of the illumination pattern) we need however the real filename without path. 
+     * So here we remove the path and the file extensio by copying the relevant bytes of the char array containing the filename 
+     * with the path and extension to a second to obtain only the filename. 
+     * 
+     */
 
     file_length = strlen(_config.last_config_file_B);
 
@@ -58,8 +77,13 @@ void save_restore_config::load_configuration()
     }
     _config.last_config_filename_B[file_length - 10] = '\0';
 
-    calc_file_count_spiffs();
+    calc_file_count_spiffs(); /// deprecated and not used anymore in v 0.3
 
+    /**
+     * Code used to create a char array in which the filename (path with extension) of all illumination patterns stored in SPIFFS  
+     * is copyed to a huge char array in order to avoid interference betweeen SPIFFS and webserver (especially websocket) during
+     * the run of a programm (probably not enough heap present or other quircky bug of SPIFFS)
+     */
     _config.file_list[0] = '\0';
     File root_folder = SPIFFS.open("/conf");
     file = root_folder.openNextFile();
@@ -76,6 +100,10 @@ void save_restore_config::load_configuration()
     Serial.println(_config.file_list);
 }
 
+/**
+ * @brief function of class save_restore_config to save config from RAM into JSON configuration file
+ * 
+ */
 void save_restore_config::save_configuration()
 {
     Serial.println("save invoked");
@@ -88,7 +116,7 @@ void save_restore_config::save_configuration()
         Serial.println(F("Failed to create file"));
         return;
     }
-    StaticJsonDocument<2000> doc;
+    StaticJsonDocument<2000> doc; /// I use static JSON to have more place in heap (which is used by SMARTMATRIX and Webserver)
     JsonObject webserver = doc.createNestedObject("webserver");
     JsonObject wlan_connect = doc.createNestedObject("wlan_connect");
     JsonObject AP_mode = doc.createNestedObject("AP_mode");
@@ -345,7 +373,12 @@ const char *save_restore_config::get_last_config_filename(const char identifier)
     return _config.last_config_filename_A;
 }
 
-const char *save_restore_config::get_file_list()
+char *save_restore_config::get_file_list()
 {
     return _config.file_list;
+}
+
+void save_restore_config::set_file_list(const char *new_file_list)
+{
+    strcpy(_config.file_list, new_file_list);
 }

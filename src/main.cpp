@@ -1,3 +1,10 @@
+/**
+ * @file main.cpp
+ * @author Alex Landolt 
+ * @brief Main.cpp file of LITOS, here all the sub librarys and function will be invoked and included. Contains void setup and loop
+ * @version 0.3
+ * @date 2020-05-25
+ */
 #include <Arduino.h>
 #include <SPIFFS.h>
 
@@ -15,7 +22,7 @@ void setup()
 {
 	delay(100);
 	Serial.begin(115200);
-	SPIFFS.begin();
+	SPIFFS.begin(); /// open file system
 
 	config.load_configuration();
 
@@ -30,7 +37,7 @@ void setup()
 }
 void loop()
 {
-	/*
+	/* /// DNS server in AP mode temporaly removed as used too much resources
 	//ArduinoOTA.handle();
 	if (config.get_is_AP())
 	{
@@ -41,44 +48,44 @@ void loop()
 	switch (screen)
 	{
 	case home_screen:
-		if (button_1.pressed())
+		if (button_1.pressed()) /// both well plates A + B will be started
 		{
 			screen = status_A_B_screen;
 			plate_A.begin(current_time);
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
-		if (button_2.pressed())
+		if (button_2.pressed()) /// only A will be started
 		{
 			screen = status_A_screen;
 			plate_A.begin(current_time);
 			draw_status_screen();
 		}
-		if (button_3.pressed())
+		if (button_3.pressed()) /// only B will be started
 		{
 			screen = status_B_screen;
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
 		break;
-	case status_A_screen:
-		if (button_4.pressed())
+	case status_A_screen:		/// A is currently running
+		if (button_4.pressed()) /// abort and go back to home
+
 		{
 			plate_A.abort_program();
 			screen = home_screen;
 			draw_home();
-			// abort and go back to home
 		}
 		break;
-	case status_B_screen:
-		if (button_4.pressed()) // abort and go back to home
+	case status_B_screen:		/// B is currently running
+		if (button_4.pressed()) /// abort and go back to home
 		{
 			plate_B.abort_program();
 			screen = home_screen;
 			draw_home();
 		}
 		break;
-	case status_A_B_screen:
+	case status_A_B_screen:		/// A and B are running simultanously
 		if (button_4.pressed()) // abort and go back to home
 		{
 			plate_A.abort_program();
@@ -91,7 +98,7 @@ void loop()
 		break;
 	}
 
-	if (plate_A.check(current_time) | plate_B.check(current_time)) // power on / power off Matrix through MOSFET high/low pin
+	if (plate_A.check(current_time) | plate_B.check(current_time)) /// power on / power off Matrix through MOSFET high/low pin
 	{
 		matrix_on();
 	}
@@ -99,12 +106,12 @@ void loop()
 	{
 		matrix_off();
 	}
-	if (ref_backgroundLayer().isSwapPending())
+	if (ref_backgroundLayer().isSwapPending()) /// updates LED matrix if update is needed
 	{
 		ref_backgroundLayer().swapBuffers();
 	}
-	update_status_screen();
+	update_status_screen();			 /// updates the status screens of the OLED display
 	buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
 
-	//ref_websocket().cleanupClients();
+	//ref_websocket().cleanupClients(); /// can be used in production to clean up dead websocket connections of the ESP32 webserver (however, it still need to be tested if this effective or not)
 }
