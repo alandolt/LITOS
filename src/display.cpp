@@ -37,7 +37,7 @@ void draw_home()
     if (config.get_is_AP())
     {
         display.setTextColor(WHITE);
-        display.setCursor(5, 50);
+        display.setCursor(5, 35);
         display.setTextSize(1);
         display.print("AP, SSID: ");
         display.print(config.get_AP_ssid());
@@ -52,32 +52,48 @@ void draw_home()
         display.setTextColor(WHITE);
         display.print(config.get_ip());
     }
-    display.setCursor(5, 50);
-    display.setTextColor(RED);
-    display.print("A: ");
-    display.setTextColor(WHITE);
-    display.setCursor(30, 50);
+    if (config.get_last_wellplate('A') < 100)
+    {
+        display.setCursor(5, 50);
+        display.setTextColor(RED);
+        display.print("CTR: ");
+        display.setTextColor(WHITE);
+        display.setCursor(30, 50);
 
-    display.print(config.get_last_config_filename('A'));
-    display.setTextColor(GREY);
-    display.setCursor(45, 62);
-    display.print(wellplate_abrev(config.get_last_wellplate('A')));
+        display.print(config.get_last_config_filename('A'));
+        display.setTextColor(GREY);
+        display.setCursor(45, 62);
+        display.print(wellplate_abrev(config.get_last_wellplate('A')));
+        draw_button("A", 2);
+    }
+    else
+    {
+        display.setCursor(5, 50);
+        display.setTextColor(RED);
+        display.print("A: ");
+        display.setTextColor(WHITE);
+        display.setCursor(30, 50);
 
-    display.setCursor(5, 75);
-    display.setTextColor(RED);
-    display.print("B: ");
-    display.setTextColor(WHITE);
-    display.setCursor(30, 75);
+        display.print(config.get_last_config_filename('A'));
+        display.setTextColor(GREY);
+        display.setCursor(45, 62);
+        display.print(wellplate_abrev(config.get_last_wellplate('A')));
 
-    display.print(config.get_last_config_filename('B'));
-    display.setTextColor(GREY);
-    display.setCursor(45, 87);
-    display.print(wellplate_abrev(config.get_last_wellplate('B')));
+        display.setCursor(5, 75);
+        display.setTextColor(RED);
+        display.print("B: ");
+        display.setTextColor(WHITE);
+        display.setCursor(30, 75);
 
-    draw_button("A+B", 1, -2); /// offset of -2 as it seems to be more centred this way
-    draw_button("A", 2);
-    draw_button("B", 3);
-    draw_button("Setup", 4);
+        display.print(config.get_last_config_filename('B'));
+        display.setTextColor(GREY);
+        display.setCursor(45, 87);
+        display.print(wellplate_abrev(config.get_last_wellplate('B')));
+        draw_button("A+B", 1, -2); /// offset of -2 as it seems to be more centred this way
+        draw_button("A", 2);
+        draw_button("B", 3);
+        //draw_button("Setup", 4);
+    }
 }
 
 void draw_status_screen(bool with_buttons)
@@ -206,8 +222,9 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
             int digits = num_digits(time_remaining);
             if (digits != last_plate_remaining_digits)
             {
-                display.fillScreen(BLACK);
-                draw_status_screen();
+                //display.fillScreen(BLACK);
+                display.fillRect(x, y, 128, 7, BLACK);
+                //draw_status_screen();
                 last_plate_remaining_digits = digits;
             }
             display.setTextColor(WHITE, BLACK);
@@ -222,8 +239,8 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
         if (!displayed_finished)
         {
             buzzer.invoke_beep(SHORT_BEEP);
-            display.fillScreen(BLACK);
-            draw_status_screen();
+            display.fillRect(x, y, 128, 7, BLACK);
+            //draw_status_screen();
             display.setTextColor(WHITE, BLACK);
             display.setCursor(x, y);
             display.print("Finished");

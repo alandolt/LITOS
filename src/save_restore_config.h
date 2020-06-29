@@ -45,6 +45,8 @@ private:
         char last_config_filename_B[35];
         byte last_wellplate_B;
 
+        bool two_wellplates;
+
         int file_count_spiffs; /// deprecated in v0.3
         char file_list[550];   /** to avoid interference with SMARTMATRIX library and the webserver, all the filenames of illumination patterns
                                 located in SPIFFS are loaded into a char array at the start of program
@@ -80,8 +82,11 @@ public:
 
     void set_file_list(const char *file_list);
 
+    void set_two_wellplates(bool two_wellplates, bool update_config = false);
+
     /// getters, to get the variables from RAM
     int get_file_count_spiffs();
+    const bool get_two_wellplates();
     const bool get_is_AP();
     const char *get_ssid();
     const char *get_wlan_password();

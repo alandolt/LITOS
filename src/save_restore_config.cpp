@@ -45,6 +45,7 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     strlcpy(_config.EAP_identity, doc["EAP_mode"]["EAP_identity"], sizeof(_config.EAP_identity));
     strlcpy(_config.EAP_password, doc["EAP_mode"]["EAP_password"], sizeof(_config.EAP_password));
 
+    _config.two_wellplates = doc["wellplate_settings"]["two_wellplates"] | true;
     _config.last_wellplate_A = doc["wellplate_settings"]["last_wellplate_A"] | 1;
     _config.last_wellplate_B = doc["wellplate_settings"]["last_wellplate_B"] | 1;
     strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
@@ -77,7 +78,7 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     }
     _config.last_config_filename_B[file_length - 10] = '\0';
 
-    calc_file_count_spiffs(); /// deprecated and not used anymore in v 0.3
+    // calc_file_count_spiffs(); /// deprecated and not used anymore in v 0.3
 
     /**
      * Code used to create a char array in which the filename (path with extension) of all illumination patterns stored in SPIFFS  
@@ -138,6 +139,7 @@ void save_restore_config::save_configuration()
     EAP_mode["EAP_identity"] = _config.EAP_identity;
     EAP_mode["EAP_password"] = _config.EAP_password;
 
+    wellplate_settings["two_wellplates"] = _config.two_wellplates;
     wellplate_settings["last_config_file_A"] = _config.last_config_file_A;
     wellplate_settings["last_wellplate_A"] = _config.last_wellplate_A;
     wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
@@ -256,10 +258,24 @@ void save_restore_config::set_last_config_file(const char *_last_config_file, co
     if (identifier == 'A')
     {
         strcpy(_config.last_config_file_A, _last_config_file);
+        int file_length = strlen(_config.last_config_file_A);
+        for (uint8_t i = 6; i <= file_length; i++)
+        {
+            char c = _config.last_config_file_A[i];
+            _config.last_config_filename_A[i - 6] = c;
+        }
+        _config.last_config_filename_A[file_length - 10] = '\0';
     }
     else if (identifier == 'B')
     {
         strcpy(_config.last_config_file_B, _last_config_file);
+        int file_length = strlen(_config.last_config_file_B);
+        for (uint8_t i = 6; i <= file_length; i++)
+        {
+            char c = _config.last_config_file_B[i];
+            _config.last_config_filename_B[i - 6] = c;
+        }
+        _config.last_config_filename_B[file_length - 10] = '\0';
     }
 
     if (update_config)
@@ -381,4 +397,18 @@ char *save_restore_config::get_file_list()
 void save_restore_config::set_file_list(const char *new_file_list)
 {
     strcpy(_config.file_list, new_file_list);
+}
+
+const bool save_restore_config::get_two_wellplates()
+{
+    return _config.two_wellplates;
+}
+
+void save_restore_config::set_two_wellplates(bool two_wellplates, bool update_config)
+{
+    _config.two_wellplates = two_wellplates;
+    if (update_config)
+    {
+        save_configuration();
+    }
 }

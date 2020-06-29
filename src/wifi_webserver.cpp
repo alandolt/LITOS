@@ -50,7 +50,9 @@ void init_webserver()
 			}
 			if (final)
 			{
+				Serial.println("test");
 				Serial.println((String) "UploadEnd: " + filename + ",size: " + index + len);
+				snprintf(config.get_file_list(), 35, ",/conf/%s", filename.c_str());
 				// close the file handle as the upload is now done
 				request->_tempFile.close();
 				//request->redirect("/");
@@ -122,7 +124,6 @@ void init_AP_mode()
 	WiFi.disconnect();
 	WiFi.mode(WIFI_OFF);
 	WiFi.mode(WIFI_AP);
-	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 	if (config.get_AP_password_protected())
 	{
 		WiFi.softAP(config.get_AP_ssid(), config.get_AP_password());
@@ -131,6 +132,9 @@ void init_AP_mode()
 	{
 		WiFi.softAP(config.get_AP_ssid());
 	}
+	delay(100);
+	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+
 	//dnsServer.start(DNS_PORT, "*", apIP);
 }
 
@@ -260,6 +264,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						{
 							plate_A.wellplate_setup(file_json, wellplate_json);
 						}
+						config.set_last_config_file(file_json, 'A');
+						config.set_last_wellplate(wellplate_json, 'A');
+						config.set_two_wellplates(false);
 						if (two_wellplates_json)
 						{
 							JsonObject plate = object["plate_B"];
@@ -278,7 +285,12 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 							{
 								plate_B.wellplate_setup(file_json, wellplate_json);
 							}
+							config.set_two_wellplates(true);
+							config.set_last_config_file(file_json, 'B');
+							config.set_last_wellplate(wellplate_json, 'B');
 						}
+						config.save_configuration();
+						draw_home();
 					}
 					else
 					{
@@ -308,11 +320,7 @@ void generate_file_list_response(String &result)
 		file_list.add(ptr_file_list);
 		ptr_file_list = strtok(NULL, ",");
 	}
-	/*file_list.add("/conf/dbkwmitvkirclyuaxurmlqduwb.conf");
-	file_list.add("/conf/nxhqwuebwuiagnopvpzsvrcare.conf");
-	file_list.add("/conf/jojgdpfyprlriwdsxsecxfufqi.conf");
-	file_list.add("/conf/xjgjcqvgulhpawshbdkqnowxkj.conf");
-	*/
+
 	serializeJson(root, result);
 	Serial.println(result);
 }

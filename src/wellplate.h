@@ -33,15 +33,15 @@ private:
 	bool illumination_in_process;
 
 	unsigned long int time_started; /// time at which the illumination was started (offset from time at which the ESP32 has been started)
-	float max_exposure;				/// longest exposure in an illumination pattern, needed to calculate last timepoint
-	int max_timepoint;
+//	float max_exposure;				/// longest exposure in an illumination pattern, needed to calculate last timepoint
+//	int max_timepoint;
 	unsigned long int total_time_experiment;
 	std::vector<well> well_vector;
 	std::vector<well>::iterator iter;
 	unsigned long int time_remaining;
 	int number_of_wells;
 	int number_of_finished_wells;
-	int size_of_illumination;
+	int size_of_illumination; // size of circle used in matrix for well illumination
 
 public:
 	wellplate(const char _identifier);

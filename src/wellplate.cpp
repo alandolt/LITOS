@@ -81,9 +81,14 @@ void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellpla
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
+
+	// reset
 	init = true;
 	started = false;
 	finished = false;
+	illumination_in_process = false;
+	number_of_finished_wells = 0;
+
 	_type_wellplate = a_type_wellplate;
 	size_of_illumination = 1;
 	well_vector.clear();
@@ -110,7 +115,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	{
 
 		bool last_cycle_defined = false;
-		if (first_line) // hier noch schauen falls via web
+		if (first_line)
 		{
 			file.readBytesUntil('\n', buffer, buffer_size);
 			first_line = false;
@@ -128,7 +133,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 #endif
 				goto end_of_file;
 			}
-			if (isAlpha(buffer[strlen(buffer) - 2]))
+			if (isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]) || isAlpha(buffer[strlen(buffer) - 3]))
 			{
 				last_cycle_defined = true;
 #ifdef DEBUG
@@ -191,13 +196,13 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				ptr = strtok(NULL, delimiter); //last_cycle unit
 				_well.start_last_cycle = last_cycle * unit_correction(ptr);
 
-				_well.total_cycle = (_well.start_last_cycle - _well.start) / (_well.repeat_every + _well.stimulation_time) + 1;
+				_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every);
 			}
 			else
 			{
 				ptr = strtok(NULL, delimiter); //n cycle
 				_well.total_cycle = atoi(ptr);
-				_well.start_last_cycle = _well.start + (_well.repeat_every + _well.stimulation_time) * (_well.total_cycle - 1);
+				_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle);
 			}
 			// color interpretation
 			if (isAlpha(color_string[0]))
@@ -251,7 +256,7 @@ end_of_file:
 			total_time_experiment = temp_longest;
 		}
 	}
-	draw_home();
+	//draw_home();
 
 	/*	if (!init)
 	{
@@ -417,7 +422,7 @@ bool wellplate::check(unsigned long int time)
 
 					what_switch((*iter).what);
 
-					if ((*iter).cycle_count >= (*iter).total_cycle)
+					if ((*iter).cycle_count > (*iter).total_cycle)
 					{
 						(*iter).finished = true;
 						number_of_finished_wells += 1;
@@ -437,7 +442,6 @@ bool wellplate::check(unsigned long int time)
 				illumination_in_process = illumination_in_process | (*iter).running;
 			}
 		}
-
 		//ref_backgroundLayer().swapBuffers(); deprecated as now, refresh is done in main loop
 		finished = (number_of_wells - number_of_finished_wells == 0);
 	}

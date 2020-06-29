@@ -4,11 +4,11 @@
         "hostname": "LITOS"
     },
     "wlan_connect": {
-        "ssid": "",
-        "wlan_password": ""
+        "ssid": "pilatus",
+        "wlan_password": "%Fortress123&"
     },
     "AP_mode": {
-        "is_AP": true,
+        "is_AP": false,
         "AP_password_protected": false,
         "AP_ssid": "LITOS",
         "AP_password": "demo"
@@ -19,6 +19,7 @@
         "EAP_password": ""
     },
     "wellplate_settings": {
+        "two_wellplates": true,
         "last_config_file_A": "/conf/MCF10A_Exp1.csv",
         "last_wellplate_A": 101,
         "last_config_file_B": "/conf/pertz_lab_Exp2.csv",

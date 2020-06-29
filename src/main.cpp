@@ -5,6 +5,7 @@
  * @version 0.3
  * @date 2020-05-25
  */
+
 #include <Arduino.h>
 #include <SPIFFS.h>
 
@@ -15,7 +16,6 @@
 #include "display.h"
 #include "button.h"
 #include "buzzer.h"
-
 unsigned long int current_time;
 
 void setup()
@@ -27,7 +27,9 @@ void setup()
 	config.load_configuration();
 
 	init_wlan();
+	delay(100);
 	init_display();
+	delay(100);
 	init_webserver();
 	init_matrix();
 
@@ -37,7 +39,9 @@ void setup()
 }
 void loop()
 {
-	/* /// DNS server in AP mode temporaly removed as used too much resources
+
+	/*
+	 /// DNS server in AP mode temporaly removed as used too much resources
 	//ArduinoOTA.handle();
 	if (config.get_is_AP())
 	{
@@ -76,6 +80,8 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
+		ref_backgroundLayer().swapBuffers();
+
 		break;
 	case status_B_screen:		/// B is currently running
 		if (button_4.pressed()) /// abort and go back to home
@@ -84,6 +90,7 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
+		ref_backgroundLayer().swapBuffers();
 		break;
 	case status_A_B_screen:		/// A and B are running simultanously
 		if (button_4.pressed()) // abort and go back to home
@@ -93,6 +100,9 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
+
+		ref_backgroundLayer().swapBuffers();
+
 		break;
 	case setup_screen:
 		break;
@@ -106,10 +116,10 @@ void loop()
 	{
 		matrix_off();
 	}
-	if (ref_backgroundLayer().isSwapPending()) /// updates LED matrix if update is needed
+	/*if (ref_backgroundLayer().isSwapPending()) /// updates LED matrix if update is needed
 	{
 		ref_backgroundLayer().swapBuffers();
-	}
+}	*/
 	update_status_screen();			 /// updates the status screens of the OLED display
 	buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
 
