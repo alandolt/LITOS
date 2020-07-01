@@ -43,17 +43,20 @@ SMLayerBackground<rgb24, 0u> &ref_backgroundLayer()
  */
 void init_matrix()
 {
-    pinMode(led_matrix_mosfet, OUTPUT);    /// initialize MOSFET pin
-    digitalWrite(led_matrix_mosfet, HIGH); /// set this pin to HIGH to supply power to the matrix
-    matrix.addLayer(&backgroundLayer);     /// add allocated background layer to matrix construct
-    matrix.begin(15000);                   /// start LED matrix (allocate all the needed memory), however leaves 15K bytes free in Heap
+    matrix.addLayer(&backgroundLayer); /// add allocated background layer to matrix construct
+    matrix.begin(15000);               /// start LED matrix (allocate all the needed memory), however leaves 15K bytes free in Heap
     matrix.setBrightness(defaultBrightness);
+    matrix_on();
     backgroundLayer.fillScreen({0, 0, 0}); /// fill matrix buffer black
     backgroundLayer.swapBuffers();         /// swap buffer with background, so that the change is seen
+    matrix_off();                          /// helper function to cut off data lines
+}
 
-    digitalWrite(led_matrix_mosfet, LOW); /// cut off the power to the matrix
-    matrix_off();                         /// helper function to cut off data lines
-    is_matrix_on = false;
+void init_matrix_power()
+{
+    pinMode(led_matrix_mosfet, OUTPUT); /// initialize MOSFET pin
+    is_matrix_on = true;
+    matrix_off();
 }
 
 /**

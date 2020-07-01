@@ -58,14 +58,21 @@ enum type_wellplate : uint8_t
   two_96_A = 101,
   two_96_B = 151,
   one_48_center = 2,
+  one_48_corner = 52,
   two_48_A = 102,
   two_48_B = 152,
   one_24_center = 3,
+  one_24_corner = 53,
   two_24_A = 103,
   two_24_B = 153,
   one_12_center = 4,
+  one_12_corner = 54,
   two_12_A = 104,
   two_12_B = 154,
+  one_6_center = 5,
+  one_6_corner = 55,
+  two_6_A = 105,
+  two_6_B = 155
 };
 
 #endif

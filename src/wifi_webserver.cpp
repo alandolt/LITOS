@@ -28,7 +28,15 @@ extern DNSServer &ref_DNSServer()
 void init_webserver()
 {
 	server.reset();
-	server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+	//server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+
+	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+		// Send File
+		AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", DASH_HTML, DASH_HTML_SIZE);
+		response->addHeader("Content-Encoding", "gzip");
+		request->send(response);
+	});
+
 	server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.png");
 	server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
 	server.serveStatic("/conf/", SPIFFS, "/conf/");

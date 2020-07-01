@@ -36,10 +36,11 @@ void draw_home()
 
     if (config.get_is_AP())
     {
-        display.setTextColor(WHITE);
+        display.setTextColor(RED);
         display.setCursor(5, 35);
         display.setTextSize(1);
         display.print("AP, SSID: ");
+        display.setTextColor(WHITE);
         display.print(config.get_AP_ssid());
     }
     else
@@ -222,9 +223,7 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
             int digits = num_digits(time_remaining);
             if (digits != last_plate_remaining_digits)
             {
-                //display.fillScreen(BLACK);
                 display.fillRect(x, y, 128, 7, BLACK);
-                //draw_status_screen();
                 last_plate_remaining_digits = digits;
             }
             display.setTextColor(WHITE, BLACK);

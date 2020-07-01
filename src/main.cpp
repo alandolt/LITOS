@@ -20,6 +20,7 @@ unsigned long int current_time;
 
 void setup()
 {
+	init_matrix_power();
 	delay(100);
 	Serial.begin(115200);
 	SPIFFS.begin(); /// open file system

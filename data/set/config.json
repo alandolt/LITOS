@@ -4,13 +4,13 @@
         "hostname": "LITOS"
     },
     "wlan_connect": {
-        "ssid": "pilatus",
-        "wlan_password": "%Fortress123&"
+        "ssid": "",
+        "wlan_password": ""
     },
     "AP_mode": {
-        "is_AP": false,
+        "is_AP": true,
         "AP_password_protected": false,
-        "AP_ssid": "LITOS",
+        "AP_ssid": "LITOS_5",
         "AP_password": "demo"
     },
     "EAP_mode": {

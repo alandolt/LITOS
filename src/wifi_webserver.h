@@ -4,6 +4,8 @@
 #include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
 
+#include "webpage_zopfli.h"
+
 void init_webserver();
 void init_wlan();
 void init_AP_mode();

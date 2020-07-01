@@ -5,6 +5,12 @@
  * @version 0.3
  * @date 2020-05-26
  * 
+ * This columns are out of the matrix if the two plate mask is used 
+ * 96 wellplate: 1 & 12 (approx 70-90% outside of matrix)
+ * 48 wellplate: 1 & 8 (25-50% outside
+ * 24 wellplate 1 & 6 (50 % outside)
+ * 12 wellplate: 4 (only  10 % outside)
+ * 6 wellplate: 1 & 3 (only 15 % outside)
  */
 #include "wellplate.h"
 
@@ -90,7 +96,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	number_of_finished_wells = 0;
 
 	_type_wellplate = a_type_wellplate;
-	size_of_illumination = 1;
+	//size_of_illumination = 1;
 	well_vector.clear();
 
 	byte buffer_size = 200;
@@ -300,6 +306,9 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 	case one_96_center:
 		return 3 * col + 12;
 		break;
+	case one_96_corner:
+		return 3 * col + 1;
+		break;
 	case two_96_A:
 		return 3 * col + 2;
 		break;
@@ -308,6 +317,9 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 		break;
 	case one_48_center:
 		return 4.3 * col + 11.6;
+		break;
+	case one_48_corner:
+		return 4.3 * col + 0.8;
 		break;
 	case two_48_A:
 		return 4.5 * col - 0.4;
@@ -318,6 +330,9 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 	case one_24_center:
 		return 6.2 * col + 10;
 		break;
+	case one_24_corner:
+		return 6.2 * col - 1;
+		break;
 	case two_24_A:
 		return 6.2 * col + 1;
 		break;
@@ -327,11 +342,26 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 	case one_12_center:
 		return 8.5 * col + 11;
 		break;
+	case one_12_corner:
+		return 8.5 * col - 0;
+		break;
 	case two_12_A:
 		return 8.5 * col - 1;
 		break;
 	case two_12_B:
 		return 8.5 * col + 30;
+		break;
+	case one_6_center:
+		return 13 * col + 6;
+		break;
+	case one_6_corner:
+		return 13 * col - 6;
+		break;
+	case two_6_A:
+		return 13 * col - 4;
+		break;
+	case two_6_B:
+		return 13 * col + 27;
 		break;
 	default:
 		return 3 * col + 12;
@@ -346,12 +376,18 @@ int wellplate::well_to_y(int row)
 	case one_96_center:
 		return 3 * row + 1;
 		break;
+	case one_96_corner:
+		return 3 * row + 0;
+		break;
 	case two_96_A:
 	case two_96_B:
 		return -3 * row + 34;
 		break;
 	case one_48_center:
 		return 4.3 * row - 1;
+		break;
+	case one_48_corner:
+		return 4.3 * row - 2;
 		break;
 	case two_48_A:
 	case two_48_B:
@@ -360,6 +396,9 @@ int wellplate::well_to_y(int row)
 	case one_24_center:
 		return 6.2 * row;
 		break;
+	case one_24_corner:
+		return 6.2 * row - 4;
+		break;
 	case two_24_A:
 	case two_24_B:
 		return -6.2 * row + 38;
@@ -367,9 +406,22 @@ int wellplate::well_to_y(int row)
 	case one_12_center:
 		return 8.5 * row - 1;
 		break;
+	case one_12_corner:
+		return 8.5 * row - 2;
+		break;
 	case two_12_A:
 	case two_12_B:
 		return -8.5 * row + 36;
+		break;
+	case one_6_center:
+		return 13 * row - 5;
+		break;
+	case one_6_corner:
+		return 13 * row - 6;
+		break;
+	case two_6_A:
+	case two_6_B:
+		return -13 * row + 41;
 		break;
 	default:
 		return 3 * row + 1;
@@ -634,7 +686,41 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
-	ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+	switch (_type_wellplate)
+	{
+	case one_96_center:
+	case one_96_corner:
+	case two_96_A:
+	case two_96_B:
+		size_of_illumination = 1;
+		ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+		break;
+	case one_48_center:
+	case one_48_corner:
+	case two_48_A:
+	case two_48_B:
+		size_of_illumination = 3;
+		ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+		break;
+	case one_24_center:
+	case one_24_corner:
+	case two_24_A:
+	case two_24_B:
+		ref_backgroundLayer().fillCircle(x, y, 3, rgb24{r, g, b});
+		break;
+	case one_12_center:
+	case one_12_corner:
+	case two_12_A:
+	case two_12_B:
+		ref_backgroundLayer().fillCircle(x, y, 4, rgb24{r, g, b});
+		break;
+	case one_6_center:
+	case one_6_corner:
+	case two_6_A:
+	case two_6_B:
+		ref_backgroundLayer().fillCircle(x, y, 6, rgb24{r, g, b});
+		break;
+	}
 }
 
 void wellplate::abort_program()
