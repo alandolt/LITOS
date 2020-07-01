@@ -233,7 +233,25 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					_well.blue = 0;
 					_well.green = 255;
 				}
-			}
+				else if (strcasecmp(color_string, "YELLOW") == 0)
+				{
+					_well.red = 255;
+					_well.blue = 255;
+					_well.green = 0;
+				}
+				else if (strcasecmp(color_string, "WHITE") == 0)
+				{
+					_well.red = 255;
+					_well.blue = 255;
+					_well.green = 255;
+				}
+				else if (strcasecmp(color_string, "PINK") == 0)
+				{
+					_well.red = 255;
+					_well.blue = 0;
+					_well.green = 255;
+				}
+						}
 			else
 			{
 				char *ptr_color_string;
