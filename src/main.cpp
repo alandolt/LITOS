@@ -32,8 +32,9 @@ void setup()
 	init_display();
 	delay(100);
 	init_webserver();
-	init_matrix();
 
+	init_matrix();
+	
 	buzzer.init_buzzer();
 	plate_A.wellplate_setup();
 	plate_B.wellplate_setup();

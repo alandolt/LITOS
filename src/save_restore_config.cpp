@@ -51,6 +51,9 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
     strlcpy(_config.last_config_file_B, doc["wellplate_settings"]["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
 
+    _config.matriz_correction_x = doc["matrix_global_correction"]["x"] | 0;
+    _config.matriz_correction_y = doc["matrix_global_correction"]["y"] | 0;
+
     file.close();
 
     int file_length = strlen(_config.last_config_file_A);
@@ -123,6 +126,7 @@ void save_restore_config::save_configuration()
     JsonObject AP_mode = doc.createNestedObject("AP_mode");
     JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
     JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
+    JsonObject matriz_global_correction = doc.createNestedObject("matrix_global_correction");
 
     webserver["port"] = _config.port;
     webserver["hostname"] = _config.hostname;
@@ -144,6 +148,9 @@ void save_restore_config::save_configuration()
     wellplate_settings["last_wellplate_A"] = _config.last_wellplate_A;
     wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
     wellplate_settings["last_wellplate_B"] = _config.last_wellplate_B;
+
+    matriz_global_correction["x"] = _config.matriz_correction_x;
+    matriz_global_correction["y"] = _config.matriz_correction_y;
 
     if (serializeJson(doc, file) == 0)
     {
@@ -407,6 +414,34 @@ const bool save_restore_config::get_two_wellplates()
 void save_restore_config::set_two_wellplates(bool two_wellplates, bool update_config)
 {
     _config.two_wellplates = two_wellplates;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+const int save_restore_config::get_global_correction_x()
+{
+    return _config.matriz_correction_x;
+}
+
+void save_restore_config::set_global_correction_x(int x_correction, bool update_config)
+{
+    _config.matriz_correction_x = x_correction;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+const int save_restore_config::get_global_correction_y()
+{
+    return _config.matriz_correction_y;
+}
+
+void save_restore_config::set_global_correction_y(int y_correction, bool update_config)
+{
+    _config.matriz_correction_y = y_correction;
     if (update_config)
     {
         save_configuration();

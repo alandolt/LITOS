@@ -87,6 +87,8 @@ void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellpla
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
+	x_correction = config.get_global_correction_x();
+	y_correction = config.get_global_correction_y();
 
 	// reset
 	init = true;
@@ -139,7 +141,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 #endif
 				goto end_of_file;
 			}
-			if (isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]) || isAlpha(buffer[strlen(buffer) - 3]))
+			if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]))
 			{
 				last_cycle_defined = true;
 #ifdef DEBUG
@@ -555,9 +557,9 @@ void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
 	{
 
 		start_well_col = 2;
-		start_well_row = 2;
+		start_well_row = 1;
 		end_well_col = 11;
-		end_well_row = 7;
+		end_well_row = 8;
 	}
 	else
 	{
@@ -585,11 +587,11 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			}
 			else if (_type_wellplate > 150) // lower wellplate
 			{
-				ref_backgroundLayer().fillRectangle(35, 0, 63, 31, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
+				ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
 			}
 			else
 			{
-				ref_backgroundLayer().fillRectangle(1, 0, 30, 31, rgb24{r, g, b});
+				ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
 			}
 		}
 		if (first_char == 'P' || first_char == 'p') // Pixel definition
@@ -686,6 +688,9 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
+	x += x_correction;
+	y += y_correction;
+
 	switch (_type_wellplate)
 	{
 	case one_96_center:

@@ -19,6 +19,10 @@
 class wellplate
 {
 private:
+	// global matriz correction
+	int x_correction;
+	int y_correction;
+
 	const char identifier; /// unique identifier of an well plate type
 	byte start_well_row;
 	byte start_well_col;
@@ -33,8 +37,8 @@ private:
 	bool illumination_in_process;
 
 	unsigned long int time_started; /// time at which the illumination was started (offset from time at which the ESP32 has been started)
-//	float max_exposure;				/// longest exposure in an illumination pattern, needed to calculate last timepoint
-//	int max_timepoint;
+									//	float max_exposure;				/// longest exposure in an illumination pattern, needed to calculate last timepoint
+									//	int max_timepoint;
 	unsigned long int total_time_experiment;
 	std::vector<well> well_vector;
 	std::vector<well>::iterator iter;

@@ -24,5 +24,9 @@
         "last_wellplate_A": 101,
         "last_config_file_B": "/conf/pertz_lab_Exp2.csv",
         "last_wellplate_B": 152
+    },
+    "matrix_global_correction": {
+        "x": 0,
+        "y": 0
     }
 }

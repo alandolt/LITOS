@@ -47,6 +47,9 @@ private:
 
         bool two_wellplates;
 
+        byte matriz_correction_x;
+        byte matriz_correction_y;
+
         int file_count_spiffs; /// deprecated in v0.3
         char file_list[550];   /** to avoid interference with SMARTMATRIX library and the webserver, all the filenames of illumination patterns
                                 located in SPIFFS are loaded into a char array at the start of program
@@ -80,6 +83,9 @@ public:
     void set_AP_password(const char *AP_password, bool update_config = false);
     void set_AP_password_protected(const bool password_protected, bool update_config = false);
 
+    void set_global_correction_x(int x_correction, bool update_config = false);
+    void set_global_correction_y(int y_correction, bool update_config = false);
+
     void set_file_list(const char *file_list);
 
     void set_two_wellplates(bool two_wellplates, bool update_config = false);
@@ -102,6 +108,10 @@ public:
     const type_wellplate get_last_wellplate(const char identifier); /// identifier is used to chose well plate (A/B)
     const char *get_last_config_file(const char identifier);
     const char *get_last_config_filename(const char identifier);
+
+    const int get_global_correction_x();
+    const int get_global_correction_y();
+
     char *get_file_list();
 };
 
