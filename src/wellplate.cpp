@@ -105,8 +105,8 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	char buffer[buffer_size];
 	File file = SPIFFS.open(name_config_file);
 
-	const char delimiter[] = ";\t";
-	const char delim_color[] = ",";
+	const char delimiter[] = ";\t,.";
+	const char delim_color[] = "/-";
 
 	char *ptr;
 
