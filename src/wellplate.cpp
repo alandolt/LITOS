@@ -251,7 +251,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					_well.blue = 0;
 					_well.green = 255;
 				}
-						}
+			}
 			else
 			{
 				char *ptr_color_string;
@@ -619,8 +619,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			pEnd = strtok(NULL, "_,;");
 			y = atoi(pEnd);
 
-			well_col(x, y, r, g, b);
-
+			ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
 #ifdef DEBUG
 			Serial.print("pixel defined, x: ");
 			Serial.print(x);

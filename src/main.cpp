@@ -29,12 +29,12 @@ void setup()
 
 	init_wlan();
 	delay(100);
-	init_display();
-	delay(100);
 	init_webserver();
+	delay(100);
+	init_display();
 
 	init_matrix();
-	
+
 	buzzer.init_buzzer();
 	plate_A.wellplate_setup();
 	plate_B.wellplate_setup();
@@ -73,6 +73,10 @@ void loop()
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
+		/*if (button_4.pressed())
+		{
+			screen = test_screen;
+		}*/
 		break;
 	case status_A_screen:		/// A is currently running
 		if (button_4.pressed()) /// abort and go back to home

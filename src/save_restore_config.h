@@ -19,8 +19,16 @@ class save_restore_config
 {
 private:
     char config_file[35];
+
+    enum con_mode : uint8_t
+    {
+        AP_mode = 0,
+        WPA_mode = 1,
+        EAP_mode = 2
+    };
     typedef struct struct_config
     {
+        con_mode connection_mode;
         char ssid[35];
         char wlan_password[35];
         char hostname[35];

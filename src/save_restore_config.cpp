@@ -32,16 +32,15 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     /// in this part the decoded variables from the config file are copied into RAM
     _config.port = doc["webserver"]["port"] | 80;
     strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LIGHTOS", sizeof(_config.hostname));
+    _config.connection_mode = con_mode(doc["webserver"]["mode"] | 0);
 
     strlcpy(_config.ssid, doc["wlan_connect"]["ssid"], sizeof(_config.ssid));
     strlcpy(_config.wlan_password, doc["wlan_connect"]["wlan_password"], sizeof(_config.wlan_password));
 
-    _config.is_AP = doc["AP_mode"]["is_AP"] | false;
     _config.AP_password_protected = doc["AP_mode"]["AP_password_protected"] | false;
     strlcpy(_config.AP_ssid, doc["AP_mode"]["AP_ssid"], sizeof(_config.AP_ssid));
     strlcpy(_config.AP_password, doc["AP_mode"]["AP_password"], sizeof(_config.AP_password));
 
-    _config.is_EAP = doc["EAP_mode"]["is_EAP"] | false;
     strlcpy(_config.EAP_identity, doc["EAP_mode"]["EAP_identity"], sizeof(_config.EAP_identity));
     strlcpy(_config.EAP_password, doc["EAP_mode"]["EAP_password"], sizeof(_config.EAP_password));
 
@@ -130,16 +129,15 @@ void save_restore_config::save_configuration()
 
     webserver["port"] = _config.port;
     webserver["hostname"] = _config.hostname;
+    webserver["mode"] = int(_config.connection_mode);
 
     wlan_connect["ssid"] = _config.ssid;
     wlan_connect["wlan_password"] = _config.wlan_password;
 
-    AP_mode["is_AP"] = _config.is_AP;
     AP_mode["AP_password_protected"] = _config.AP_password_protected;
     AP_mode["AP_ssid"] = _config.AP_ssid;
     AP_mode["AP_password"] = _config.AP_password;
 
-    EAP_mode["is_EAP"] = _config.is_EAP;
     EAP_mode["EAP_identity"] = _config.EAP_identity;
     EAP_mode["EAP_password"] = _config.EAP_password;
 
@@ -152,11 +150,9 @@ void save_restore_config::save_configuration()
     matriz_global_correction["x"] = _config.matriz_correction_x;
     matriz_global_correction["y"] = _config.matriz_correction_y;
 
-    if (serializeJson(doc, file) == 0)
-    {
-        Serial.println(F("Failed to write to file"));
-    }
-
+    WriteBufferingStream bufferedFile(file, 64);
+    serializeJson(doc, bufferedFile);
+    bufferedFile.flush();
     file.close();
 }
 
@@ -327,7 +323,7 @@ const char *save_restore_config::get_ip()
 
 const bool save_restore_config::get_is_AP()
 {
-    return _config.is_AP;
+    return _config.connection_mode == AP_mode;
 }
 const bool save_restore_config::get_AP_password_protected()
 {
@@ -347,7 +343,7 @@ const char *save_restore_config::get_hostname()
 }
 const bool save_restore_config::get_is_EAP()
 {
-    return _config.is_EAP;
+    return _config.connection_mode == EAP_mode;
 }
 const char *save_restore_config::get_EAP_identity()
 {

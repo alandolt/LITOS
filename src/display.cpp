@@ -66,6 +66,7 @@ void draw_home()
         display.setCursor(45, 62);
         display.print(wellplate_abrev(config.get_last_wellplate('A')));
         draw_button("A", 2);
+        //draw_button("Test", 4);
     }
     else
     {
@@ -93,7 +94,7 @@ void draw_home()
         draw_button("A+B", 1, -2); /// offset of -2 as it seems to be more centred this way
         draw_button("A", 2);
         draw_button("B", 3);
-        //draw_button("Setup", 4);
+        //draw_button("Test", 4);
     }
 }
 

@@ -1,20 +1,19 @@
 {
     "webserver": {
         "port": 80,
-        "hostname": "LITOS"
+        "hostname": "LITOS",
+        "mode": 1
     },
     "wlan_connect": {
         "ssid": "",
         "wlan_password": ""
     },
     "AP_mode": {
-        "is_AP": true,
         "AP_password_protected": false,
         "AP_ssid": "LITOS_5",
         "AP_password": "demo"
     },
     "EAP_mode": {
-        "is_EAP": false,
         "EAP_identity": "",
         "EAP_password": ""
     },

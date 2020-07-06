@@ -49,6 +49,11 @@ void init_webserver()
 			{
 				Serial.println((String) "UploadStart: " + filename);
 				// open the file on first call and store the file handle in the request object
+				if (filename.length() > 22)
+				{
+					filename = filename.substring(0, 20);
+					filename += ".csv";
+				}
 				request->_tempFile = SPIFFS.open("/conf/" + filename, "w");
 			}
 			if (len)
@@ -221,13 +226,13 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 				{
 					if (command == "get_file_list")
 					{
-						Serial.println("[WEBSOCKET] Got getLayout Command from Client " + String(client->id()));
+						Serial.println("[WEBSOCKET] Got get_file_list Command from Client " + String(client->id()));
 						String result = "";
 						generate_file_list_response(result);
 						ws.text(client->id(), result);
 					}
 
-					else if (command == "delete_file")
+									else if (command == "delete_file")
 					{
 						Serial.println("get_file_delete command");
 						const char *file_to_be_removed = object["file"];

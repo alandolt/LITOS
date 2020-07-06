@@ -31,7 +31,9 @@ enum status_screen : char
     status_A_screen = 'A',
     status_B_screen = 'B',
     status_A_B_screen = 'T',
-    setup_screen = 'S'
+    setup_screen = 'S',
+    test_screen = 'P'
+
 };
 
 extern Adafruit_SSD1351 display; /// initialize display by loading Adafruit driver
