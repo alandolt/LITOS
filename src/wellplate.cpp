@@ -123,6 +123,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	{
 
 		bool last_cycle_defined = false;
+		bool only_once = false;
 		if (first_line)
 		{
 			file.readBytesUntil('\n', buffer, buffer_size);
@@ -146,6 +147,13 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				last_cycle_defined = true;
 #ifdef DEBUG
 				Serial.println("last cycle defined");
+#endif
+			}
+			if (buffer[strlen(buffer) - 1] == ';' && buffer[strlen(buffer) - 2] == ';' && buffer[strlen(buffer) - 3] == ';')
+			{
+				only_once = true;
+#ifdef DEBUG
+				Serial.println("only once");
 #endif
 			}
 			ptr = strtok(buffer, delimiter); //what
@@ -187,31 +195,43 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			ptr = strtok(NULL, delimiter); //color
 			strcpy(color_string, ptr);
 
-			ptr = strtok(NULL, delimiter); //repeat_every
-			unsigned int repeat_every = atoi(ptr);
-
-			ptr = strtok(NULL, delimiter); //repeat_every unit
-			_well.repeat_every = repeat_every * unit_correction(ptr);
-
-			_well.running = false;
-			_well.finished = false;
-
-			if (last_cycle_defined)
+			if (!only_once)
 			{
-				ptr = strtok(NULL, delimiter); //last_cycle
-				unsigned int last_cycle = atoi(ptr);
+				ptr = strtok(NULL, delimiter); //repeat_every
+				unsigned int repeat_every = atoi(ptr);
 
-				ptr = strtok(NULL, delimiter); //last_cycle unit
-				_well.start_last_cycle = last_cycle * unit_correction(ptr);
+				ptr = strtok(NULL, delimiter); //repeat_every unit
+				_well.repeat_every = repeat_every * unit_correction(ptr);
 
-				_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every);
+				_well.running = false;
+				_well.finished = false;
+
+				if (last_cycle_defined)
+				{
+					ptr = strtok(NULL, delimiter); //last_cycle
+					unsigned int last_cycle = atoi(ptr);
+
+					ptr = strtok(NULL, delimiter); //last_cycle unit
+					_well.start_last_cycle = last_cycle * unit_correction(ptr);
+
+					_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every) - 1;
+				}
+				else
+				{
+					ptr = strtok(NULL, delimiter); //n cycle
+					_well.total_cycle = atoi(ptr);
+					_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle + 1);
+				}
 			}
 			else
 			{
-				ptr = strtok(NULL, delimiter); //n cycle
-				_well.total_cycle = atoi(ptr);
-				_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle);
+				_well.running = false;
+				_well.finished = false;
+				_well.repeat_every = 1;
+				_well.start_last_cycle = _well.start;
+				_well.total_cycle = 0;
 			}
+
 			// color interpretation
 			if (isAlpha(color_string[0]))
 			{
@@ -260,7 +280,6 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				_well.red = atoi(ptr_color_string);
 
 				ptr_color_string = strtok(NULL, delim_color);
-				_well.green = atoi(ptr_color_string);
 
 				ptr_color_string = strtok(NULL, delim_color);
 				_well.blue = atoi(ptr_color_string);
