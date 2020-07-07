@@ -57,7 +57,15 @@ void draw_home()
     {
         display.setCursor(5, 50);
         display.setTextColor(RED);
-        display.print("CTR: ");
+        if (config.get_last_wellplate('A') < 50)
+        {
+            display.print("CTR: ");
+        }
+        else
+        {
+            display.print("COR: ");
+        }
+
         display.setTextColor(WHITE);
         display.setCursor(30, 50);
 
