@@ -41,14 +41,6 @@ void setup()
 }
 void loop()
 {
-
-	/*
-	 /// DNS server in AP mode temporaly removed as used too much resources
-	//ArduinoOTA.handle();
-	if (config.get_is_AP())
-	{
-		ref_DNSServer().processNextRequest();
-	}*/
 	current_time = millis();
 
 	switch (screen)
@@ -73,15 +65,12 @@ void loop()
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
-		/*if (button_4.pressed())
-		{
-			screen = test_screen;
-		}*/
+
 		break;
 	case status_A_screen:		/// A is currently running
 		if (button_4.pressed()) /// abort and go back to home
-
 		{
+			Serial.println("button pressed");
 			plate_A.abort_program();
 			screen = home_screen;
 			draw_home();
@@ -106,9 +95,7 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
-
 		ref_backgroundLayer().swapBuffers();
-
 		break;
 	case setup_screen:
 		break;

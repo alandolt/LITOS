@@ -70,12 +70,12 @@ void matrix_off()
      * Personally I even think that it is not needed anymore to cut the data lines. 
      */
 
-    for (byte i = 0; i < 13; i++)
-    {
-        pinMode(led_matrix_pins[i], INPUT);
-    }
     if (is_matrix_on)
     {
+        for (byte i = 0; i < 13; i++)
+        {
+            pinMode(led_matrix_pins[i], INPUT_PULLDOWN);
+        }
         digitalWrite(led_matrix_mosfet, LOW);
         is_matrix_on = false;
     }
@@ -86,12 +86,12 @@ void matrix_off()
  */
 void matrix_on()
 {
-    for (byte i = 0; i < 13; i++)
-    {
-        pinMode(led_matrix_pins[i], INPUT);
-    }
     if (!is_matrix_on)
     {
+        for (byte i = 0; i < 13; i++)
+        {
+            pinMode(led_matrix_pins[i], OUTPUT);
+        }
         digitalWrite(led_matrix_mosfet, HIGH);
         is_matrix_on = true;
     }
