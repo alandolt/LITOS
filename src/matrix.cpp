@@ -18,7 +18,7 @@ static bool is_matrix_on;
 /// specific settings concerning smartmatrix
 const uint8_t kMatrixWidth = 64;                              // known working: 32, 64, 96, 128
 const uint8_t kMatrixHeight = 32;                             // known working: 16, 32, 48, 64
-const uint8_t kRefreshDepth = 24;                             // known working: 24, 36, 48
+const uint8_t kRefreshDepth = 36;                             // known working: 24, 36, 48
 const uint8_t kDmaBufferRows = 2;                             // known working: 2-4, use 2 to save memory, more to keep from dropping frames and automatically lowering refresh rate
 const uint8_t kPanelType = SMARTMATRIX_HUB75_32ROW_MOD16SCAN; // use SMARTMATRIX_HUB75_16ROW_MOD8SCAN for common 16x32 panels
 const uint8_t kMatrixOptions = (SMARTMATRIX_OPTIONS_NONE);    // see http://docs.pixelmatix.com/SmartMatrix for options
@@ -44,7 +44,7 @@ SMLayerBackground<rgb24, 0u> &ref_backgroundLayer()
 void init_matrix()
 {
     matrix.setBrightness(defaultBrightness);
-    matrix.setRefreshRate(1);
+    matrix.setRefreshRate(100);
     matrix.addLayer(&backgroundLayer); /// add allocated background layer to matrix construct
     matrix.begin(15000);               /// start LED matrix (allocate all the needed memory), however leaves 15K bytes free in Heap
     matrix_on();
@@ -73,11 +73,7 @@ void matrix_off()
 
     if (is_matrix_on)
     {
-        /*  for (byte i = 0; i < 13; i++)
-        {
-            pinMode(led_matrix_pins[i], INPUT_PULLDOWN);
-            digitalWrite(led_matrix_pins[i], LOW);
-        }*/
+        sleep_matrix();
         digitalWrite(led_matrix_mosfet, LOW);
         is_matrix_on = false;
     }
@@ -90,11 +86,7 @@ void matrix_on()
 {
     if (!is_matrix_on)
     {
-        /*
-        for (byte i = 0; i < 13; i++)
-        {
-            pinMode(led_matrix_pins[i], OUTPUT);
-        }*/
+        reset_matrix_after_sleep();
         digitalWrite(led_matrix_mosfet, HIGH);
         is_matrix_on = true;
     }
