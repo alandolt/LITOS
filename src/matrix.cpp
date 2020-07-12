@@ -44,7 +44,7 @@ SMLayerBackground<rgb24, 0u> &ref_backgroundLayer()
 void init_matrix()
 {
     matrix.setBrightness(defaultBrightness);
-    matrix.setRefreshRate(100);
+    matrix.setRefreshRate(105);
     matrix.addLayer(&backgroundLayer); /// add allocated background layer to matrix construct
     matrix.begin(15000);               /// start LED matrix (allocate all the needed memory), however leaves 15K bytes free in Heap
     matrix_on();
