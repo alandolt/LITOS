@@ -31,13 +31,17 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     deserializeJson(doc, bufferedFile);
     /// in this part the decoded variables from the config file are copied into RAM
     _config.port = doc["webserver"]["port"] | 80;
+    _config.adv_set = doc["webserver"]["adv_set"] | false;
     strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LIGHTOS", sizeof(_config.hostname));
-    _config.connection_mode = con_mode(doc["webserver"]["mode"] | 0);
+    _config.connection_mode = con_mode(doc["webserver"]["mode"] | 1);
 
-    strlcpy(_config.ssid, doc["wlan_connect"]["ssid"], sizeof(_config.ssid));
-    strlcpy(_config.wlan_password, doc["wlan_connect"]["wlan_password"], sizeof(_config.wlan_password));
+    Serial.println(_config.connection_mode);
+    Serial.println(_config.AP_ssid);
 
-    _config.AP_password_protected = doc["AP_mode"]["AP_password_protected"] | false;
+    strlcpy(_config.ssid, doc["WPA_mode"]["ssid"], sizeof(_config.ssid));
+    strlcpy(_config.wlan_password, doc["WPA_mode"]["wlan_password"], sizeof(_config.wlan_password));
+
+    _config.AP_password_protected = doc["AP_mode"]["AP_prot"] | false;
     strlcpy(_config.AP_ssid, doc["AP_mode"]["AP_ssid"], sizeof(_config.AP_ssid));
     strlcpy(_config.AP_password, doc["AP_mode"]["AP_password"], sizeof(_config.AP_password));
 
@@ -50,8 +54,9 @@ void save_restore_config::load_configuration() /// called in setup to load confi
     strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
     strlcpy(_config.last_config_file_B, doc["wellplate_settings"]["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
 
-    _config.matriz_correction_x = doc["matrix_global_correction"]["x"] | 0;
-    _config.matriz_correction_y = doc["matrix_global_correction"]["y"] | 0;
+    _config.global_corr_activated = doc["mat_cor"]["act"] | false;
+    _config.matriz_correction_x = doc["mat_cor"]["x"] | 0;
+    _config.matriz_correction_y = doc["mat_cor"]["y"] | 0;
 
     file.close();
 
@@ -121,20 +126,21 @@ void save_restore_config::save_configuration()
     }
     StaticJsonDocument<2000> doc; /// I use static JSON to have more place in heap (which is used by SMARTMATRIX and Webserver)
     JsonObject webserver = doc.createNestedObject("webserver");
-    JsonObject wlan_connect = doc.createNestedObject("wlan_connect");
+    JsonObject wlan_connect = doc.createNestedObject("WPA_mode");
     JsonObject AP_mode = doc.createNestedObject("AP_mode");
     JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
     JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
-    JsonObject matriz_global_correction = doc.createNestedObject("matrix_global_correction");
+    JsonObject matriz_global_correction = doc.createNestedObject("mat_cor");
 
     webserver["port"] = _config.port;
     webserver["hostname"] = _config.hostname;
     webserver["mode"] = int(_config.connection_mode);
+    webserver["adv_set"] = _config.adv_set;
 
     wlan_connect["ssid"] = _config.ssid;
     wlan_connect["wlan_password"] = _config.wlan_password;
 
-    AP_mode["AP_password_protected"] = _config.AP_password_protected;
+    AP_mode["AP_prot"] = _config.AP_password_protected;
     AP_mode["AP_ssid"] = _config.AP_ssid;
     AP_mode["AP_password"] = _config.AP_password;
 
@@ -147,6 +153,7 @@ void save_restore_config::save_configuration()
     wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
     wellplate_settings["last_wellplate_B"] = _config.last_wellplate_B;
 
+    matriz_global_correction["act"] = _config.global_corr_activated;
     matriz_global_correction["x"] = _config.matriz_correction_x;
     matriz_global_correction["y"] = _config.matriz_correction_y;
 
@@ -154,6 +161,46 @@ void save_restore_config::save_configuration()
     serializeJson(doc, bufferedFile);
     bufferedFile.flush();
     file.close();
+}
+
+void save_restore_config::get_settings_web(String &buffer)
+{
+    DynamicJsonDocument doc(1000);
+    doc["response"] = "get_settings";
+
+    JsonObject webserver = doc.createNestedObject("webserver");
+    webserver["port"] = _config.port;
+    webserver["hostname"] = _config.hostname;
+    webserver["mode"] = int(_config.connection_mode);
+    webserver["adv_set"] = _config.adv_set;
+
+    if (_config.connection_mode == AP_mode)
+    {
+        JsonObject AP = doc.createNestedObject("AP_mode");
+        AP["AP_prot"] = _config.AP_password_protected;
+        AP["AP_ssid"] = _config.AP_ssid;
+        AP["AP_password"] = _config.AP_password;
+    }
+    else if (_config.connection_mode == WPA_mode)
+    {
+        JsonObject WPA = doc.createNestedObject("WPA_mode");
+        WPA["ssid"] = _config.ssid;
+        WPA["wpa_password"] = _config.wlan_password;
+    }
+    else if (_config.connection_mode == EAP_mode)
+    {
+        JsonObject EAP = doc.createNestedObject("EAP_mode");
+        EAP["EAP_identity"] = _config.EAP_identity;
+        EAP["EAP_password"] = _config.EAP_password;
+    }
+
+    JsonObject matrix_corr = doc.createNestedObject("mat_cor");
+    matrix_corr["act"] = _config.global_corr_activated;
+    matrix_corr["x"] = _config.matriz_correction_x;
+    matrix_corr["y"] = _config.matriz_correction_y;
+
+    serializeJson(doc, buffer);
+    Serial.println(buffer);
 }
 
 void save_restore_config::calc_file_count_spiffs()
@@ -191,6 +238,16 @@ void save_restore_config::set_ssid(const char *_ssid, bool update_config)
         save_configuration();
     }
 }
+
+void save_restore_config::set_port(int _port, bool update_config)
+{
+    _config.port = _port;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
 void save_restore_config::set_wlan_password(const char *_wlan_password, bool update_config)
 {
     strcpy(_config.wlan_password, _wlan_password);
@@ -311,6 +368,10 @@ const char *save_restore_config::get_ssid()
 {
     return _config.ssid;
 }
+const int save_restore_config::get_port()
+{
+    return _config.port;
+}
 const char *save_restore_config::get_wlan_password()
 {
     return _config.wlan_password;
@@ -416,6 +477,20 @@ void save_restore_config::set_two_wellplates(bool two_wellplates, bool update_co
     }
 }
 
+void save_restore_config::set_global_correction(bool _activated, bool update_config)
+{
+    _config.global_corr_activated = _activated;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+const bool save_restore_config::get_global_correction_activated()
+{
+    return _config.global_corr_activated;
+}
+
 const int save_restore_config::get_global_correction_x()
 {
     return _config.matriz_correction_x;
@@ -438,6 +513,34 @@ const int save_restore_config::get_global_correction_y()
 void save_restore_config::set_global_correction_y(int y_correction, bool update_config)
 {
     _config.matriz_correction_y = y_correction;
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+const con_mode save_restore_config::get_con_mode()
+{
+    return _config.connection_mode;
+}
+
+void save_restore_config::set_con_mode(uint8_t _connection_mode, bool update_config)
+{
+    _config.connection_mode = con_mode(_connection_mode);
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+const bool save_restore_config::get_adv_set()
+{
+    return _config.adv_set;
+}
+
+void save_restore_config::set_adv_set(bool _adv_set, bool update_config)
+{
+    _config.adv_set = _adv_set;
     if (update_config)
     {
         save_configuration();

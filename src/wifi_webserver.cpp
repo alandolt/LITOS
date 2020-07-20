@@ -63,7 +63,6 @@ void init_webserver()
 			}
 			if (final)
 			{
-				Serial.println("test");
 				Serial.println((String) "UploadEnd: " + filename + ",size: " + index + len);
 				snprintf(config.get_file_list(), 35, ",/conf/%s", filename.c_str());
 				// close the file handle as the upload is now done
@@ -133,7 +132,7 @@ void init_AP_mode()
 	//const byte DNS_PORT = 53;
 	const IPAddress apIP(192, 168, 1, 1);
 	//const IPAddress apIP(8, 8, 8, 8);
-
+	Serial.println(config.get_AP_ssid());
 	WiFi.disconnect();
 	WiFi.mode(WIFI_OFF);
 	WiFi.mode(WIFI_AP);
@@ -224,15 +223,68 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 				String command = object["command"];
 				if (command != "")
 				{
-					if (command == "get_file_list")
+					if (command == "ping")
+					{
+						ws.text(client->id(), F("{\"response\": \"ping_ack\"}"));
+					}
+					else if (command == "get_file_list")
 					{
 						Serial.println("[WEBSOCKET] Got get_file_list Command from Client " + String(client->id()));
 						String result = "";
 						generate_file_list_response(result);
 						ws.text(client->id(), result);
 					}
+					else if (command == "get_settings")
+					{
+						String result = "";
+						config.get_settings_web(result);
+						Serial.println("get_settings_code");
+						ws.text(client->id(), result);
+					}
 
-									else if (command == "delete_file")
+					else if (command == "update_settings")
+					{
+						Serial.println("get new settings");
+						config.set_port(doc["webserver"]["port"] | config.get_port());
+						config.set_hostname(doc["webserver"]["hostname"] | config.get_hostname());
+						config.set_con_mode(doc["webserver"]["mode"] | config.get_con_mode());
+						config.set_adv_set(doc["webserver"]["adv_set"] | config.get_adv_set());
+
+						config.set_ssid(doc["WPA_mode"]["ssid"] | config.get_ssid());
+						config.set_wlan_password(doc["WPA_mode"]["wpa_password"] | config.get_wlan_password());
+
+						config.set_AP_ssid(doc["AP_mode"]["AP_ssid"] | config.get_AP_ssid());
+						config.set_AP_password(doc["AP_mode"]["AP_password"] | config.get_AP_password());
+						config.set_AP_password_protected(doc["AP_mode"]["AP_prot"] | config.get_AP_password_protected());
+
+						config.set_EAP_identity(doc["EAP_mode"]["EAP_identity"] | config.get_EAP_identity());
+						config.set_EAP_password(doc["EAP_mode"]["EAP_password"] | config.get_EAP_password());
+
+						config.set_global_correction(doc["mat_cor"]["act"] | config.get_global_correction_activated());
+						config.set_global_correction_x(doc["mat_cor"]["x"] | config.get_global_correction_x());
+						config.set_global_correction_y(doc["mat_cor"]["y"] | config.get_global_correction_y());
+
+						config.save_configuration();
+
+						Serial.println(config.get_port());
+						Serial.println(config.get_hostname());
+						Serial.println(config.get_con_mode());
+						Serial.println(config.get_adv_set());
+						Serial.println(config.get_ssid());
+						Serial.println(config.get_wlan_password());
+						Serial.println(config.get_AP_ssid());
+						Serial.println(config.get_AP_password());
+						Serial.println(config.get_AP_password_protected());
+						Serial.println(config.get_EAP_identity());
+						Serial.println(config.get_EAP_password());
+						Serial.println(config.get_global_correction_activated());
+						Serial.println(config.get_global_correction_x());
+						Serial.println(config.get_global_correction_y());
+
+						ESP.restart();
+					}
+
+					else if (command == "delete_file")
 					{
 						Serial.println("get_file_delete command");
 						const char *file_to_be_removed = object["file"];

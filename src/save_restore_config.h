@@ -14,18 +14,18 @@
 
 #include <ArduinoJson.h>
 #include "struct.h"
+enum con_mode : uint8_t
+{
+    AP_mode = 1,
+    WPA_mode = 2,
+    EAP_mode = 3
+};
 
 class save_restore_config
 {
 private:
     char config_file[35];
 
-    enum con_mode : uint8_t
-    {
-        AP_mode = 0,
-        WPA_mode = 1,
-        EAP_mode = 2
-    };
     typedef struct struct_config
     {
         con_mode connection_mode;
@@ -33,6 +33,7 @@ private:
         char wlan_password[35];
         char hostname[35];
         int port;
+        bool adv_set;
 
         bool is_AP;
         bool AP_password_protected;
@@ -55,6 +56,7 @@ private:
 
         bool two_wellplates;
 
+        bool global_corr_activated;
         byte matriz_correction_x;
         byte matriz_correction_y;
 
@@ -73,17 +75,18 @@ public:
     void calc_file_count_spiffs();                 /// function to calculate the amount of illumination patterns present in SPIFFS and store it in RAM
 
     /// setters to set variable from input to RAM, the bool update config is used when an update of the configuration file located in SPIFFS should be made
-    void set_is_AP(bool is_AP, bool update_config);
-    void set_ssid(const char *_ssid, bool update_config);
-    void set_wlan_password(const char *_wlan_password, bool update_config);
-    void set_hostname(const char *_hostname, bool update_config);
+    void set_is_AP(bool is_AP, bool update_config = false);
+    void set_ssid(const char *_ssid, bool update_config = false);
+    void set_wlan_password(const char *_wlan_password, bool update_config = false);
+    void set_hostname(const char *_hostname, bool update_config = false);
+    void set_adv_set(bool _adv_set, bool update_config = false);
 
-    void set_EAP_password(const char *EAP_password, bool update_config);
-    void set_EAP_identity(const char *EAP_identity, bool update_config);
-    void set_is_EAP(bool is_EAP, bool update_config);
+    void set_EAP_password(const char *EAP_password, bool update_config = false);
+    void set_EAP_identity(const char *EAP_identity, bool update_config = false);
+    void set_is_EAP(bool is_EAP, bool update_config = false);
 
     void set_ip(const char *ip);
-    void set_port(int _port, bool update_config);
+    void set_port(int _port, bool update_config = false);
     void set_last_config_file(const char *_last_config_file, const char identifier, bool update_config = false);
     void set_last_wellplate(int last_wellplate, const char identifier, bool update_config = false);
 
@@ -91,6 +94,7 @@ public:
     void set_AP_password(const char *AP_password, bool update_config = false);
     void set_AP_password_protected(const bool password_protected, bool update_config = false);
 
+    void set_global_correction(bool _activated, bool update_config = false);
     void set_global_correction_x(int x_correction, bool update_config = false);
     void set_global_correction_y(int y_correction, bool update_config = false);
 
@@ -102,6 +106,8 @@ public:
     int get_file_count_spiffs();
     const bool get_two_wellplates();
     const bool get_is_AP();
+    const int get_port();
+    const bool get_adv_set();
     const char *get_ssid();
     const char *get_wlan_password();
     const char *get_ip();
@@ -117,10 +123,16 @@ public:
     const char *get_last_config_file(const char identifier);
     const char *get_last_config_filename(const char identifier);
 
+    const bool get_global_correction_activated();
     const int get_global_correction_x();
     const int get_global_correction_y();
 
     char *get_file_list();
+
+    const con_mode get_con_mode();
+    void set_con_mode(uint8_t _connection_mode, bool update_config = false);
+
+    void get_settings_web(String &result);
 };
 
 extern save_restore_config config;

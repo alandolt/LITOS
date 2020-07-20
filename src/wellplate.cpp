@@ -638,9 +638,9 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		}
 		if (first_char == 'P' || first_char == 'p') // Pixel definition
 		{
-			char *pEnd = strtok(&what[0] + 3, "_,;");
+			char *pEnd = strtok(&what[0] + 2, "_:");
 			x = atoi(pEnd);
-			pEnd = strtok(NULL, "_,;");
+			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
 
 			ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});

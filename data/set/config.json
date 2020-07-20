@@ -2,16 +2,17 @@
     "webserver": {
         "port": 80,
         "hostname": "LITOS",
-        "mode": 1
+        "mode": 2,
+        "adv_set": false
     },
-    "wlan_connect": {
-        "ssid": "",
-        "wlan_password": ""
+    "WPA_mode": {
+        "ssid": "pilatus",
+        "wlan_password": "%Fortress123&"
     },
     "AP_mode": {
-        "AP_password_protected": false,
-        "AP_ssid": "LITOS_5",
-        "AP_password": "demo"
+        "AP_prot": false,
+        "AP_ssid": "",
+        "AP_password": ""
     },
     "EAP_mode": {
         "EAP_identity": "",
@@ -24,7 +25,8 @@
         "last_config_file_B": "/conf/pertz_lab_Exp2.csv",
         "last_wellplate_B": 152
     },
-    "matrix_global_correction": {
+    "mat_cor": {
+        "act": false,
         "x": 0,
         "y": 0
     }
