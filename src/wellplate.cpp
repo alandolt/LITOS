@@ -652,6 +652,48 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			Serial.println("");
 #endif
 		}
+		else if (first_char == 'R' || first_char == 'r') // Rect definition
+		{
+			int size_rect;
+			char *pEnd = strtok(&what[0] + 2, "_:");
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			y = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			size_rect = atoi(pEnd);
+
+			ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
+#ifdef DEBUG
+			Serial.print("rect defined, x: ");
+			Serial.print(x);
+			Serial.print(", y: ");
+			Serial.print(y);
+			Serial.print(", size: ");
+			Serial.print(size_rect);
+			Serial.println("");
+#endif
+		}
+		else if (first_char == 'C' || first_char == 'c') // circle definition
+		{
+			int size_circle;
+			char *pEnd = strtok(&what[0] + 2, "_:");
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			y = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			size_circle = atoi(pEnd);
+
+			ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
+#ifdef DEBUG
+			Serial.print("circle defined, x: ");
+			Serial.print(x);
+			Serial.print(", y: ");
+			Serial.print(y);
+			Serial.print(", size: ");
+			Serial.print(size_circle);
+			Serial.println("");
+#endif
+		}
 
 		else if (strlen(what) == 1) // only row defined
 		{
