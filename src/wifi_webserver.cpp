@@ -37,7 +37,7 @@ void init_webserver()
 		request->send(response);
 	});
 
-	server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.png");
+	server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.ico");
 	server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
 	server.serveStatic("/conf/", SPIFFS, "/conf/");
 

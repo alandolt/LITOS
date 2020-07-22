@@ -505,9 +505,16 @@ bool wellplate::check(unsigned long int time)
 					Serial.print(": ");
 					Serial.print("aktiv");
 #endif
+					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
+					{
+						//countdown((*iter).&what[0]+1, (*iter).stimulation_time);
+						// (*iter).finished = true;
+						// (*iter).running = false;
+					}
+					else{
 					what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
 					(*iter).running = true;
-					(*iter).cycle_count++;
+					(*iter).cycle_count++;}
 				}
 
 				else if ((*iter).running && (*iter).start <= time_ref &&
@@ -638,7 +645,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		}
 		if (first_char == 'P' || first_char == 'p') // Pixel definition
 		{
-			char *pEnd = strtok(&what[0] + 2, "_:");
+			char *pEnd = strtok(&what[0] + 1, "_:");
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
@@ -655,7 +662,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
 			int size_rect;
-			char *pEnd = strtok(&what[0] + 2, "_:");
+			char *pEnd = strtok(&what[0] + 1, "_:");
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
@@ -676,7 +683,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		else if (first_char == 'C' || first_char == 'c') // circle definition
 		{
 			int size_circle;
-			char *pEnd = strtok(&what[0] + 2, "_:");
+			char *pEnd = strtok(&what[0] + 1, "_:");
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
