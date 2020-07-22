@@ -511,10 +511,12 @@ bool wellplate::check(unsigned long int time)
 						// (*iter).finished = true;
 						// (*iter).running = false;
 					}
-					else{
-					what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
-					(*iter).running = true;
-					(*iter).cycle_count++;}
+					else
+					{
+						what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
+						(*iter).running = true;
+						(*iter).cycle_count++;
+					}
 				}
 
 				else if ((*iter).running && (*iter).start <= time_ref &&
@@ -643,7 +645,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 				ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
 			}
 		}
-		if (first_char == 'P' || first_char == 'p') // Pixel definition
+		if (first_char == 'L' || first_char == 'l') // LED definition
 		{
 			char *pEnd = strtok(&what[0] + 1, "_:");
 			x = atoi(pEnd);
@@ -680,7 +682,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			Serial.println("");
 #endif
 		}
-		else if (first_char == 'C' || first_char == 'c') // circle definition
+		else if (first_char == 'O' || first_char == 'o') // circle definition
 		{
 			int size_circle;
 			char *pEnd = strtok(&what[0] + 1, "_:");
@@ -794,7 +796,7 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	case one_48_corner:
 	case two_48_A:
 	case two_48_B:
-		size_of_illumination = 3;
+		size_of_illumination = 4;
 		ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
 		break;
 	case one_24_center:
@@ -807,13 +809,13 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	case one_12_corner:
 	case two_12_A:
 	case two_12_B:
-		ref_backgroundLayer().fillCircle(x, y, 4, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 5, rgb24{r, g, b});
 		break;
 	case one_6_center:
 	case one_6_corner:
 	case two_6_A:
 	case two_6_B:
-		ref_backgroundLayer().fillCircle(x, y, 6, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 7, rgb24{r, g, b});
 		break;
 	}
 }
