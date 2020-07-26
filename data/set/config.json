@@ -2,12 +2,12 @@
     "webserver": {
         "port": 80,
         "hostname": "LITOS",
-        "mode": 1,
+        "mode": 2,
         "adv_set": false
     },
     "WPA_mode": {
-        "ssid": "",
-        "wlan_password": ""
+        "ssid": "pilatus",
+        "wlan_password": "%Fortress123&"
     },
     "AP_mode": {
         "AP_prot": true,

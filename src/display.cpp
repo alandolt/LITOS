@@ -27,32 +27,8 @@ void draw_home()
     screen = home_screen;
     countdown_plate_A.reset_countdown();
     countdown_plate_B.reset_countdown();
-    display.fillScreen(BLACK);
-    display.setCursor(33, 0);
-    display.setTextColor(RED);
-    display.setTextSize(2);
-    display.print("LITOS");
-    display.fillRect(0, 20, 128, 4, YELLOW);
+    draw_home_litos_ip();
 
-    if (config.get_is_AP())
-    {
-        display.setTextColor(RED);
-        display.setCursor(5, 35);
-        display.setTextSize(1);
-        display.print("AP, SSID: ");
-        display.setTextColor(WHITE);
-        display.print(config.get_AP_ssid());
-    }
-    else
-    {
-        display.setTextColor(RED);
-        display.setCursor(5, 35);
-        display.setTextSize(1);
-        display.print("IP: ");
-
-        display.setTextColor(WHITE);
-        display.print(config.get_ip());
-    }
     if (config.get_last_wellplate('A') < 100)
     {
         display.setCursor(5, 50);
@@ -104,6 +80,47 @@ void draw_home()
         draw_button("B", 3);
         //draw_button("Test", 4);
     }
+}
+
+void draw_home_litos_ip()
+{
+    display.fillScreen(BLACK);
+    display.setCursor(33, 0);
+    display.setTextColor(RED);
+    display.setTextSize(2);
+    display.print("LITOS");
+    display.fillRect(0, 20, 128, 4, YELLOW);
+
+    if (config.get_is_AP())
+    {
+        display.setTextColor(RED);
+        display.setCursor(5, 35);
+        display.setTextSize(1);
+        display.print("AP, SSID: ");
+        display.setTextColor(WHITE);
+        display.print(config.get_AP_ssid());
+    }
+    else
+    {
+        display.setTextColor(RED);
+        display.setCursor(5, 35);
+        display.setTextSize(1);
+        display.print("IP: ");
+
+        display.setTextColor(WHITE);
+        display.print(config.get_ip());
+    }
+}
+
+void draw_error_screen(const char identifier, const char *error_message)
+{
+    screen = error_screen;
+    draw_home_litos_ip();
+    display.setTextColor(RED);
+    display.setCursor(5, 50);
+    display.print("Error during loading scheme");
+    display.print(identifier);
+    display.print("Please review your scheme and try to load it again");
 }
 
 void draw_status_screen(bool with_buttons)

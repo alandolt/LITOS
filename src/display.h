@@ -32,15 +32,17 @@ enum status_screen : char
     status_B_screen = 'B',
     status_A_B_screen = 'T',
     setup_screen = 'S',
-    test_screen = 'P'
-
+    test_screen = 'P',
+    error_screen = 'E'
 };
 
 extern Adafruit_SSD1351 display; /// initialize display by loading Adafruit driver
 extern status_screen screen;     /// initialize an instance of the enum status screen
 
-void init_display();                                                               /// initialize the display from void setup
-void draw_home();                                                                  /// draw the home screen with IP adress and currently loaded configuration files
+void init_display(); /// initialize the display from void setup
+void draw_home();
+void draw_home_litos_ip();
+void draw_error_screen(const char identifier, const char *error_message = "");     /// draw the home screen with IP adress and currently loaded configuration files
 void draw_status_screen(bool with_buttons = true);                                 /// invoked when a program is started
 void update_status_screen();                                                       /// in order to only refresh the countdown and not the whole screen (no screen flicker), update_status_screen is used in void loop
 void draw_button(const char *button_name, uint8_t button_pos, int correction = 0); /// draws the colorful button in the lower part of the screen

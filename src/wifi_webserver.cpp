@@ -146,7 +146,7 @@ void init_AP_mode()
 	}
 	delay(100);
 	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-
+	config.set_con_mode(AP_mode);
 	//dnsServer.start(DNS_PORT, "*", apIP);
 }
 

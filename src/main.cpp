@@ -37,7 +37,10 @@ void setup()
 
 	buzzer.init_buzzer();
 	plate_A.wellplate_setup();
-	plate_B.wellplate_setup();
+	if (config.get_last_wellplate('A') > 100)
+	{
+		plate_B.wellplate_setup();
+	}
 }
 void loop()
 {
@@ -98,6 +101,8 @@ void loop()
 		ref_backgroundLayer().swapBuffers();
 		break;
 	case setup_screen:
+		break;
+	case error_screen:
 		break;
 	}
 

@@ -98,7 +98,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	number_of_finished_wells = 0;
 
 	_type_wellplate = a_type_wellplate;
-	//size_of_illumination = 1;
+
 	well_vector.clear();
 
 	byte buffer_size = 200;
@@ -112,235 +112,281 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 	well _well;
 	char color_string[13];
-	if (!file)
-	{
-		Serial.println("Error opening file for writing");
-		return;
-	}
 
-	bool first_line = true;
-	while (file.available())
+	if (file)
 	{
-
-		bool last_cycle_defined = false;
-		bool only_once = false;
-		if (first_line)
-		{
-			file.readBytesUntil('\n', buffer, buffer_size);
-			first_line = false;
-		}
-		else
+		bool first_line = true;
+		while (file.available())
 		{
 
-			byte length = file.readBytesUntil('\n', buffer, buffer_size);
-			buffer[length] = '\0';
-
-			if ((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') ||
-				((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') && (strchr(delimiter, buffer[1]) != NULL && buffer[1] != '\n')) ||
-				((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')))
+			bool last_cycle_defined = false;
+			bool only_once = false;
+			if (first_line)
 			{
-#ifdef DEBUG
-				Serial.println("empty lines detected");
-#endif
-				goto end_of_file;
+				file.readBytesUntil('\n', buffer, buffer_size);
+				first_line = false;
 			}
-			if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]))
+			else
 			{
-				last_cycle_defined = true;
-#ifdef DEBUG
-				Serial.println("last cycle defined");
-#endif
-			}
-			if ((strchr(delimiter, buffer[strlen(buffer) - 3]) != NULL && buffer[strlen(buffer) - 3] != '\n') &&
-				(strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n') &&
-				(strchr(delimiter, buffer[strlen(buffer) - 5]) != NULL && buffer[strlen(buffer) - 5] != '\n'))
-			{
-				only_once = true;
-#ifdef DEBUG
-				Serial.println("only once");
-#endif
-			}
-			ptr = strtok(buffer, delimiter); //what
 
-			/*if (isAlpha(buffer[strlen(buffer) - 2]))
-			{
-				last_cycle_defined = true;
-			}*/
+				byte length = file.readBytesUntil('\n', buffer, buffer_size);
+				buffer[length] = '\0';
 
-			uint8_t i_is_alpha_num = 0;
-			uint8_t j_index = 0;
-			while (!isAlphaNumeric(ptr[i_is_alpha_num]))
-			{
-				i_is_alpha_num++;
-			}
-			uint8_t end_i_is_alpha_num = i_is_alpha_num;
-
-			while (ptr[end_i_is_alpha_num] != '\0')
-			{
-				end_i_is_alpha_num++;
-			}
-			for (uint8_t i = i_is_alpha_num; i <= end_i_is_alpha_num; i++)
-			{
-				char c = ptr[i];
-				_well.what[j_index] = c;
-				j_index++;
-			}
-
-			ptr = strtok(NULL, delimiter); //start
-			unsigned int start = atoi(ptr);
-			ptr = strtok(NULL, delimiter); //start_unit
-			_well.start = start * unit_correction(ptr);
-
-			ptr = strtok(NULL, delimiter); //stim_time
-			unsigned int stim_time = atoi(ptr);
-			ptr = strtok(NULL, delimiter); //stim_time_unit
-			_well.stimulation_time = stim_time * unit_correction(ptr);
-
-			ptr = strtok(NULL, delimiter); //color
-			strcpy(color_string, ptr);
-
-			if (!only_once)
-			{
-				ptr = strtok(NULL, delimiter); //repeat_every
-				unsigned int repeat_every = atoi(ptr);
-				Serial.println(repeat_every);
-
-				ptr = strtok(NULL, delimiter); //repeat_every unit
-				_well.repeat_every = repeat_every * unit_correction(ptr);
-
-				_well.running = false;
-				_well.finished = false;
-
-				if (last_cycle_defined)
+				if ((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') ||
+					((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') && (strchr(delimiter, buffer[1]) != NULL && buffer[1] != '\n')) ||
+					((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')))
 				{
-					ptr = strtok(NULL, delimiter); //last_cycle
-					unsigned int last_cycle = atoi(ptr);
+#ifdef DEBUG
+					Serial.println("empty lines detected");
+#endif
+					goto end_of_file;
+				}
+				if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]))
+				{
+					last_cycle_defined = true;
+#ifdef DEBUG
+					Serial.println("last cycle defined");
+#endif
+				}
+				if ((strchr(delimiter, buffer[strlen(buffer) - 3]) != NULL && buffer[strlen(buffer) - 3] != '\n') &&
+					(strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n') &&
+					(strchr(delimiter, buffer[strlen(buffer) - 5]) != NULL && buffer[strlen(buffer) - 5] != '\n'))
+				{
+					only_once = true;
+#ifdef DEBUG
+					Serial.println("only once");
+#endif
+				}
+				ptr = strtok(buffer, delimiter); //what
 
-					ptr = strtok(NULL, delimiter); //last_cycle unit
-					_well.start_last_cycle = last_cycle * unit_correction(ptr);
+				uint8_t i_is_alpha_num = 0;
+				uint8_t j_index = 0;
+				while (!isAlphaNumeric(ptr[i_is_alpha_num]))
+				{
+					i_is_alpha_num++;
+				}
+				uint8_t end_i_is_alpha_num = i_is_alpha_num;
 
-					_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every) + 1;
+				while (ptr[end_i_is_alpha_num] != '\0')
+				{
+					end_i_is_alpha_num++;
+				}
+				for (uint8_t i = i_is_alpha_num; i <= end_i_is_alpha_num; i++)
+				{
+					char c = ptr[i];
+					_well.what[j_index] = c;
+					j_index++;
+				}
+
+				ptr = strtok(NULL, delimiter); //start
+				if (ptr == nullptr)
+				{
+					goto error_loading;
+				}
+				unsigned int start = atoi(ptr);
+				ptr = strtok(NULL, delimiter); //start_unit
+				if (ptr == nullptr)
+				{
+					goto error_loading;
+				}
+				_well.start = start * unit_correction(ptr);
+
+				ptr = strtok(NULL, delimiter); //stim_time
+				if (ptr == nullptr)
+				{
+					goto error_loading;
+				}
+				unsigned int stim_time = atoi(ptr);
+				ptr = strtok(NULL, delimiter); //stim_time_unit
+				if (ptr == nullptr)
+				{
+					goto error_loading;
+				}
+				_well.stimulation_time = stim_time * unit_correction(ptr);
+
+				ptr = strtok(NULL, delimiter); //color
+				if (ptr == nullptr)
+				{
+					goto error_loading;
+				}
+				strcpy(color_string, ptr);
+
+				if (!only_once)
+				{
+					ptr = strtok(NULL, delimiter); //repeat_every
+					if (ptr == nullptr)
+					{
+						goto error_loading;
+					}
+					unsigned int repeat_every = atoi(ptr);
+					Serial.println(repeat_every);
+
+					ptr = strtok(NULL, delimiter); //repeat_every unit
+					if (ptr == nullptr)
+					{
+						goto error_loading;
+					}
+					_well.repeat_every = repeat_every * unit_correction(ptr);
+
+					_well.running = false;
+					_well.finished = false;
+
+					if (last_cycle_defined)
+					{
+						ptr = strtok(NULL, delimiter); //last_cycle
+						unsigned int last_cycle = atoi(ptr);
+						if (ptr == nullptr)
+						{
+							goto error_loading;
+						}
+
+						ptr = strtok(NULL, delimiter); //last_cycle unit
+						if (ptr == nullptr)
+						{
+							goto error_loading;
+						}
+						_well.start_last_cycle = last_cycle * unit_correction(ptr);
+
+						_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every) + 1;
+					}
+					else
+					{
+						ptr = strtok(NULL, delimiter); //n cycle
+						if (ptr == nullptr)
+						{
+							goto error_loading;
+						}
+						_well.total_cycle = atoi(ptr);
+						_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
+					}
 				}
 				else
 				{
-					ptr = strtok(NULL, delimiter); //n cycle
-					_well.total_cycle = atoi(ptr);
-					_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
+					_well.running = false;
+					_well.finished = false;
+					_well.repeat_every = 1;
+					_well.start_last_cycle = _well.start;
+					_well.total_cycle = 1;
 				}
+
+				// color interpretation
+				if (isAlpha(color_string[0]))
+				{
+					if (strcasecmp(color_string, "RED") == 0)
+					{
+						_well.red = 255;
+						_well.blue = 0;
+						_well.green = 0;
+					}
+					else if (strcasecmp(color_string, "BLUE") == 0)
+					{
+						_well.red = 0;
+						_well.blue = 255;
+						_well.green = 0;
+					}
+					else if (strcasecmp(color_string, "GREEN") == 0)
+					{
+						_well.red = 0;
+						_well.blue = 0;
+						_well.green = 255;
+					}
+					else if (strcasecmp(color_string, "YELLOW") == 0)
+					{
+						_well.red = 255;
+						_well.blue = 255;
+						_well.green = 0;
+					}
+					else if (strcasecmp(color_string, "WHITE") == 0)
+					{
+						_well.red = 255;
+						_well.blue = 255;
+						_well.green = 255;
+					}
+					else if (strcasecmp(color_string, "PINK") == 0)
+					{
+						_well.red = 255;
+						_well.blue = 0;
+						_well.green = 255;
+					}
+				}
+				else
+				{
+					char *ptr_color_string;
+
+					ptr_color_string = strtok(color_string, delim_color);
+					if (ptr_color_string == nullptr)
+					{
+						goto error_loading;
+					}
+
+					_well.red = atoi(ptr_color_string);
+
+					ptr_color_string = strtok(NULL, delim_color);
+					if (ptr_color_string == nullptr)
+					{
+						goto error_loading;
+					}
+					_well.green = atoi(ptr_color_string);
+
+					ptr_color_string = strtok(NULL, delim_color);
+					if (ptr_color_string == nullptr)
+					{
+						goto error_loading;
+					}
+					_well.blue = atoi(ptr_color_string);
+				}
+
+				well_vector.push_back(_well);
 			}
-			else
-			{
-				_well.running = false;
-				_well.finished = false;
-				_well.repeat_every = 1;
-				_well.start_last_cycle = _well.start;
-				_well.total_cycle = 1;
-			}
-
-			// color interpretation
-			if (isAlpha(color_string[0]))
-			{
-				if (strcasecmp(color_string, "RED") == 0)
-				{
-					_well.red = 255;
-					_well.blue = 0;
-					_well.green = 0;
-				}
-				else if (strcasecmp(color_string, "BLUE") == 0)
-				{
-					_well.red = 0;
-					_well.blue = 255;
-					_well.green = 0;
-				}
-				else if (strcasecmp(color_string, "GREEN") == 0)
-				{
-					_well.red = 0;
-					_well.blue = 0;
-					_well.green = 255;
-				}
-				else if (strcasecmp(color_string, "YELLOW") == 0)
-				{
-					_well.red = 255;
-					_well.blue = 255;
-					_well.green = 0;
-				}
-				else if (strcasecmp(color_string, "WHITE") == 0)
-				{
-					_well.red = 255;
-					_well.blue = 255;
-					_well.green = 255;
-				}
-				else if (strcasecmp(color_string, "PINK") == 0)
-				{
-					_well.red = 255;
-					_well.blue = 0;
-					_well.green = 255;
-				}
-			}
-			else
-			{
-				char *ptr_color_string;
-
-				ptr_color_string = strtok(color_string, delim_color);
-				_well.red = atoi(ptr_color_string);
-
-				ptr_color_string = strtok(NULL, delim_color);
-
-				ptr_color_string = strtok(NULL, delim_color);
-				_well.blue = atoi(ptr_color_string);
-			}
-
-			well_vector.push_back(_well);
 		}
-	}
-end_of_file:
-	file.close();
-	number_of_wells = well_vector.size();
+	end_of_file:
+		file.close();
+		number_of_wells = well_vector.size();
 
-	unsigned long int temp_longest = 0;
-	for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
-	{
-		temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
-		if (temp_longest > total_time_experiment)
+		unsigned long int temp_longest = 0;
+		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
-			total_time_experiment = temp_longest;
+			temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
+			if (temp_longest > total_time_experiment)
+			{
+				total_time_experiment = temp_longest;
+			}
+			what_switch((*iter).what, (*iter).red, (*iter).green, (*iter).blue, true);
 		}
-	}
-	//draw_home();
-
-	/*	if (!init)
-	{
-		draw_home();
-	}
-	init = false;*/
 
 #ifdef DEBUG
-	for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
-	{
-		Serial.println("content");
-		Serial.print((*iter).what);
-		Serial.print(", ");
-		Serial.print((*iter).start);
-		Serial.print(", ");
-		Serial.print((*iter).stimulation_time);
-		Serial.print(", ");
-		Serial.print((*iter).repeat_every);
-		Serial.print(", ");
-		Serial.print((*iter).start_last_cycle);
-		Serial.print(", ");
-		Serial.print((*iter).red);
-		Serial.print(", ");
-		Serial.print((*iter).green);
-		Serial.print(", ");
-		Serial.print((*iter).blue);
-		Serial.print(", finished: ");
-		Serial.print((*iter).finished);
-		Serial.print(", ");
-		Serial.println((*iter).total_cycle);
-	}
-	Serial.println(total_time_experiment);
+		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
+		{
+			Serial.println("content");
+			Serial.print((*iter).what);
+			Serial.print(", ");
+			Serial.print((*iter).start);
+			Serial.print(", ");
+			Serial.print((*iter).stimulation_time);
+			Serial.print(", ");
+			Serial.print((*iter).repeat_every);
+			Serial.print(", ");
+			Serial.print((*iter).start_last_cycle);
+			Serial.print(", ");
+			Serial.print((*iter).red);
+			Serial.print(", ");
+			Serial.print((*iter).green);
+			Serial.print(", ");
+			Serial.print((*iter).blue);
+			Serial.print(", finished: ");
+			Serial.print((*iter).finished);
+			Serial.print(", ");
+			Serial.println((*iter).total_cycle);
+		}
+		Serial.println(total_time_experiment);
 
 #endif
+	}
+	else
+	{
+	error_loading:
+		screen = error_screen;
+	}
 }
 
 int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier noch für andere Plates definieren
@@ -603,25 +649,54 @@ int wellplate::letter_to_row(char &letter)
 
 void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
 {
-	// falls nicht via User defined
-	if (_type_wellplate > 100)
+	start_well_col = 1;
+	start_well_row = 1;
+	switch (_type_wellplate)
 	{
-
+	case one_96_center:
+	case one_96_corner:
+		end_well_col = 12;
+		end_well_row = 8;
+		break;
+	case two_96_A:
+	case two_96_B:
 		start_well_col = 2;
 		start_well_row = 1;
 		end_well_col = 11;
 		end_well_row = 8;
-	}
-	else
-	{
-		start_well_col = 1;
-		start_well_row = 1;
-		end_well_col = 12;
-		end_well_row = 8;
+		break;
+	case one_48_center:
+	case one_48_corner:
+	case two_48_A:
+	case two_48_B:
+		end_well_col = 8;
+		end_well_row = 6;
+		break;
+	case one_24_center:
+	case one_24_corner:
+	case two_24_A:
+	case two_24_B:
+		end_well_col = 6;
+		end_well_row = 4;
+		break;
+	case one_12_center:
+	case one_12_corner:
+	case two_12_A:
+	case two_12_B:
+		end_well_col = 4;
+		end_well_row = 3;
+		break;
+	case one_6_center:
+	case one_6_corner:
+	case two_6_A:
+	case two_6_B:
+		end_well_col = 3;
+		end_well_row = 2;
+		break;
 	}
 }
 
-void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
+void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool test_run)
 {
 	char what[20];
 	strcpy(what, _what);
@@ -634,25 +709,41 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		{
 			if (_type_wellplate < 100)
 			{
-				ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+				if (!test_run)
+					ref_backgroundLayer().fillScreen(rgb24{r, g, b});
 			}
 			else if (_type_wellplate > 150) // lower wellplate
 			{
-				ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
+				if (!test_run)
+					ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
 			}
 			else
 			{
-				ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
+				if (!test_run)
+					ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
 			}
 		}
 		if (first_char == 'L' || first_char == 'l') // LED definition
 		{
 			char *pEnd = strtok(&what[0] + 1, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			y = atoi(pEnd);
+			if (!isdigit(x) || !isdigit(y))
+			{
+				goto error_what;
+			}
 
-			ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
+			if (!test_run)
+				ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
 #ifdef DEBUG
 			Serial.print("pixel defined, x: ");
 			Serial.print(x);
@@ -665,13 +756,29 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		{
 			int size_rect;
 			char *pEnd = strtok(&what[0] + 1, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			y = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			size_rect = atoi(pEnd);
-
-			ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
+			if (!isdigit(x) || !isdigit(y) || isdigit(size_rect))
+			{
+				goto error_what;
+			}
+			if (!test_run)
+				ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
 #ifdef DEBUG
 			Serial.print("rect defined, x: ");
 			Serial.print(x);
@@ -686,13 +793,29 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		{
 			int size_circle;
 			char *pEnd = strtok(&what[0] + 1, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			y = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
+			if (pEnd == nullptr)
+			{
+				goto error_what;
+			}
 			size_circle = atoi(pEnd);
-
-			ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
+			if (!isdigit(x) || !isdigit(y) || !isdigit(size_circle))
+			{
+				goto error_what;
+			}
+			if (!test_run)
+				ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
 #ifdef DEBUG
 			Serial.print("circle defined, x: ");
 			Serial.print(x);
@@ -731,6 +854,10 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		{
 			row = letter_to_row(first_char);
 			col = strtol(&what[0] + 1, NULL, 10);
+			if (!isdigit(col) || !isdigit(row))
+			{
+				goto error_what;
+			}
 			if (_type_wellplate > 100)
 			{
 				x = well_to_x(row);
@@ -742,7 +869,8 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 				y = well_to_y(row);
 			}
 
-			well_col(x, y, r, g, b);
+			if (!test_run)
+				well_col(x, y, r, g, b);
 #ifdef DEBUG
 			Serial.print("ind defined: ");
 			Serial.print("col: ");
@@ -763,7 +891,8 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			for (int i = start_well_row; i <= end_well_row; i++)
 			{
 				x = well_to_x(i);
-				well_col(x, y, r, g, b);
+				if (!test_run)
+					well_col(x, y, r, g, b);
 			}
 		}
 		else
@@ -772,10 +901,15 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			for (int i = start_well_row; i <= end_well_row; i++)
 			{
 				y = well_to_y(i);
-				well_col(x, y, r, g, b);
+				if (!test_run)
+					well_col(x, y, r, g, b);
 			}
 		}
 	}
+
+error_what:
+	Serial.println("error during processing this well");
+	draw_error_screen(identifier);
 }
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
