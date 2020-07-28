@@ -5,7 +5,6 @@
  * @version 0.3
  * @date 2020-05-25
  */
-
 #include <Arduino.h>
 #include <SPIFFS.h>
 
@@ -26,7 +25,9 @@ void setup()
 	SPIFFS.begin(); /// open file system
 
 	config.load_configuration();
-
+	Serial.println(config.get_con_mode());
+	Serial.println(config.get_ssid());
+	Serial.println(config.get_wlan_password());
 	init_wlan();
 	delay(100);
 	init_webserver();
@@ -114,10 +115,7 @@ void loop()
 	{
 		matrix_off();
 	}
-	/*if (ref_backgroundLayer().isSwapPending()) /// updates LED matrix if update is needed
-	{
-		ref_backgroundLayer().swapBuffers();
-}	*/
+
 	update_status_screen();			 /// updates the status screens of the OLED display
 	buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
 

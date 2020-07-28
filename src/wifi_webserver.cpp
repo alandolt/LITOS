@@ -32,13 +32,23 @@ void init_webserver()
 
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		// Send File
-		AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", DASH_HTML, DASH_HTML_SIZE);
+		AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", webpage, webpage_size);
+		response->addHeader("Content-Encoding", "gzip");
+		request->send(response);
+	});
+	server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+		AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", favicon, favicon_size);
+		response->addHeader("Content-Encoding", "gzip");
+		request->send(response);
+	});
+	server.on("/fonts/element-icons.woff", HTTP_GET, [](AsyncWebServerRequest *request) {
+		AsyncWebServerResponse *response = request->beginResponse_P(200, "/font/woff", element_icons, element_icons_size);
 		response->addHeader("Content-Encoding", "gzip");
 		request->send(response);
 	});
 
-	server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.ico");
-	server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
+	//server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.ico");
+	//server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
 	server.serveStatic("/conf/", SPIFFS, "/conf/");
 
 	server.on(
@@ -208,7 +218,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 				}
 			}
 
-			Serial.println("[WEBSOCKET] Message Received: " + message);
+			//Serial.println("[WEBSOCKET] Message Received: " + message);
 
 			DynamicJsonDocument doc(800);
 			DeserializationError err = deserializeJson(doc, message);
@@ -317,6 +327,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						bool custom_offset_json = plate["custom_offset"];
 						const char *file_json = plate["file"];
 						int wellplate_json = plate["wellplate"];
+						config.set_last_config_file(file_json, 'A');
+						config.set_last_wellplate(wellplate_json, 'A');
+						config.set_two_wellplates(false);
 						if (custom_offset_json)
 						{
 							int min_col = plate["min_col"];
@@ -329,15 +342,16 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						{
 							plate_A.wellplate_setup(file_json, wellplate_json);
 						}
-						config.set_last_config_file(file_json, 'A');
-						config.set_last_wellplate(wellplate_json, 'A');
-						config.set_two_wellplates(false);
+
 						if (two_wellplates_json)
 						{
 							JsonObject plate = object["plate_B"];
 							bool custom_offset_json = plate["custom_offset"];
 							const char *file_json = plate["file"];
 							int wellplate_json = plate["wellplate"];
+							config.set_two_wellplates(true);
+							config.set_last_config_file(file_json, 'B');
+							config.set_last_wellplate(wellplate_json, 'B');
 							if (custom_offset_json)
 							{
 								int min_col = plate["min_col"];
@@ -350,12 +364,8 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 							{
 								plate_B.wellplate_setup(file_json, wellplate_json);
 							}
-							config.set_two_wellplates(true);
-							config.set_last_config_file(file_json, 'B');
-							config.set_last_wellplate(wellplate_json, 'B');
 						}
 						config.save_configuration();
-						draw_home();
 					}
 					else
 					{

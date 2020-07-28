@@ -112,15 +112,54 @@ void draw_home_litos_ip()
     }
 }
 
-void draw_error_screen(const char identifier, const char *error_message)
+void draw_error_screen(const char identifier, LITOS_error error)
 {
     screen = error_screen;
     draw_home_litos_ip();
     display.setTextColor(RED);
     display.setCursor(5, 50);
-    display.print("Error during loading scheme");
-    display.print(identifier);
-    display.print("Please review your scheme and try to load it again");
+    display.print("Error: ");
+    display.setTextColor(WHITE);
+    switch (error)
+    {
+    case file_error:
+        display.print(F("Loaded pattern"));
+        display.setCursor(45, 60);
+        display.print(F("does not"));
+        display.setCursor(45, 70);
+        display.print(F("exist in"));
+        display.setCursor(45, 80);
+        display.print(F("memory."));
+        display.setCursor(5, 95);
+        display.setTextColor(ORANGE);
+        display.print(F("Please choose another"));
+        display.setCursor(45, 105);
+        display.print(F("pattern from WEB UI"));
+        break;
+    case what_error:
+        display.print(F("Decoding of"));
+        display.setCursor(45, 60);
+        display.print(F("the What field"));
+        display.setCursor(45, 70);
+        display.print(F("failed"));
+        display.setCursor(5, 85);
+        display.setTextColor(ORANGE);
+        display.print(F("Please review pattern"));
+        display.setCursor(5, 95);
+        display.print(F("file and reload it"));
+        break;
+    case pattern_error:
+        display.print(F("Wrong entry"));
+        display.setCursor(45, 60);
+        display.print(F("in the loaded"));
+        display.setCursor(45, 70);
+        display.print(F("pattern file"));
+        display.setCursor(5, 85);
+        display.setTextColor(ORANGE);
+        display.print(F("Please review and"));
+        display.setCursor(5, 95);
+        display.print(F("reload it"));
+    }
 }
 
 void draw_status_screen(bool with_buttons)

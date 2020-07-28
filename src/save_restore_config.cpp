@@ -6,6 +6,7 @@
  * @date 2020-05-26
  */
 #include "save_restore_config.h"
+#include "version.h"
 #include <Arduino.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
@@ -25,50 +26,54 @@ save_restore_config::save_restore_config(const char *_config_file)
 
 void save_restore_config::load_configuration() /// called in setup to load configuration
 {
-    File file = SPIFFS.open(config_file);
-    StaticJsonDocument<2000> doc;
-    ReadBufferingStream bufferedFile(file, 64); /// read config file into buffer to be able to decode it faster
-    deserializeJson(doc, bufferedFile);
-    /// in this part the decoded variables from the config file are copied into RAM
-    _config.port = doc["webserver"]["port"] | 80;
-    _config.adv_set = doc["webserver"]["adv_set"] | false;
-    strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LIGHTOS", sizeof(_config.hostname));
-    _config.connection_mode = con_mode(doc["webserver"]["mode"] | 1);
-
-    Serial.println(_config.connection_mode);
-    Serial.println(_config.AP_ssid);
-
-    strlcpy(_config.ssid, doc["WPA_mode"]["ssid"], sizeof(_config.ssid));
-    strlcpy(_config.wlan_password, doc["WPA_mode"]["wlan_password"], sizeof(_config.wlan_password));
-
-    _config.AP_password_protected = doc["AP_mode"]["AP_prot"] | false;
-    strlcpy(_config.AP_ssid, doc["AP_mode"]["AP_ssid"], sizeof(_config.AP_ssid));
-    strlcpy(_config.AP_password, doc["AP_mode"]["AP_password"], sizeof(_config.AP_password));
-
-    strlcpy(_config.EAP_identity, doc["EAP_mode"]["EAP_identity"], sizeof(_config.EAP_identity));
-    strlcpy(_config.EAP_password, doc["EAP_mode"]["EAP_password"], sizeof(_config.EAP_password));
-
-    _config.two_wellplates = doc["wellplate_settings"]["two_wellplates"] | true;
-    _config.last_wellplate_A = doc["wellplate_settings"]["last_wellplate_A"] | 1;
-    _config.last_wellplate_B = doc["wellplate_settings"]["last_wellplate_B"] | 1;
-    strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
-    strlcpy(_config.last_config_file_B, doc["wellplate_settings"]["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
-
-    _config.global_corr_activated = doc["mat_cor"]["act"] | false;
-    _config.matriz_correction_x = doc["mat_cor"]["x"] | 0;
-    _config.matriz_correction_y = doc["mat_cor"]["y"] | 0;
-
-    file.close();
-
-    int file_length = strlen(_config.last_config_file_A);
-
-    for (uint8_t i = 6; i <= file_length; i++)
+    if (SPIFFS.exists(config_file))
     {
-        char c = _config.last_config_file_A[i];
-        _config.last_config_filename_A[i - 6] = c;
-    }
-    _config.last_config_filename_A[file_length - 10] = '\0';
-    /**
+        File file = SPIFFS.open(config_file);
+        if (file && !file.isDirectory())
+        {
+            StaticJsonDocument<2000> doc;
+            ReadBufferingStream bufferedFile(file, 64); /// read config file into buffer to be able to decode it faster
+            deserializeJson(doc, bufferedFile);
+            /// in this part the decoded variables from the config file are copied into RAM
+            _config.port = doc["webserver"]["port"] | 80;
+            _config.adv_set = doc["webserver"]["adv_set"] | false;
+            strlcpy(_config.hostname, doc["webserver"]["hostname"] | "LITOS", sizeof(_config.hostname));
+            _config.connection_mode = con_mode(doc["webserver"]["mode"] | 1);
+
+            Serial.println(_config.connection_mode);
+            Serial.println(_config.AP_ssid);
+
+            strlcpy(_config.ssid, doc["WPA_mode"]["ssid"], sizeof(_config.ssid));
+            strlcpy(_config.wlan_password, doc["WPA_mode"]["wlan_password"], sizeof(_config.wlan_password));
+
+            _config.AP_password_protected = doc["AP_mode"]["AP_prot"] | false;
+            strlcpy(_config.AP_ssid, doc["AP_mode"]["AP_ssid"], sizeof(_config.AP_ssid));
+            strlcpy(_config.AP_password, doc["AP_mode"]["AP_password"], sizeof(_config.AP_password));
+
+            strlcpy(_config.EAP_identity, doc["EAP_mode"]["EAP_identity"], sizeof(_config.EAP_identity));
+            strlcpy(_config.EAP_password, doc["EAP_mode"]["EAP_password"], sizeof(_config.EAP_password));
+
+            _config.two_wellplates = doc["wellplate_settings"]["two_wellplates"] | true;
+            _config.last_wellplate_A = doc["wellplate_settings"]["last_wellplate_A"] | 1;
+            _config.last_wellplate_B = doc["wellplate_settings"]["last_wellplate_B"] | 1;
+            strlcpy(_config.last_config_file_A, doc["wellplate_settings"]["last_config_file_A"] | "/demo.csv", sizeof(_config.last_config_file_A));
+            strlcpy(_config.last_config_file_B, doc["wellplate_settings"]["last_config_file_B"] | "/demo.csv", sizeof(_config.last_config_file_B));
+
+            _config.global_corr_activated = doc["mat_cor"]["act"] | false;
+            _config.matriz_correction_x = doc["mat_cor"]["x"] | 0;
+            _config.matriz_correction_y = doc["mat_cor"]["y"] | 0;
+
+            file.close();
+
+            int file_length = strlen(_config.last_config_file_A);
+
+            for (uint8_t i = 6; i <= file_length; i++)
+            {
+                char c = _config.last_config_file_A[i];
+                _config.last_config_filename_A[i - 6] = c;
+            }
+            _config.last_config_filename_A[16] = '\0';
+            /**
      * in the config file only the filenames with the full path (SPIFFS does not have folder, path is encoded in filename) are stored
      * In some application (e.g. display name of the illumination pattern) we need however the real filename without path. 
      * So here we remove the path and the file extensio by copying the relevant bytes of the char array containing the filename 
@@ -76,16 +81,32 @@ void save_restore_config::load_configuration() /// called in setup to load confi
      * 
      */
 
-    file_length = strlen(_config.last_config_file_B);
+            file_length = strlen(_config.last_config_file_B);
 
-    for (uint8_t i = 6; i <= file_length; i++)
-    {
-        char c = _config.last_config_file_B[i];
-        _config.last_config_filename_B[i - 6] = c;
+            for (uint8_t i = 6; i <= file_length; i++)
+            {
+                char c = _config.last_config_file_B[i];
+                _config.last_config_filename_B[i - 6] = c;
+            }
+            _config.last_config_filename_B[16] = '\0';
+        }
+        else
+        {
+            goto no_config_file;
+        }
     }
-    _config.last_config_filename_B[file_length - 10] = '\0';
+    else
+    {
+    no_config_file:
+        _config.port = 80;
+        _config.adv_set = false;
+        config.set_hostname("LITOS");
+        _config.connection_mode = AP_mode;
 
-    // calc_file_count_spiffs(); /// deprecated and not used anymore in v 0.3
+        _config.global_corr_activated = false;
+        _config.matriz_correction_x = 0;
+        _config.matriz_correction_y = 0;
+    }
 
     /**
      * Code used to create a char array in which the filename (path with extension) of all illumination patterns stored in SPIFFS  
@@ -94,7 +115,7 @@ void save_restore_config::load_configuration() /// called in setup to load confi
      */
     _config.file_list[0] = '\0';
     File root_folder = SPIFFS.open("/conf");
-    file = root_folder.openNextFile();
+    File file = root_folder.openNextFile();
     while (file)
     {
         strcat(_config.file_list, file.name());
@@ -124,42 +145,45 @@ void save_restore_config::save_configuration()
         Serial.println(F("Failed to create file"));
         return;
     }
-    StaticJsonDocument<2000> doc; /// I use static JSON to have more place in heap (which is used by SMARTMATRIX and Webserver)
-    JsonObject webserver = doc.createNestedObject("webserver");
-    JsonObject wlan_connect = doc.createNestedObject("WPA_mode");
-    JsonObject AP_mode = doc.createNestedObject("AP_mode");
-    JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
-    JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
-    JsonObject matriz_global_correction = doc.createNestedObject("mat_cor");
+    else
+    {
+        StaticJsonDocument<2000> doc; /// I use static JSON to have more place in heap (which is used by SMARTMATRIX and Webserver)
+        JsonObject webserver = doc.createNestedObject("webserver");
+        JsonObject wlan_connect = doc.createNestedObject("WPA_mode");
+        JsonObject AP_mode = doc.createNestedObject("AP_mode");
+        JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
+        JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
+        JsonObject matriz_global_correction = doc.createNestedObject("mat_cor");
 
-    webserver["port"] = _config.port;
-    webserver["hostname"] = _config.hostname;
-    webserver["mode"] = int(_config.connection_mode);
-    webserver["adv_set"] = _config.adv_set;
+        webserver["port"] = _config.port;
+        webserver["hostname"] = _config.hostname;
+        webserver["mode"] = int(_config.connection_mode);
+        webserver["adv_set"] = _config.adv_set;
 
-    wlan_connect["ssid"] = _config.ssid;
-    wlan_connect["wlan_password"] = _config.wlan_password;
+        wlan_connect["ssid"] = _config.ssid;
+        wlan_connect["wlan_password"] = _config.wlan_password;
 
-    AP_mode["AP_prot"] = _config.AP_password_protected;
-    AP_mode["AP_ssid"] = _config.AP_ssid;
-    AP_mode["AP_password"] = _config.AP_password;
+        AP_mode["AP_prot"] = _config.AP_password_protected;
+        AP_mode["AP_ssid"] = _config.AP_ssid;
+        AP_mode["AP_password"] = _config.AP_password;
 
-    EAP_mode["EAP_identity"] = _config.EAP_identity;
-    EAP_mode["EAP_password"] = _config.EAP_password;
+        EAP_mode["EAP_identity"] = _config.EAP_identity;
+        EAP_mode["EAP_password"] = _config.EAP_password;
 
-    wellplate_settings["two_wellplates"] = _config.two_wellplates;
-    wellplate_settings["last_config_file_A"] = _config.last_config_file_A;
-    wellplate_settings["last_wellplate_A"] = _config.last_wellplate_A;
-    wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
-    wellplate_settings["last_wellplate_B"] = _config.last_wellplate_B;
+        wellplate_settings["two_wellplates"] = _config.two_wellplates;
+        wellplate_settings["last_config_file_A"] = _config.last_config_file_A;
+        wellplate_settings["last_wellplate_A"] = _config.last_wellplate_A;
+        wellplate_settings["last_config_file_B"] = _config.last_config_file_B;
+        wellplate_settings["last_wellplate_B"] = _config.last_wellplate_B;
 
-    matriz_global_correction["act"] = _config.global_corr_activated;
-    matriz_global_correction["x"] = _config.matriz_correction_x;
-    matriz_global_correction["y"] = _config.matriz_correction_y;
+        matriz_global_correction["act"] = _config.global_corr_activated;
+        matriz_global_correction["x"] = _config.matriz_correction_x;
+        matriz_global_correction["y"] = _config.matriz_correction_y;
 
-    WriteBufferingStream bufferedFile(file, 64);
-    serializeJson(doc, bufferedFile);
-    bufferedFile.flush();
+        WriteBufferingStream bufferedFile(file, 64);
+        serializeJson(doc, bufferedFile);
+        bufferedFile.flush();
+    }
     file.close();
 }
 
@@ -167,6 +191,7 @@ void save_restore_config::get_settings_web(String &buffer)
 {
     DynamicJsonDocument doc(1000);
     doc["response"] = "get_settings";
+    doc["vers"] = SOFTWARE_VERSION;
 
     JsonObject webserver = doc.createNestedObject("webserver");
     webserver["port"] = _config.port;

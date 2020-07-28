@@ -70,7 +70,8 @@ public:
 	bool prog_finished();
 	int get_time_remaining();
 
-	void what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0, bool test_run = false);
+	bool what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
+	bool what_switch_error(char *what);
 	void start_end_well_col_row(type_wellplate &_type_wellplate);
 
 	int letter_to_row(char &letter);

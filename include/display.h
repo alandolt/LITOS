@@ -19,6 +19,18 @@
 #define WHITE 0xFFFF
 #define GREY 0xAD75
 
+#define NAVY 0x000F        /*   0,   0, 128 */
+#define DARKGREEN 0x03E0   /*   0, 128,   0 */
+#define DARKCYAN 0x03EF    /*   0, 128, 128 */
+#define MAROON 0x7800      /* 128,   0,   0 */
+#define PURPLE 0x780F      /* 128,   0, 128 */
+#define OLIVE 0x7BE0       /* 128, 128,   0 */
+#define LIGHTGREY 0xC618   /* 192, 192, 192 */
+#define DARKGREY 0x7BEF    /* 128, 128, 128 */
+#define ORANGE 0xFD20      /* 255, 165,   0 */
+#define GREENYELLOW 0xAFE5 /* 173, 255,  47 */
+#define PINK 0xF81F
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
 #include <SPI.h>
@@ -36,13 +48,20 @@ enum status_screen : char
     error_screen = 'E'
 };
 
+enum LITOS_error
+{
+    file_error,
+    what_error,
+    pattern_error
+};
+
 extern Adafruit_SSD1351 display; /// initialize display by loading Adafruit driver
 extern status_screen screen;     /// initialize an instance of the enum status screen
 
 void init_display(); /// initialize the display from void setup
 void draw_home();
 void draw_home_litos_ip();
-void draw_error_screen(const char identifier, const char *error_message = "");     /// draw the home screen with IP adress and currently loaded configuration files
+void draw_error_screen(const char identifier, LITOS_error error);                  /// draw the home screen with IP adress and currently loaded configuration files
 void draw_status_screen(bool with_buttons = true);                                 /// invoked when a program is started
 void update_status_screen();                                                       /// in order to only refresh the countdown and not the whole screen (no screen flicker), update_status_screen is used in void loop
 void draw_button(const char *button_name, uint8_t button_pos, int correction = 0); /// draws the colorful button in the lower part of the screen

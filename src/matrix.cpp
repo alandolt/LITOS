@@ -66,15 +66,12 @@ void init_matrix_power()
  */
 void matrix_off()
 {
-    /**
-     * @Thomas, you have used INPUT, personally I think that it is better to use the integrated pull down resistors, however should be tested with an infrared camera. 
-     * Personally I even think that it is not needed anymore to cut the data lines. 
-     */
-
     if (is_matrix_on)
     {
-        sleep_matrix();
+        backgroundLayer.fillScreen(rgb24{0, 0, 0});
         digitalWrite(led_matrix_mosfet, LOW);
+        delay(20);
+        sleep_matrix();
         is_matrix_on = false;
     }
 }

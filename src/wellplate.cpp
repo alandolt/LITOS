@@ -87,6 +87,7 @@ void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellpla
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
+	ref_backgroundLayer().fillScreen(rgb24{0, 0, 0});
 	x_correction = config.get_global_correction_x();
 	y_correction = config.get_global_correction_y();
 
@@ -103,24 +104,25 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 	byte buffer_size = 200;
 	char buffer[buffer_size];
-	File file = SPIFFS.open(name_config_file);
-
-	const char delimiter[] = ";\t,.";
-	const char delim_color[] = "/-";
-
-	char *ptr;
-
-	well _well;
-	char color_string[13];
-
-	if (file)
+	if (SPIFFS.exists(name_config_file))
 	{
+		File file = SPIFFS.open(name_config_file, "r");
+
+		const char delimiter[] = ";\t,.";
+		const char delim_color[] = "/-";
+
+		char *ptr;
+
+		well _well;
+		char color_string[13];
+
 		bool first_line = true;
 		while (file.available())
 		{
 
-			bool last_cycle_defined = false;
-			bool only_once = false;
+			bool last_cycle_defined(false);
+			bool only_once(false);
+			bool n_cycle(false);
 			if (first_line)
 			{
 				file.readBytesUntil('\n', buffer, buffer_size);
@@ -141,16 +143,15 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 #endif
 					goto end_of_file;
 				}
-				if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]) || isAlpha(buffer[strlen(buffer) - 3]))
+				if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]))
 				{
 					last_cycle_defined = true;
 #ifdef DEBUG
 					Serial.println("last cycle defined");
 #endif
 				}
-				if ((strchr(delimiter, buffer[strlen(buffer) - 3]) != NULL && buffer[strlen(buffer) - 3] != '\n') &&
-					(strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n') &&
-					(strchr(delimiter, buffer[strlen(buffer) - 5]) != NULL && buffer[strlen(buffer) - 5] != '\n'))
+				else if ((strchr(delimiter, buffer[strlen(buffer) - 3]) != NULL && buffer[strlen(buffer) - 3] != '\n') &&
+						 (strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n'))
 				{
 					only_once = true;
 #ifdef DEBUG
@@ -197,6 +198,10 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					goto error_loading;
 				}
 				unsigned int stim_time = atoi(ptr);
+				if (stim_time == 0)
+				{
+					goto error_loading;
+				}
 				ptr = strtok(NULL, delimiter); //stim_time_unit
 				if (ptr == nullptr)
 				{
@@ -219,7 +224,10 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 						goto error_loading;
 					}
 					unsigned int repeat_every = atoi(ptr);
-					Serial.println(repeat_every);
+					if (repeat_every == 0)
+					{
+						goto error_loading;
+					}
 
 					ptr = strtok(NULL, delimiter); //repeat_every unit
 					if (ptr == nullptr)
@@ -260,6 +268,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 						_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
 					}
 				}
+
 				else
 				{
 					_well.running = false;
@@ -343,6 +352,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		file.close();
 		number_of_wells = well_vector.size();
 
+		bool error_flag = false;
 		unsigned long int temp_longest = 0;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
@@ -351,7 +361,21 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			{
 				total_time_experiment = temp_longest;
 			}
-			what_switch((*iter).what, (*iter).red, (*iter).green, (*iter).blue, true);
+			if (!what_switch_error((*iter).what))
+			{
+				error_flag = true;
+				break;
+			}
+		}
+		if (!error_flag)
+		{
+			draw_home();
+			return;
+		}
+		else
+		{
+			screen = error_screen;
+			draw_error_screen(identifier, what_error);
 		}
 
 #ifdef DEBUG
@@ -382,11 +406,16 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 #endif
 	}
+
 	else
 	{
-	error_loading:
 		screen = error_screen;
+		draw_error_screen(identifier, file_error);
 	}
+	return;
+error_loading:
+	screen = error_screen;
+	draw_error_screen(identifier, pattern_error);
 }
 
 int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier noch für andere Plates definieren
@@ -696,7 +725,7 @@ void wellplate::start_end_well_col_row(type_wellplate &_type_wellplate)
 	}
 }
 
-void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool test_run)
+bool wellplate::what_switch_error(char *_what)
 {
 	char what[20];
 	strcpy(what, _what);
@@ -707,23 +736,8 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 	{
 		if (first_char == 'W' || first_char == 'w') // whole plate
 		{
-			if (_type_wellplate < 100)
-			{
-				if (!test_run)
-					ref_backgroundLayer().fillScreen(rgb24{r, g, b});
-			}
-			else if (_type_wellplate > 150) // lower wellplate
-			{
-				if (!test_run)
-					ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
-			}
-			else
-			{
-				if (!test_run)
-					ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
-			}
 		}
-		if (first_char == 'L' || first_char == 'l') // LED definition
+		else if (first_char == 'L' || first_char == 'l') // LED definition
 		{
 			char *pEnd = strtok(&what[0] + 1, "_:");
 			if (pEnd == nullptr)
@@ -737,13 +751,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 				goto error_what;
 			}
 			y = atoi(pEnd);
-			if (!isdigit(x) || !isdigit(y))
-			{
-				goto error_what;
-			}
 
-			if (!test_run)
-				ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
 #ifdef DEBUG
 			Serial.print("pixel defined, x: ");
 			Serial.print(x);
@@ -773,12 +781,11 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 				goto error_what;
 			}
 			size_rect = atoi(pEnd);
-			if (!isdigit(x) || !isdigit(y) || isdigit(size_rect))
+			if (size_rect == 0)
 			{
 				goto error_what;
 			}
-			if (!test_run)
-				ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
+
 #ifdef DEBUG
 			Serial.print("rect defined, x: ");
 			Serial.print(x);
@@ -810,12 +817,11 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 				goto error_what;
 			}
 			size_circle = atoi(pEnd);
-			if (!isdigit(x) || !isdigit(y) || !isdigit(size_circle))
+			if (size_circle == 0)
 			{
 				goto error_what;
 			}
-			if (!test_run)
-				ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
+
 #ifdef DEBUG
 			Serial.print("circle defined, x: ");
 			Serial.print(x);
@@ -825,6 +831,108 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 			Serial.print(size_circle);
 			Serial.println("");
 #endif
+		}
+
+		else if (strlen(what) == 1) // only row defined
+		{
+		}
+		else // individual well defined, like A04 or B4 or C12
+		{
+			row = letter_to_row(first_char);
+			col = strtol(&what[0] + 1, NULL, 10);
+			if (col == 0 || row == 0)
+			{
+				goto error_what;
+			}
+
+#ifdef DEBUG
+			Serial.print("ind defined: ");
+			Serial.print("col: ");
+			Serial.print(col);
+			Serial.print(", row: ");
+			Serial.print(row);
+			Serial.println("");
+#endif
+		}
+		return true;
+	}
+	else if (isDigit(first_char)) // only col defined
+	{
+		col = strtol(&what[0], NULL, 10);
+		if (col == 0)
+		{
+			goto error_what;
+		}
+		return true;
+	}
+
+error_what:
+	Serial.println("error during processing this well");
+	screen = error_screen;
+	draw_error_screen(identifier, what_error);
+	return false;
+}
+
+bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
+{
+	char what[20];
+	strcpy(what, _what);
+	char first_char = what[0];
+	int col, row;
+	int x, y;
+	if (isAlpha(first_char))
+	{
+		if (first_char == 'W' || first_char == 'w') // whole plate
+		{
+			if (_type_wellplate < 100)
+			{
+
+				ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+				Serial.println("whole plate");
+			}
+			else if (_type_wellplate > 150) // lower wellplate
+			{
+				ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
+			}
+			else
+			{
+				ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
+			}
+		}
+		else if (first_char == 'L' || first_char == 'l') // LED definition
+		{
+			char *pEnd = strtok(&what[0] + 1, "_:");
+
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+
+			y = atoi(pEnd);
+			ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
+		}
+		else if (first_char == 'R' || first_char == 'r') // Rect definition
+		{
+			int size_rect;
+			char *pEnd = strtok(&what[0] + 1, "_:");
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			y = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			size_rect = atoi(pEnd);
+
+			ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
+		}
+		else if (first_char == 'O' || first_char == 'o') // circle definition
+		{
+			int size_circle;
+			char *pEnd = strtok(&what[0] + 1, "_:");
+
+			x = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			y = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			size_circle = atoi(pEnd);
+
+			ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
 		}
 
 		else if (strlen(what) == 1) // only row defined
@@ -854,10 +962,7 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 		{
 			row = letter_to_row(first_char);
 			col = strtol(&what[0] + 1, NULL, 10);
-			if (!isdigit(col) || !isdigit(row))
-			{
-				goto error_what;
-			}
+
 			if (_type_wellplate > 100)
 			{
 				x = well_to_x(row);
@@ -869,17 +974,9 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 				y = well_to_y(row);
 			}
 
-			if (!test_run)
-				well_col(x, y, r, g, b);
-#ifdef DEBUG
-			Serial.print("ind defined: ");
-			Serial.print("col: ");
-			Serial.print(col);
-			Serial.print(", row: ");
-			Serial.print(row);
-			Serial.println("");
-#endif
+			well_col(x, y, r, g, b);
 		}
+		return true;
 	}
 	else if (isDigit(first_char)) // only col defined
 	{
@@ -891,8 +988,8 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 			for (int i = start_well_row; i <= end_well_row; i++)
 			{
 				x = well_to_x(i);
-				if (!test_run)
-					well_col(x, y, r, g, b);
+
+				well_col(x, y, r, g, b);
 			}
 		}
 		else
@@ -901,15 +998,11 @@ void wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b, bool t
 			for (int i = start_well_row; i <= end_well_row; i++)
 			{
 				y = well_to_y(i);
-				if (!test_run)
-					well_col(x, y, r, g, b);
+				well_col(x, y, r, g, b);
 			}
 		}
+		return true;
 	}
-
-error_what:
-	Serial.println("error during processing this well");
-	draw_error_screen(identifier);
 }
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
@@ -956,7 +1049,7 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 
 void wellplate::abort_program()
 {
-	ref_backgroundLayer().fillScreen(rgb24{0, 0, 0});
+	ref_backgroundLayer().fillScreen({0, 0, 0});
 	wellplate_setup();
 }
 

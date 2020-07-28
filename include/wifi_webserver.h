@@ -4,7 +4,9 @@
 #include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
 
-#include "webpage_zopfli.h"
+#include "web/webpage.h"
+#include "web/favicon.h"
+#include "web/element_icons.h"
 
 void init_webserver();
 void init_wlan();
