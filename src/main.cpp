@@ -69,7 +69,14 @@ void loop()
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
-
+		break;
+	case home_screen_one:
+		if (button_2.pressed()) /// only A will be started
+		{
+			screen = status_A_screen;
+			plate_A.begin(current_time);
+			draw_status_screen();
+		}
 		break;
 	case status_A_screen:		/// A is currently running
 		if (button_4.pressed()) /// abort and go back to home

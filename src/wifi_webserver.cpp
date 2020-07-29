@@ -74,10 +74,11 @@ void init_webserver()
 			if (final)
 			{
 				Serial.println((String) "UploadEnd: " + filename + ",size: " + index + len);
-				snprintf(config.get_file_list(), 35, ",/conf/%s", filename.c_str());
-				// close the file handle as the upload is now done
+				if (strstr(config.get_file_list(), filename.c_str()) == NULL)
+				{
+					snprintf(config.get_file_list(), 35, ",/conf/%s", filename.c_str());
+				}
 				request->_tempFile.close();
-				//request->redirect("/");
 			}
 		});
 

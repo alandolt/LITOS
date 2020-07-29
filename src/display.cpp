@@ -24,7 +24,15 @@ void init_display()
 
 void draw_home()
 {
-    screen = home_screen;
+    if (config.get_last_wellplate('A') > 100)
+    {
+        screen = home_screen;
+    }
+    else
+    {
+        screen = home_screen_one;
+    }
+
     countdown_plate_A.reset_countdown();
     countdown_plate_B.reset_countdown();
     draw_home_litos_ip();
@@ -118,43 +126,47 @@ void draw_error_screen(const char identifier, LITOS_error error)
     draw_home_litos_ip();
     display.setTextColor(RED);
     display.setCursor(5, 50);
-    display.print("Error: ");
-    display.setTextColor(WHITE);
     switch (error)
     {
     case file_error:
+        display.print("Error:");
+        display.setTextColor(WHITE);
         display.print(F("Loaded pattern"));
         display.setCursor(45, 60);
         display.print(F("does not"));
         display.setCursor(45, 70);
         display.print(F("exist in"));
         display.setCursor(45, 80);
-        display.print(F("memory."));
-        display.setCursor(5, 95);
+        display.print(F("memory"));
+        display.setCursor(0, 95);
         display.setTextColor(ORANGE);
         display.print(F("Please choose another"));
         display.setCursor(45, 105);
         display.print(F("pattern from WEB UI"));
         break;
     case what_error:
+        display.print("Error: ");
+        display.setTextColor(WHITE);
         display.print(F("Decoding of"));
         display.setCursor(45, 60);
         display.print(F("the What field"));
         display.setCursor(45, 70);
         display.print(F("failed"));
-        display.setCursor(5, 85);
+        display.setCursor(0, 85);
         display.setTextColor(ORANGE);
         display.print(F("Please review pattern"));
         display.setCursor(5, 95);
         display.print(F("file and reload it"));
         break;
     case pattern_error:
+        display.print("Error: ");
+        display.setTextColor(WHITE);
         display.print(F("Wrong entry"));
         display.setCursor(45, 60);
         display.print(F("in the loaded"));
         display.setCursor(45, 70);
         display.print(F("pattern file"));
-        display.setCursor(5, 85);
+        display.setCursor(0, 85);
         display.setTextColor(ORANGE);
         display.print(F("Please review and"));
         display.setCursor(5, 95);

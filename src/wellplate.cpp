@@ -108,8 +108,8 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 	{
 		File file = SPIFFS.open(name_config_file, "r");
 
-		const char delimiter[] = ";\t,.";
-		const char delim_color[] = "/-";
+		const char delimiter[] = ";\t,";
+		const char delim_color[] = "/- ";
 
 		char *ptr;
 
@@ -184,7 +184,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					goto error_loading;
 				}
-				unsigned int start = atoi(ptr);
+				float start = atof(ptr);
 				ptr = strtok(NULL, delimiter); //start_unit
 				if (ptr == nullptr)
 				{
@@ -197,7 +197,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					goto error_loading;
 				}
-				unsigned int stim_time = atoi(ptr);
+				float stim_time = atof(ptr);
 				if (stim_time == 0)
 				{
 					goto error_loading;
@@ -223,7 +223,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					{
 						goto error_loading;
 					}
-					unsigned int repeat_every = atoi(ptr);
+					float repeat_every = atof(ptr);
 					if (repeat_every == 0)
 					{
 						goto error_loading;
@@ -242,7 +242,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					if (last_cycle_defined)
 					{
 						ptr = strtok(NULL, delimiter); //last_cycle
-						unsigned int last_cycle = atoi(ptr);
+						float last_cycle = atof(ptr);
 						if (ptr == nullptr)
 						{
 							goto error_loading;
@@ -273,9 +273,13 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					_well.running = false;
 					_well.finished = false;
-					_well.repeat_every = 1;
+					_well.repeat_every = _well.stimulation_time + 10;
 					_well.start_last_cycle = _well.start;
 					_well.total_cycle = 1;
+					Serial.println(_well.stimulation_time);
+					Serial.println(_well.start_last_cycle);
+					Serial.println(_well.start);
+					Serial.println(_well.stimulation_time);
 				}
 
 				// color interpretation

@@ -40,6 +40,7 @@
 enum status_screen : char
 {
     home_screen = 'H',
+    home_screen_one = 'O',
     status_A_screen = 'A',
     status_B_screen = 'B',
     status_A_B_screen = 'T',
