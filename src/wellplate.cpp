@@ -585,10 +585,10 @@ bool wellplate::check(unsigned long int time)
 					Serial.print("aktiv");
 #endif
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
-					{
-						//countdown((*iter).&what[0]+1, (*iter).stimulation_time);
-						// (*iter).finished = true;
-						// (*iter).running = false;
+					{													  // TODO: Message einbauen
+																		  //countdown((*iter).&what[0]+1, (*iter).stimulation_time);
+																		  // (*iter).finished = true;
+																		  // (*iter).running = false;
 					}
 					else
 					{

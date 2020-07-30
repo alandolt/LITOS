@@ -368,6 +368,18 @@ const char *wellplate_abrev(const type_wellplate &wellplate)
     case two_12_B:
         return "12, lower";
         break;
+    case one_6_center:
+        return "6, center";
+        break;
+    case one_6_corner:
+        return "6, corner";
+        break;
+    case two_6_A:
+        return "6, upper";
+        break;
+    case two_6_B:
+        return "6, lower";
+        break;
     default:
         break;
     }
