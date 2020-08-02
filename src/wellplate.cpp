@@ -87,7 +87,7 @@ void wellplate::wellplate_setup(const char *name_config_file, int a_type_wellpla
 
 void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate)
 {
-	ref_backgroundLayer().fillScreen(rgb24{0, 0, 0});
+	ref_backgroundLayer().fillScreen(BLACK);
 	x_correction = config.get_global_correction_x();
 	y_correction = config.get_global_correction_y();
 
@@ -661,7 +661,6 @@ bool wellplate::check(unsigned long int time)
 				illumination_in_process = illumination_in_process | (*iter).running;
 			}
 		}
-		//ref_backgroundLayer().swapBuffers(); deprecated as now, refresh is done in main loop
 		finished = (number_of_wells - number_of_finished_wells == 0);
 	}
 	return illumination_in_process;
@@ -884,16 +883,16 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			if (_type_wellplate < 100)
 			{
 
-				ref_backgroundLayer().fillScreen(rgb24{r, g, b});
+				ref_backgroundLayer().fillScreen(ref_backgroundLayer().color565(r, g, b));
 				Serial.println("whole plate");
 			}
 			else if (_type_wellplate > 150) // lower wellplate
 			{
-				ref_backgroundLayer().fillRectangle(35 + x_correction, 0 + y_correction, 63 + x_correction, 31 + y_correction, rgb24{r, g, b}); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
+				ref_backgroundLayer().fillRect(35 + x_correction, 0 + y_correction, 28 + x_correction, 31 + y_correction, ref_backgroundLayer().color565(r, g, b)); // extra um eines verschoben, damit kompatibilitàt mit alter oder defekter Matrix, fraglich ob das etwas hilft....
 			}
 			else
 			{
-				ref_backgroundLayer().fillRectangle(1 + x_correction, 0 + y_correction, 30 + x_correction, 31 + y_correction, rgb24{r, g, b});
+				ref_backgroundLayer().fillRect(1 + x_correction, 0 + y_correction, 29 + x_correction, 31 + y_correction, ref_backgroundLayer().color565(r, g, b));
 			}
 		}
 		else if (first_char == 'L' || first_char == 'l') // LED definition
@@ -904,7 +903,7 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			pEnd = strtok(NULL, "_:");
 
 			y = atoi(pEnd);
-			ref_backgroundLayer().drawPixel(x, y, rgb24{r, g, b});
+			ref_backgroundLayer().drawPixel(x, y, ref_backgroundLayer().color565(r, g, b));
 		}
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
@@ -916,7 +915,7 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			pEnd = strtok(NULL, "_:");
 			size_rect = atoi(pEnd);
 
-			ref_backgroundLayer().fillRectangle(x, y, x + size_rect, y + size_rect, rgb24{r, g, b});
+			ref_backgroundLayer().fillRect(x, y, size_rect, size_rect, ref_backgroundLayer().color565(r, g, b));
 		}
 		else if (first_char == 'O' || first_char == 'o') // circle definition
 		{
@@ -929,7 +928,7 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 			pEnd = strtok(NULL, "_:");
 			size_circle = atoi(pEnd);
 
-			ref_backgroundLayer().fillCircle(x, y, size_circle, rgb24{r, g, b});
+			ref_backgroundLayer().fillCircle(x, y, size_circle, ref_backgroundLayer().color565(r, g, b));
 		}
 
 		else if (strlen(what) == 1) // only row defined
@@ -1015,39 +1014,39 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	case two_96_A:
 	case two_96_B:
 		size_of_illumination = 1;
-		ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+		ref_backgroundLayer().fillRect(x, y, size_of_illumination, size_of_illumination, ref_backgroundLayer().color565(r, g, b));
 		break;
 	case one_48_center:
 	case one_48_corner:
 	case two_48_A:
 	case two_48_B:
 		size_of_illumination = 4;
-		ref_backgroundLayer().fillRectangle(x, y, x + size_of_illumination, y + size_of_illumination, rgb24{r, g, b});
+		ref_backgroundLayer().fillRect(x, y, size_of_illumination, size_of_illumination, ref_backgroundLayer().color565(r, g, b));
 		break;
 	case one_24_center:
 	case one_24_corner:
 	case two_24_A:
 	case two_24_B:
-		ref_backgroundLayer().fillCircle(x, y, 4, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 3, ref_backgroundLayer().color565(r, g, b));
 		break;
 	case one_12_center:
 	case one_12_corner:
 	case two_12_A:
 	case two_12_B:
-		ref_backgroundLayer().fillCircle(x, y, 5, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 4, ref_backgroundLayer().color565(r, g, b));
 		break;
 	case one_6_center:
 	case one_6_corner:
 	case two_6_A:
 	case two_6_B:
-		ref_backgroundLayer().fillCircle(x, y, 7, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 6, ref_backgroundLayer().color565(r, g, b));
 		break;
 	}
 }
 
 void wellplate::abort_program()
 {
-	ref_backgroundLayer().fillScreen({0, 0, 0});
+	ref_backgroundLayer().fillScreen(BLACK);
 	messages.reset_all();
 	wellplate_setup();
 }

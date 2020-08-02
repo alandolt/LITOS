@@ -99,7 +99,6 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
-		ref_backgroundLayer().swapBuffers();
 
 		break;
 	case status_B_screen:		/// B is currently running
@@ -109,7 +108,6 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
-		ref_backgroundLayer().swapBuffers();
 		break;
 	case status_A_B_screen:		/// A and B are running simultanously
 		if (button_4.pressed()) // abort and go back to home
@@ -119,7 +117,6 @@ void loop()
 			screen = home_screen;
 			draw_home();
 		}
-		ref_backgroundLayer().swapBuffers();
 		break;
 	case test_screen:
 		if (button_1.pressed())
