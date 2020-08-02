@@ -75,17 +75,26 @@ const char *wellplate_abrev(const type_wellplate &wellplate);                   
  */
 class show_countdown
 {
-private:
-    unsigned long int last_plate_time_remaining;
-    int last_plate_remaining_digits;
-    bool displayed_finished;
-
 public:
     show_countdown(); /// constructor
     void reset_countdown();
     void update_countdown(const bool &prog_finished, const unsigned long int &time_remaining, const int x = 75, const int y = 20); /// called in loop to update the time on the countdown
     int num_digits(const unsigned long int &number);                                                                               /// helper function, when number of digits change => screen refresh to avoid artifacts.
     bool display_finished();
+    typedef struct timepoint
+    {
+        int days = 99999999;
+        int hours = 99999999;
+        int minutes = 99999999;
+        int seconds = 99999999;
+    } timepoint;
+    timepoint seconds_to_timepoint(int seconds);
+
+private:
+    unsigned long int last_plate_time_remaining;
+    int last_plate_remaining_digits;
+    bool displayed_finished;
+    timepoint last_timepoint;
 };
 
 #endif

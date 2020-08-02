@@ -186,8 +186,18 @@ void draw_status_screen(bool with_buttons)
         display.setTextColor(RED);
         display.setCursor(0, 20);
         display.print(F("A fin. in: "));
+        display.setTextColor(RED);
+        display.setCursor(86, 20);
+        display.print(":");
+        display.setCursor(101, 20);
+        display.print(":");
+
         display.setCursor(0, 30);
         display.print(F("B fin. in: "));
+        display.setCursor(86, 30);
+        display.print(":");
+        display.setCursor(101, 30);
+        display.print(":");
 
         //here Detail information on A and B (for future versions of LITOS)
     }
@@ -200,6 +210,11 @@ void draw_status_screen(bool with_buttons)
         display.setCursor(0, 20);
         display.setTextColor(RED);
         display.print(F("Finished in: "));
+        display.setTextColor(RED);
+        display.setCursor(86, 20);
+        display.print(":");
+        display.setCursor(101, 20);
+        display.print(":");
     }
     if (with_buttons)
     {
@@ -272,6 +287,10 @@ void show_countdown::reset_countdown()
     last_plate_time_remaining = 0;
     last_plate_remaining_digits = 0;
     displayed_finished = false;
+    last_timepoint.days = 99999999;
+    last_timepoint.hours = 99999999;
+    last_timepoint.minutes = 99999999;
+    last_timepoint.seconds = 99999999;
 }
 
 int show_countdown::num_digits(const unsigned long int &number)
@@ -297,17 +316,30 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
     {
         if (time_remaining != last_plate_time_remaining)
         {
-            int digits = num_digits(time_remaining);
-            if (digits != last_plate_remaining_digits)
-            {
-                display.fillRect(x, y, 128, 7, BLACK);
-                last_plate_remaining_digits = digits;
-            }
+            char buffer[5];
+            show_countdown::timepoint act_time(seconds_to_timepoint(time_remaining));
             display.setTextColor(WHITE, BLACK);
-            display.setCursor(x, y);
-            display.print(time_remaining);
-            display.print("s");
-            last_plate_time_remaining = time_remaining;
+            if (act_time.hours != last_timepoint.hours)
+            {
+                sprintf(buffer, "%02d", act_time.hours);
+                last_timepoint.hours = act_time.hours;
+                display.setCursor(x, y);
+                display.print(buffer);
+            }
+            if (act_time.minutes != last_timepoint.minutes)
+            {
+                sprintf(buffer, "%02d", act_time.minutes);
+                last_timepoint.minutes = act_time.minutes;
+                display.setCursor(x + 15, y);
+                display.print(buffer);
+            }
+            if (act_time.seconds != last_timepoint.seconds)
+            {
+                sprintf(buffer, "%02d", act_time.seconds);
+                last_timepoint.seconds = act_time.seconds;
+                display.setCursor(x + 30, y);
+                display.print(buffer);
+            }
         }
     }
     else
@@ -323,6 +355,19 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
             displayed_finished = true;
         }
     }
+}
+
+show_countdown::timepoint show_countdown::seconds_to_timepoint(int seconds_remaining)
+{
+    show_countdown::timepoint act_timepoint;
+    //act_timepoint.days = seconds_remaining / 86400;
+    //seconds_remaining -= act_timepoint.days;
+    act_timepoint.hours = seconds_remaining / 3600;
+    seconds_remaining -= act_timepoint.hours * 3600;
+    act_timepoint.minutes = seconds_remaining / 60;
+    seconds_remaining -= act_timepoint.minutes * 60;
+    act_timepoint.seconds = seconds_remaining;
+    return act_timepoint;
 }
 
 const char *wellplate_abrev(const type_wellplate &wellplate)

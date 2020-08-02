@@ -349,7 +349,7 @@ void save_restore_config::set_last_config_file(const char *_last_config_file, co
             char c = _config.last_config_file_A[i];
             _config.last_config_filename_A[i - 6] = c;
         }
-        _config.last_config_filename_A[file_length - 10] = '\0';
+        _config.last_config_filename_A[16] = '\0';
     }
     else if (identifier == 'B')
     {
@@ -360,7 +360,7 @@ void save_restore_config::set_last_config_file(const char *_last_config_file, co
             char c = _config.last_config_file_B[i];
             _config.last_config_filename_B[i - 6] = c;
         }
-        _config.last_config_filename_B[file_length - 10] = '\0';
+        _config.last_config_filename_B[16] = '\0';
     }
 
     if (update_config)
