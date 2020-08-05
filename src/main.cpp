@@ -16,6 +16,8 @@
 #include "button.h"
 #include "buzzer.h"
 unsigned long int current_time;
+const unsigned long refresh_intervall = 100;
+unsigned long last_refresh_time = 0;
 
 void setup()
 {
@@ -81,7 +83,6 @@ void loop()
 	case status_A_screen:		/// A is currently running
 		if (button_4.pressed()) /// abort and go back to home
 		{
-			Serial.println("button pressed");
 			plate_A.abort_program();
 			screen = home_screen;
 			draw_home();
@@ -123,8 +124,12 @@ void loop()
 		matrix_off();
 	}
 
-	update_status_screen();			 /// updates the status screens of the OLED display
-	buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
-
+	if (current_time - last_refresh_time >= refresh_intervall)
+	{
+		update_status_screen(); /// updates the status screens of the OLED display
+		messages.update(current_time);
+		buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
+		last_refresh_time += refresh_intervall;
+	}
 	//ref_websocket().cleanupClients(); /// can be used in production to clean up dead websocket connections of the ESP32 webserver (however, it still need to be tested if this effective or not)
 }

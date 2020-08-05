@@ -97,4 +97,60 @@ private:
     timepoint last_timepoint;
 };
 
+class message
+{
+private:
+    char *text_message;
+    int position_x;
+    int position_y;
+    char identifier;
+    unsigned long time_started = 0;
+    unsigned long time_finished = 0;
+    unsigned int duration;
+    typedef struct timepoint
+    {
+        int minutes = 99999999;
+        int seconds = 99999999;
+    } timepoint;
+    enum status
+    {
+        not_in_use,
+        countdown,
+        finished
+    };
+    timepoint last_timepoint;
+    int last_checked;
+
+    void initial_draw();
+    message::timepoint seconds_to_timepoint(unsigned int seconds);
+
+public:
+    message::status status_message;
+
+    message();
+    void init(char *_text_message, char identifier, unsigned int _duration, int _pos_x, int _pos_y);
+    void update(const unsigned long current_time);
+    bool is_free();
+    void reset();
+};
+
+class message_list
+{
+private:
+    static constexpr int max_messages = 2;
+    static constexpr int size_message_store = 10;
+    message array_messages[max_messages];
+    int message_store_free = 0;
+
+public:
+    message_list();
+    void update(const unsigned long current_time);
+    void add_message(int message_index, char identifier, unsigned int _duration);
+    void reset_all();
+    bool add_message_to_storage(char *_text_message);
+    char message_storage[size_message_store][50];
+};
+
+extern message_list messages;
+
 #endif

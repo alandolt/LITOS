@@ -109,7 +109,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		File file = SPIFFS.open(name_config_file, "r");
 
 		const char delimiter[] = ";\t,";
-		const char delim_color[] = "/- ";
+		const char delim_color[] = "_/- ";
 
 		char *ptr;
 
@@ -160,6 +160,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				ptr = strtok(buffer, delimiter); //what
 
+				char what_buffer[50];
 				uint8_t i_is_alpha_num = 0;
 				uint8_t j_index = 0;
 				while (!isAlphaNumeric(ptr[i_is_alpha_num]))
@@ -172,11 +173,25 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					end_i_is_alpha_num++;
 				}
+				if (end_i_is_alpha_num > 39)
+				{
+					end_i_is_alpha_num = 39;
+				}
 				for (uint8_t i = i_is_alpha_num; i <= end_i_is_alpha_num; i++)
 				{
 					char c = ptr[i];
-					_well.what[j_index] = c;
+					what_buffer[j_index] = c;
 					j_index++;
+				}
+				what_buffer[end_i_is_alpha_num] = '\0';
+				if (what_buffer[0] == 'M')
+				{
+					int storage_index = messages.add_message_to_storage(&what_buffer[0] + 2);
+					sprintf(_well.what, "M_%d", storage_index);
+				}
+				else
+				{
+					strcpy(_well.what, what_buffer);
 				}
 
 				ptr = strtok(NULL, delimiter); //start
@@ -209,13 +224,19 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				_well.stimulation_time = stim_time * unit_correction(ptr);
 
-				ptr = strtok(NULL, delimiter); //color
-				if (ptr == nullptr)
+				if (_well.what[0] == 'M')
 				{
-					goto error_loading;
+					sprintf(color_string, "0 0 0");
 				}
-				strcpy(color_string, ptr);
-
+				else
+				{
+					ptr = strtok(NULL, delimiter); //color
+					if (ptr == nullptr)
+					{
+						goto error_loading;
+					}
+					strcpy(color_string, ptr);
+				}
 				if (!only_once)
 				{
 					ptr = strtok(NULL, delimiter); //repeat_every
@@ -276,10 +297,6 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					_well.repeat_every = _well.stimulation_time + 10;
 					_well.start_last_cycle = _well.start;
 					_well.total_cycle = 1;
-					Serial.println(_well.stimulation_time);
-					Serial.println(_well.start_last_cycle);
-					Serial.println(_well.start);
-					Serial.println(_well.stimulation_time);
 				}
 
 				// color interpretation
@@ -360,15 +377,21 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		unsigned long int temp_longest = 0;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
-			temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
-			if (temp_longest > total_time_experiment)
-			{
-				total_time_experiment = temp_longest;
-			}
 			if (!what_switch_error((*iter).what))
 			{
 				error_flag = true;
 				break;
+			}
+			if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
+			{
+			}
+			else
+			{
+				temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
+				if (temp_longest > total_time_experiment)
+				{
+					total_time_experiment = temp_longest;
+				}
 			}
 		}
 		if (!error_flag)
@@ -585,10 +608,12 @@ bool wellplate::check(unsigned long int time)
 					Serial.print("aktiv");
 #endif
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
-					{													  // TODO: Message einbauen
-																		  //countdown((*iter).&what[0]+1, (*iter).stimulation_time);
-																		  // (*iter).finished = true;
-																		  // (*iter).running = false;
+					{
+						int storage_index = atoi(&((*iter).what)[0] + 2);
+						messages.add_message(storage_index, identifier, (*iter).stimulation_time);
+						(*iter).finished = true;
+						(*iter).running = false;
+						number_of_finished_wells += 1;
 					}
 					else
 					{
@@ -736,6 +761,8 @@ bool wellplate::what_switch_error(char *_what)
 	char first_char = what[0];
 	int col, row;
 	int x, y;
+	Serial.println(first_char);
+	Serial.println(what);
 	if (isAlpha(first_char))
 	{
 		if (first_char == 'W' || first_char == 'w') // whole plate
@@ -755,14 +782,6 @@ bool wellplate::what_switch_error(char *_what)
 				goto error_what;
 			}
 			y = atoi(pEnd);
-
-#ifdef DEBUG
-			Serial.print("pixel defined, x: ");
-			Serial.print(x);
-			Serial.print(", y: ");
-			Serial.print(y);
-			Serial.println("");
-#endif
 		}
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
@@ -789,16 +808,6 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-
-#ifdef DEBUG
-			Serial.print("rect defined, x: ");
-			Serial.print(x);
-			Serial.print(", y: ");
-			Serial.print(y);
-			Serial.print(", size: ");
-			Serial.print(size_rect);
-			Serial.println("");
-#endif
 		}
 		else if (first_char == 'O' || first_char == 'o') // circle definition
 		{
@@ -825,19 +834,11 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-
-#ifdef DEBUG
-			Serial.print("circle defined, x: ");
-			Serial.print(x);
-			Serial.print(", y: ");
-			Serial.print(y);
-			Serial.print(", size: ");
-			Serial.print(size_circle);
-			Serial.println("");
-#endif
 		}
-
 		else if (strlen(what) == 1) // only row defined
+		{
+		}
+		else if (first_char == 'M' || first_char == 'm')
 		{
 		}
 		else // individual well defined, like A04 or B4 or C12
@@ -848,15 +849,6 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-
-#ifdef DEBUG
-			Serial.print("ind defined: ");
-			Serial.print("col: ");
-			Serial.print(col);
-			Serial.print(", row: ");
-			Serial.print(row);
-			Serial.println("");
-#endif
 		}
 		return true;
 	}
@@ -871,7 +863,7 @@ bool wellplate::what_switch_error(char *_what)
 	}
 
 error_what:
-	Serial.println("error during processing this well");
+	Serial.println(F("error during processing this well"));
 	screen = error_screen;
 	draw_error_screen(identifier, what_error);
 	return false;
@@ -1007,6 +999,7 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		}
 		return true;
 	}
+	return false;
 }
 
 void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
@@ -1054,6 +1047,7 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 void wellplate::abort_program()
 {
 	ref_backgroundLayer().fillScreen({0, 0, 0});
+	messages.reset_all();
 	wellplate_setup();
 }
 
