@@ -465,7 +465,7 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 		return 4.3 * col + 11.6;
 		break;
 	case one_48_corner:
-		return 4.3 * col + 0.8;
+		return 4.4 * col - 0.2;
 		break;
 	case two_48_A:
 		return 4.5 * col - 0.4;
@@ -474,10 +474,10 @@ int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier n
 		return 4.5 * col + 30;
 		break;
 	case one_24_center:
-		return 6.2 * col + 10;
+		return 6.6 * col + 10;
 		break;
 	case one_24_corner:
-		return 6.2 * col - 1;
+		return 6.6 * col - 1;
 		break;
 	case two_24_A:
 		return 6.2 * col + 1;
@@ -533,21 +533,21 @@ int wellplate::well_to_y(int row)
 		return 4.3 * row - 1;
 		break;
 	case one_48_corner:
-		return 4.3 * row - 2;
+		return 4.4 * row - 3;
 		break;
 	case two_48_A:
 	case two_48_B:
-		return -4.5 * row + 34;
+		return -4.5 * row + 33;
 		break;
 	case one_24_center:
-		return 6.2 * row;
+		return 6.6 * row - 1;
 		break;
 	case one_24_corner:
-		return 6.2 * row - 4;
+		return 6.6 * row - 2;
 		break;
 	case two_24_A:
 	case two_24_B:
-		return -6.2 * row + 38;
+		return -6.6 * row + 38;
 		break;
 	case one_12_center:
 		return 8.5 * row - 1;
@@ -1027,7 +1027,7 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	case one_24_corner:
 	case two_24_A:
 	case two_24_B:
-		ref_backgroundLayer().fillCircle(x, y, 3, rgb24{r, g, b});
+		ref_backgroundLayer().fillCircle(x, y, 4, rgb24{r, g, b});
 		break;
 	case one_12_center:
 	case one_12_corner:
