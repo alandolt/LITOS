@@ -58,7 +58,6 @@ void draw_home()
         display.setCursor(45, 62);
         display.print(wellplate_abrev(config.get_last_wellplate('A')));
         draw_button("A", 2);
-        //draw_button("Test", 4);
     }
     else
     {
@@ -86,8 +85,8 @@ void draw_home()
         draw_button("A+B", 1, -2); /// offset of -2 as it seems to be more centred this way
         draw_button("A", 2);
         draw_button("B", 3);
-        //draw_button("Test", 4);
     }
+    draw_button("Align", 4);
 }
 
 void draw_home_litos_ip()
@@ -118,6 +117,33 @@ void draw_home_litos_ip()
         display.setTextColor(WHITE);
         display.print(config.get_ip());
     }
+}
+
+void draw_test_screen()
+{
+    display.fillScreen(BLACK);
+    display.setTextColor(RED);
+    display.setTextSize(1);
+    print_centered_text("Plate placement", 0);
+    display.drawRect(0, 10, display.width(), 2, YELLOW);
+    display.setTextColor(RED);
+    display.setCursor(0, 22);
+    display.print(F("Outl: "));
+    display.setTextColor(WHITE);
+    display.print(F("Marks outlines"));
+    display.setCursor(35, 33);
+    display.print(F("of plate"));
+
+    display.setTextColor(YELLOW);
+    display.setCursor(0, 53);
+    display.print(F("Well: "));
+    display.setTextColor(WHITE);
+    display.print(F("Marks corner"));
+    display.setCursor(35, 64);
+    display.print(F("wells of plate"));
+    draw_button("Outl", 1, -4);
+    draw_button("Well", 2, 1);
+    draw_button("Quit", 4);
 }
 
 void draw_error_screen(const char identifier, LITOS_error error)
@@ -272,8 +298,8 @@ void draw_button(const char *button_name, uint8_t button_pos, int correction)
 
 void print_centered_text(const char *text, int y, int correction)
 {
-    int text_middle = (((strlen(text) - 1)) / 2);
-    display.setCursor(text_middle + correction, y);
+    int text_middle = (display.width() - (strlen(text) + 1) * 5) / 2;
+    display.setCursor(text_middle + correction - 1, y);
     display.print(text);
 }
 

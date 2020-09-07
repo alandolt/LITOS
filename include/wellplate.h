@@ -46,6 +46,8 @@ private:
 	int number_of_wells;
 	int number_of_finished_wells;
 	int size_of_illumination; // size of circle used in matrix for well illumination
+	bool mark_outlines_on;
+	bool mark_well_on;
 
 public:
 	wellplate(const char _identifier);
@@ -73,6 +75,9 @@ public:
 	bool what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
 	bool what_switch_error(char *what);
 	void start_end_well_col_row(type_wellplate &_type_wellplate);
+
+	void mark_outlines();
+	void mark_well();
 
 	int letter_to_row(char &letter);
 

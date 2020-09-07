@@ -122,7 +122,6 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 			bool last_cycle_defined(false);
 			bool only_once(false);
-			bool n_cycle(false);
 			if (first_line)
 			{
 				file.readBytesUntil('\n', buffer, buffer_size);
@@ -584,6 +583,10 @@ void wellplate::begin(unsigned int long act_time) // called when experiment shou
 
 bool wellplate::check(unsigned long int time)
 {
+	if (mark_outlines_on | mark_well_on)
+	{
+		return true;
+	}
 	if (started && !finished)
 	{
 		illumination_in_process = false;
@@ -760,9 +763,6 @@ bool wellplate::what_switch_error(char *_what)
 	strcpy(what, _what);
 	char first_char = what[0];
 	int col, row;
-	int x, y;
-	Serial.println(first_char);
-	Serial.println(what);
 	if (isAlpha(first_char))
 	{
 		if (first_char == 'W' || first_char == 'w') // whole plate
@@ -775,13 +775,11 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			if (pEnd == nullptr)
 			{
 				goto error_what;
 			}
-			y = atoi(pEnd);
 		}
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
@@ -791,13 +789,11 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			if (pEnd == nullptr)
 			{
 				goto error_what;
 			}
-			y = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			if (pEnd == nullptr)
 			{
@@ -817,13 +813,11 @@ bool wellplate::what_switch_error(char *_what)
 			{
 				goto error_what;
 			}
-			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			if (pEnd == nullptr)
 			{
 				goto error_what;
 			}
-			y = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			if (pEnd == nullptr)
 			{
@@ -1054,4 +1048,86 @@ void wellplate::abort_program()
 const char wellplate::get_identifier()
 {
 	return identifier;
+}
+
+void wellplate::mark_outlines()
+{
+	save_restore_config::internal_col_ref marking_col;
+	if (!mark_outlines_on)
+	{
+		marking_col = config.get_mark_col();
+		mark_outlines_on = true;
+	}
+	else
+	{
+		marking_col.r = 0;
+		marking_col.g = 0;
+		marking_col.b = 0;
+		mark_outlines_on = false;
+	}
+
+	if (_type_wellplate < 50) // center
+	{
+		ref_backgroundLayer().drawRectangle(11, 1, 11 + 42, 2 + 27, rgb24{marking_col.r, marking_col.g, marking_col.b});
+		ref_backgroundLayer().fillCircle(7, 3, 2, rgb24{marking_col.r, marking_col.g, marking_col.b});
+	}
+	else if (_type_wellplate < 100) // corner
+	{
+		ref_backgroundLayer().drawRectangle(0, 0, 42, 27, rgb24{marking_col.r, marking_col.g, marking_col.b});
+	}
+	else // top bottom
+	{
+		if (_type_wellplate < 150) // top
+		{
+			ref_backgroundLayer().drawPixel(1, 28, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawPixel(1, 29, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawFastVLine(2, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawFastVLine(30, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+		}
+		else // bottom
+		{
+			ref_backgroundLayer().drawPixel(32, 28, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawPixel(32, 29, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawFastVLine(33, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawFastVLine(61, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+		}
+	}
+}
+
+void wellplate::mark_well()
+{
+	save_restore_config::internal_col_ref marking_col;
+	if (!mark_well_on)
+	{
+		marking_col = config.get_mark_col();
+		mark_well_on = true;
+	}
+	else
+	{
+		marking_col.r = 0;
+		marking_col.g = 0;
+		marking_col.b = 0;
+		mark_well_on = false;
+	}
+	uint8_t well_cord[4][2] = {{start_well_col, start_well_row},
+							   {start_well_col, end_well_row},
+							   {end_well_col, start_well_row},
+							   {end_well_col, end_well_row}};
+
+	for (auto &&ill_well : well_cord)
+	{
+		int x, y;
+		if (_type_wellplate > 100)
+		{
+			x = well_to_x(ill_well[1]);
+			y = well_to_y(ill_well[0]);
+		}
+		else
+		{
+			x = well_to_x(ill_well[0]);
+			y = well_to_y(ill_well[1]);
+		}
+
+		well_col(x, y, marking_col.r, marking_col.g, marking_col.b);
+	}
 }

@@ -62,6 +62,7 @@ extern status_screen screen;     /// initialize an instance of the enum status s
 void init_display(); /// initialize the display from void setup
 void draw_home();
 void draw_home_litos_ip();
+void draw_test_screen();
 void draw_error_screen(const char identifier, LITOS_error error);                  /// draw the home screen with IP adress and currently loaded configuration files
 void draw_status_screen(bool with_buttons = true);                                 /// invoked when a program is started
 void update_status_screen();                                                       /// in order to only refresh the countdown and not the whole screen (no screen flicker), update_status_screen is used in void loop

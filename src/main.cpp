@@ -18,6 +18,7 @@
 unsigned long int current_time;
 const unsigned long refresh_intervall = 100;
 unsigned long last_refresh_time = 0;
+bool two_plates_enabled = false;
 
 void setup()
 {
@@ -43,6 +44,7 @@ void setup()
 	if (config.get_last_wellplate('A') > 100)
 	{
 		plate_B.wellplate_setup();
+		two_plates_enabled = true;
 	}
 }
 void loop()
@@ -71,6 +73,11 @@ void loop()
 			plate_B.begin(current_time);
 			draw_status_screen();
 		}
+		if (button_4.pressed()) // show test screen where outlines can be marked
+		{
+			screen = test_screen;
+			draw_test_screen();
+		}
 		break;
 	case home_screen_one:
 		if (button_2.pressed()) /// only A will be started
@@ -78,6 +85,11 @@ void loop()
 			screen = status_A_screen;
 			plate_A.begin(current_time);
 			draw_status_screen();
+		}
+		if (button_4.pressed()) // show test screen where outlines can be marked
+		{
+			screen = test_screen;
+			draw_test_screen();
 		}
 		break;
 	case status_A_screen:		/// A is currently running
@@ -109,9 +121,33 @@ void loop()
 		}
 		ref_backgroundLayer().swapBuffers();
 		break;
-	case setup_screen:
+	case test_screen:
+		if (button_1.pressed())
+		{
+			plate_A.mark_outlines();
+			if (two_plates_enabled)
+			{
+				plate_B.mark_outlines();
+			}
+			ref_backgroundLayer().swapBuffers();
+		}
+		if (button_2.pressed())
+		{
+			plate_A.mark_well();
+			if (two_plates_enabled)
+			{
+				plate_B.mark_well();
+			}
+			ref_backgroundLayer().swapBuffers();
+		}
+		if (button_4.pressed())
+		{
+			clear_matrix();
+			ref_backgroundLayer().swapBuffers();
+			draw_home();
+		}
 		break;
-	case error_screen:
+	default:
 		break;
 	}
 

@@ -23,6 +23,14 @@ enum con_mode : uint8_t
 
 class save_restore_config
 {
+public:
+    typedef struct internal_col_ref
+    {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+    } internal_col_ref;
+
 private:
     char config_file[35];
 
@@ -64,6 +72,8 @@ private:
         char file_list[550];   /** to avoid interference with SMARTMATRIX library and the webserver, all the filenames of illumination patterns
                                 located in SPIFFS are loaded into a char array at the start of program
                                **/
+
+        internal_col_ref mark_col;
     } struct_config;
 
     struct_config _config;
@@ -133,6 +143,10 @@ public:
     void set_con_mode(uint8_t _connection_mode, bool update_config = false);
 
     void get_settings_web(String &result);
+
+    void set_mark_col(String color_string, bool update_config = false);
+    internal_col_ref get_mark_col();
+    String get_mark_col_web();
 };
 
 extern save_restore_config config;

@@ -1,13 +1,14 @@
 
 Todo:
   ✔ Bugfix auf Github @done(20-07-29 23:02)
-  ☐ neue Matrix Library testen, damit auch mit ganz neuer Version funktioniert
+  ✔ neue Matrix Library testen, damit auch mit ganz neuer Version funktioniert @done(20-09-05 21:13)
   ☐ USB Circuit Redesign
-  ☐ Message mit Coutdown
+  ✔ Message mit Coutdown @done(20-09-05 21:13)
   ☐ LITOS umlöten
-  ☐ LITOS Test mit Patterns @started(20-07-29 23:02)
-  ☐ Testen ob mit dezimalzahlen möglich
-  ☐ Countdown in mm/ss
+  ✔ LITOS Test mit Patterns @started(20-07-29 23:02) @done(20-09-05 21:13) @lasted(5w2d22h11m13s)
+  ✔ Testen ob mit dezimalzahlen möglich @done(20-09-05 21:13)
+  ✔ Countdown in mm/ss @done(20-09-05 21:13)
+  ☐ Website unterteilen, center corner
   
  
 Nicht dringend:

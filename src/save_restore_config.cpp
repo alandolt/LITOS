@@ -61,7 +61,10 @@ void save_restore_config::load_configuration() /// called in setup to load confi
 
             _config.global_corr_activated = doc["mat_cor"]["act"] | false;
             _config.matriz_correction_x = doc["mat_cor"]["x"] | 0;
-            _config.matriz_correction_y = doc["mat_cor"]["y"] | 0;
+
+            _config.mark_col.r = doc["mark_col"]["r"] | 255;
+            _config.mark_col.g = doc["mark_col"]["g"] | 0;
+            _config.mark_col.b = doc["mark_col"]["b"] | 0;
 
             file.close();
 
@@ -154,6 +157,7 @@ void save_restore_config::save_configuration()
         JsonObject EAP_mode = doc.createNestedObject("EAP_mode");
         JsonObject wellplate_settings = doc.createNestedObject("wellplate_settings");
         JsonObject matriz_global_correction = doc.createNestedObject("mat_cor");
+        JsonObject mark_col = doc.createNestedObject("mark_col");
 
         webserver["port"] = _config.port;
         webserver["hostname"] = _config.hostname;
@@ -179,6 +183,10 @@ void save_restore_config::save_configuration()
         matriz_global_correction["act"] = _config.global_corr_activated;
         matriz_global_correction["x"] = _config.matriz_correction_x;
         matriz_global_correction["y"] = _config.matriz_correction_y;
+
+        mark_col["r"] = _config.mark_col.r;
+        mark_col["g"] = _config.mark_col.g;
+        mark_col["b"] = _config.mark_col.b;
 
         WriteBufferingStream bufferedFile(file, 64);
         serializeJson(doc, bufferedFile);
@@ -223,6 +231,8 @@ void save_restore_config::get_settings_web(String &buffer)
     matrix_corr["act"] = _config.global_corr_activated;
     matrix_corr["x"] = _config.matriz_correction_x;
     matrix_corr["y"] = _config.matriz_correction_y;
+
+    doc["mark_col"] = get_mark_col_web();
 
     serializeJson(doc, buffer);
     Serial.println(buffer);
@@ -570,4 +580,35 @@ void save_restore_config::set_adv_set(bool _adv_set, bool update_config)
     {
         save_configuration();
     }
+}
+
+void save_restore_config::set_mark_col(String color_string, bool update_config)
+{
+    char rgb_code[15];
+    char *ptr;
+
+    strcpy(rgb_code, &(color_string.c_str())[4]);
+    ptr = strtok(rgb_code, ",");
+    _config.mark_col.r = atoi(ptr);
+    ptr = strtok(NULL, ",");
+    _config.mark_col.g = atoi(ptr);
+    ptr = strtok(NULL, ")");
+    _config.mark_col.b = atoi(ptr);
+
+    if (update_config)
+    {
+        save_configuration();
+    }
+}
+
+save_restore_config::internal_col_ref save_restore_config::get_mark_col()
+{
+    return _config.mark_col;
+}
+
+String save_restore_config::get_mark_col_web()
+{
+    String buffer("rgb(");
+    buffer = buffer + _config.mark_col.r + "," + _config.mark_col.g + "," + _config.mark_col.b + ")";
+    return (buffer);
 }

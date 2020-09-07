@@ -275,6 +275,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						config.set_global_correction_x(doc["mat_cor"]["x"] | config.get_global_correction_x());
 						config.set_global_correction_y(doc["mat_cor"]["y"] | config.get_global_correction_y());
 
+						config.set_mark_col(doc["mark_col"] | config.get_mark_col_web());
 						config.save_configuration();
 
 						Serial.println(config.get_port());
@@ -291,6 +292,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 						Serial.println(config.get_global_correction_activated());
 						Serial.println(config.get_global_correction_x());
 						Serial.println(config.get_global_correction_y());
+						Serial.println(config.get_mark_col_web());
 
 						ESP.restart();
 					}

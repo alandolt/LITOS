@@ -88,3 +88,8 @@ void matrix_on()
         is_matrix_on = true;
     }
 }
+
+void clear_matrix()
+{
+    backgroundLayer.fillScreen({0, 0, 0});
+}
