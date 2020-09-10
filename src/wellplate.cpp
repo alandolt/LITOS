@@ -337,6 +337,12 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 						_well.blue = 0;
 						_well.green = 255;
 					}
+					else if (strcasecmp(color_string, "BLACK") == 0)
+					{
+						_well.red = 0;
+						_well.blue = 0;
+						_well.green = 0;
+					}
 				}
 				else
 				{
@@ -374,6 +380,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 		bool error_flag = false;
 		unsigned long int temp_longest = 0;
+		total_time_experiment = 0;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
 			if (!what_switch_error((*iter).what))
