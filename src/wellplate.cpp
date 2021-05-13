@@ -1013,7 +1013,7 @@ void wellplate::well_col(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 	case one_96_corner:
 	case two_96_A:
 	case two_96_B:
-		size_of_illumination = 1;
+		size_of_illumination = 2;
 		ref_backgroundLayer().fillRect(x, y, size_of_illumination, size_of_illumination, ref_backgroundLayer().color565(r, g, b));
 		break;
 	case one_48_center:
@@ -1074,28 +1074,29 @@ void wellplate::mark_outlines()
 
 	if (_type_wellplate < 50) // center
 	{
-		ref_backgroundLayer().drawRectangle(11, 1, 11 + 42, 2 + 27, rgb24{marking_col.r, marking_col.g, marking_col.b});
-		ref_backgroundLayer().fillCircle(7, 3, 2, rgb24{marking_col.r, marking_col.g, marking_col.b});
+		ref_backgroundLayer().fillRect(11, 1, 11 + 42, 2 + 27, marking_col.r, marking_col.g, marking_col.b);
+
+		ref_backgroundLayer().fillCircle(7, 3, 2, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
 	}
 	else if (_type_wellplate < 100) // corner
 	{
-		ref_backgroundLayer().drawRectangle(0, 0, 42, 27, rgb24{marking_col.r, marking_col.g, marking_col.b});
+		ref_backgroundLayer().fillRect(0, 0, 42, 27, marking_col.r, marking_col.g, marking_col.b);
 	}
 	else // top bottom
 	{
 		if (_type_wellplate < 150) // top
 		{
-			ref_backgroundLayer().drawPixel(1, 28, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawPixel(1, 29, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawFastVLine(2, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawFastVLine(30, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawPixel(1, 28, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawPixel(1, 29, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawFastVLine(2, 0, 31, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawFastVLine(30, 0, 31, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
 		}
 		else // bottom
 		{
-			ref_backgroundLayer().drawPixel(32, 28, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawPixel(32, 29, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawFastVLine(33, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
-			ref_backgroundLayer().drawFastVLine(61, 0, 31, rgb24{marking_col.r, marking_col.g, marking_col.b});
+			ref_backgroundLayer().drawPixel(32, 28, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawPixel(32, 29, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawFastVLine(33, 0, 31, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+			ref_backgroundLayer().drawFastVLine(61, 0, 31, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
 		}
 	}
 }

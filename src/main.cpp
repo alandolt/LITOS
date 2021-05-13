@@ -126,7 +126,7 @@ void loop()
 			{
 				plate_B.mark_outlines();
 			}
-			ref_backgroundLayer().swapBuffers();
+			
 		}
 		if (button_2.pressed())
 		{
@@ -135,12 +135,9 @@ void loop()
 			{
 				plate_B.mark_well();
 			}
-			ref_backgroundLayer().swapBuffers();
 		}
 		if (button_4.pressed())
 		{
-			clear_matrix();
-			ref_backgroundLayer().swapBuffers();
 			draw_home();
 		}
 		break;
