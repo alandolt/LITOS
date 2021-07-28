@@ -6,6 +6,29 @@ During LITOS development, we focused heavily on user-friendliness. LITOS can be 
 
 ![LITOS](https://github.com/CatTurbo/LITOS/blob/master/images/litos_running.jpg)
 
+<br>
+
+## Why another device for optogenetic stimulation
+Optogenetic methods are powerful tools to assess complex signalling pathways with a high spatial-tem-poral resolution. However, there is a lack of adequate instrumentation to exploit these methods allowing high-throughput automated experiments. While available commercial devices are often too expensive, published solutions requires programming knowledge or have a complicated assembly process. We presents therefore LITOS, a new emerging tool to render optogenetic methods even accessible to labs with a small budget or non-technical user. Thanks to the easy-to-use–interface no knowledge of a programming language is needed, whereas it is still possible to program complex stimulation patterns. Despite being delivered pre-assembled, LITOS remains significantly cheaper than most of the published and commercially available solutions, costing only $ 150. By using a LED matrix as illumination source, even petri-dishes or cell culture flasks can be stimulated apart from different formats of microtiter plates.
+
+## Features 
+- Easy-to-use graphical user interface to change stimulation patterns for optogenetical experiments, no programming knowledge is required. 
+- Stimulation patterns are provided as spreadsheet files (MS Excel, LibreOffice Calc)
+- Comes pre-assembled, neither a 3D printer, nor soldering is requiered before you can start your experiments. 
+- Cells can be placed in well plates (96, 48, 24, 12), petri dishes, or T75 flasks. 
+- Very affordable, about $150
+
+<br>
+
+## Screenshots / Workflow
+
+
+
+## Getting started
+
 To learn more about LITOS, please read our publication that is available here or consult our [github wiki](https://github.com/CatTurbo/LITOS/wiki). 
 
 You can also download LITOS user manual as a [PDF](https://github.com/CatTurbo/LITOS/blob/master/LITOS_User_manual.pdf). 
+
+<br>
+ 
