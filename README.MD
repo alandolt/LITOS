@@ -17,11 +17,6 @@ Optogenetic methods are powerful tools to assess complex signalling pathways wit
 - Cells can be placed in well plates (96, 48, 24, 12), petri dishes, or T75 flasks. 
 - Very affordable, only about $150 per device. 
 
-
-## Screenshots / Workflow
-
-
-
 ## Getting started
 
 To learn more about LITOS, please read our publication that is available here or consult our [github wiki](https://github.com/CatTurbo/LITOS/wiki). 
