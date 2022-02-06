@@ -16,9 +16,9 @@ Now you are ready to flash a LITOS device.
 
 LITOS running on the microcontroller consists of two parts. On one side, there is LITOS firmware, on the other LITOS requires a SPIFFS filesystem image. Both can be flashed in VS Code when PlatformIO is installed. Connect LITOS with an USB cable to a computer. 
 
-- First flash the firmware image by click on *Upload* in the PlatformIO tab in VS code.  
-<br>
-![Upload Firmware](../images/upload_firmware.png)
+- First flash the firmware image by click on *Upload* in the PlatformIO tab in VS code. 
+<img src="../images/upload_firmware.png|width=300px" alt="alt text" width="300">
+![Upload Firmware](../images/upload_firmware.png|width=300px)
 
 - Next, you need to flash to upload the SPIFFS filesystem image by tapping on *Upload filesystem Image*
 ![Upload filesystem image](../images/upload_filesystem_image.png)
