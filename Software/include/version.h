@@ -1,8 +1,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define BRANCH "support_for_FM6126A_DMA"
-#define VERSION_NUMBER "1.3.3"
+#define BRANCH "master"
+#define VERSION_NUMBER "1.0.0"
 #define SPACER ", "
 #define SOFTWARE_VERSION VERSION_NUMBER SPACER BRANCH
 
