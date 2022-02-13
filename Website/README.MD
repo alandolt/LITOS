@@ -1,0 +1,5 @@
+# LITOS configuration website
+In this folder, you find the source code of LITOS configuration website. It is based on the [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template) project, which itself is based on [vue.js](https://vuejs.org/). 
+After compiling of the JavaScript code, the HTML file is zipped and converted in a C++ file to be served from PROGMEM by the [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer). 
+However, albeit the configuration on LITOS is working without problem, it is currently not possible to compile it by the files provided in this folder, as there is a problem with an outdated dependency. 
+We are currently in the process of fixing the error and provide you as soon as possible with an updated, working website version, that you then also can compile yourself. 
