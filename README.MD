@@ -12,9 +12,9 @@ During LITOS development, we deliberately focused on user-friendliness. LITOS ca
 Optogenetic methods are powerful tools to assess complex signalling pathways with a high spatial-temporal resolution. However, there is a lack of adequate instrumentation to exploit these methods allowing high-throughput automated experiments. While available commercial devices are often too expensive, published solutions requires programming knowledge or have a complicated assembly process. We presents therefore LITOS, a new emerging tool to render optogenetic methods even accessible to labs with a small budget or non-technical user. Thanks to the easy-to-use–interface no knowledge of a programming language is needed, whereas it is still possible to program complex stimulation patterns. Despite being delivered pre-assembled, LITOS remains significantly cheaper than most of the published and commercially available solutions, costing only $ 150. By using a LED matrix as illumination source, even petri-dishes or cell culture flasks can be stimulated in addition to different formats of microtiter plates.
 
 ## Features 
-- Easy-to-use graphical user interface to change stimulation patterns for optogenetical experiments. No programming knowledge is required. 
+- Easy-to-use graphical user interface to change stimulation patterns for optogenetic experiments. No programming knowledge is required. 
 - Stimulation patterns are provided as spreadsheet files (MS Excel, LibreOffice Calc)
-- It comes pre-assembled. Neither a 3D printer, nor soldering is requiered before you can start your experiments. 
+- It comes pre-assembled. Neither a 3D printer, nor soldering are required before you can start your experiments. 
 - Cells can be placed in well plates (96, 48, 24, 12), petri dishes, or cell culture flasks. 
 - Very affordable, only about $150 per device. 
 
