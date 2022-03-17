@@ -19,11 +19,9 @@
         "EAP_password": ""
     },
     "wellplate_settings": {
-        "two_wellplates": true,
-        "last_config_file_A": "/conf/MCF10A_Exp1.csv",
-        "last_wellplate_A": 101,
-        "last_config_file_B": "/conf/pertz_lab_Exp2.csv",
-        "last_wellplate_B": 152
+        "two_wellplates": false,
+        "last_config_file_A": "/conf/Demo.csv",
+        "last_wellplate_A": 1
     },
     "mat_cor": {
         "act": false,
