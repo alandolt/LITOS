@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name LITOS_v3-rescue)(type Legacy)(uri ${KIPRJMOD}/LITOS_v3-rescue.lib)(options "")(descr ""))
-)
