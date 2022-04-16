@@ -1,4 +1,4 @@
-### Module positions - created on Tue Mar 15 21:56:35 2022 ###
+### Module positions - created on Sat Apr 16 21:01:24 2022 ###
 ### Printed by Pcbnew version (6.0.2)
 ## Unit = mm, Angle = deg.
 ## Side : All
@@ -24,7 +24,7 @@ J1        Barrel_Jack_MountingPin      DC-005-5A-2.0                            
 J2        HUB_75                       B-3000S16P-0110                                62.0530    60.9830  -90.0000  top
 J4        Oled_display_SSD1351_module  PinSocket_1x07_P2.54mm_Vertical                24.0210    62.2620   90.0000  top
 J5        Screw_Terminal_01x02         KF301-5.0-2P                                   62.5610    37.9960   90.0000  top
-J6        USB_B_Micro                  10118193-0001LF                                 4.2788    75.8813  -90.0000  top
+J6        USB_B_Micro                  10118193-0001LF                                 1.9558    75.7041  -90.0000  top
 J7        Conn_01x04_Male              PinHeader_1x04_P2.54mm_Vertical                18.3378    69.2380  -90.0000  top
 Q1        IRF7401TRPBF                 IRF7401TRPBF                                   61.4680    28.9560   90.0000  top
 Q2        SS8050-G                     SS8050-G                                       10.7450    82.9540  -90.0000  top
