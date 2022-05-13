@@ -20,5 +20,5 @@ Optogenetic methods are powerful tools to assess complex signalling pathways wit
 
 ## Getting started
 
-To learn more about LITOS, please read our [pre-print](https://www.biorxiv.org/content/10.1101/2022.03.02.482623v1) or consult our [github wiki](https://github.com/AlexLandolt/LITOS/wiki). 
+To learn more about LITOS, please read our [pre-print](https://www.biorxiv.org/content/10.1101/2022.03.02.482623v1) or consult our [github wiki](wiki). 
  
