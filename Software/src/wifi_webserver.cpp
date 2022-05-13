@@ -13,7 +13,7 @@
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/litosws");
-//static DNSServer dnsServer;
+// static DNSServer dnsServer;
 /*
 extern DNSServer &ref_DNSServer()
 {
@@ -28,32 +28,34 @@ extern DNSServer &ref_DNSServer()
 void init_webserver()
 {
 	server.reset();
-	//server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+	// server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
 
-	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+			  {
 		// Send File
 		AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", webpage, webpage_size);
 		response->addHeader("Content-Encoding", "gzip");
-		request->send(response);
-	});
-	server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(response); });
+	server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
+			  {
 		AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", favicon, favicon_size);
 		response->addHeader("Content-Encoding", "gzip");
-		request->send(response);
-	});
-	server.on("/fonts/element-icons.woff", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(response); });
+	server.on("/fonts/element-icons.woff", HTTP_GET, [](AsyncWebServerRequest *request)
+			  {
 		AsyncWebServerResponse *response = request->beginResponse_P(200, "/font/woff", element_icons, element_icons_size);
 		response->addHeader("Content-Encoding", "gzip");
-		request->send(response);
-	});
+		request->send(response); });
 
-	//server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.ico");
-	//server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
+	// server.serveStatic("/favicon.ico", SPIFFS, "/w/favicon.ico");
+	// server.serveStatic("/fonts/", SPIFFS, "/w/fonts/");
 	server.serveStatic("/conf/", SPIFFS, "/conf/");
 
 	server.on(
-		"/upload", HTTP_POST, [](AsyncWebServerRequest *request) { request->send(200); },
-		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+		"/upload", HTTP_POST, [](AsyncWebServerRequest *request)
+		{ request->send(200); },
+		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+		{
 			Serial.println("upload call received");
 			if (!index)
 			{
@@ -99,11 +101,10 @@ void init_wlan()
 
 		if (config.get_is_EAP())
 		{
-			esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); //provide identity
-			esp_wifi_sta_wpa2_ent_set_username((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); //provide username --> identity and username is same
-			esp_wifi_sta_wpa2_ent_set_password((uint8_t *)config.get_EAP_password(), strlen(config.get_EAP_password())); //provide password
-			esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();														 //set config settings to default
-			esp_wifi_sta_wpa2_ent_enable(&config);																		 //set config settings to enable function
+			esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide identity
+			esp_wifi_sta_wpa2_ent_set_username((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide username --> identity and username is same
+			esp_wifi_sta_wpa2_ent_set_password((uint8_t *)config.get_EAP_password(), strlen(config.get_EAP_password())); // provide password
+			esp_wifi_sta_wpa2_ent_enable();																				 // set config settings to enable function
 		}
 
 		while (WiFi.status() != WL_CONNECTED)
@@ -140,9 +141,9 @@ void init_wlan()
 
 void init_AP_mode()
 {
-	//const byte DNS_PORT = 53;
+	// const byte DNS_PORT = 53;
 	const IPAddress apIP(192, 168, 1, 1);
-	//const IPAddress apIP(8, 8, 8, 8);
+	// const IPAddress apIP(8, 8, 8, 8);
 	Serial.println(config.get_AP_ssid());
 	WiFi.disconnect();
 	WiFi.mode(WIFI_OFF);
@@ -158,7 +159,7 @@ void init_AP_mode()
 	delay(100);
 	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 	config.set_con_mode(AP_mode);
-	//dnsServer.start(DNS_PORT, "*", apIP);
+	// dnsServer.start(DNS_PORT, "*", apIP);
 }
 
 String processor(const String &var)
@@ -219,7 +220,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 				}
 			}
 
-			//Serial.println("[WEBSOCKET] Message Received: " + message);
+			// Serial.println("[WEBSOCKET] Message Received: " + message);
 
 			DynamicJsonDocument doc(800);
 			DeserializationError err = deserializeJson(doc, message);
@@ -381,12 +382,12 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 }
 void generate_file_list_response(String &result)
 {
-	//int file_count = config.get_file_count_spiffs();
-	//size_t CAPACITY = JSON_OBJECT_SIZE(4) + JSON_ARRAY_SIZE(file_count) + file_count * JSON_OBJECT_SIZE(3);
-	//DynamicJsonDocument doc(CAPACITY + 100);
+	// int file_count = config.get_file_count_spiffs();
+	// size_t CAPACITY = JSON_OBJECT_SIZE(4) + JSON_ARRAY_SIZE(file_count) + file_count * JSON_OBJECT_SIZE(3);
+	// DynamicJsonDocument doc(CAPACITY + 100);
 	DynamicJsonDocument root(1000);
-	//StaticJsonDocument<1000> root;
-	//JsonObject root = doc.to<JsonObject>();
+	// StaticJsonDocument<1000> root;
+	// JsonObject root = doc.to<JsonObject>();
 	root["response"] = "get_file_list";
 	JsonArray file_list = root.createNestedArray("files");
 	char copy_of_file_list[550];
