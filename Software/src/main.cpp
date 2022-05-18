@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief Main.cpp file of LITOS, here all the sub librarys and function will be invoked and included. Contains void setup and loop
  * @version 0.3
  * @date 2020-05-25
@@ -34,10 +34,11 @@ void setup()
 	init_wlan();
 	delay(100);
 	init_webserver();
-	delay(100);
+	delay(200);
 	init_display();
-
+	delay(200);
 	init_matrix();
+	delay(100);
 
 	buzzer.init_buzzer();
 	plate_A.wellplate_setup();
@@ -126,7 +127,6 @@ void loop()
 			{
 				plate_B.mark_outlines();
 			}
-			
 		}
 		if (button_2.pressed())
 		{
@@ -161,5 +161,5 @@ void loop()
 		buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
 		last_refresh_time += refresh_intervall;
 	}
-	//ref_websocket().cleanupClients(); /// can be used in production to clean up dead websocket connections of the ESP32 webserver (however, it still need to be tested if this effective or not)
+	// ref_websocket().cleanupClients(); /// can be used in production to clean up dead websocket connections of the ESP32 webserver (however, it still need to be tested if this effective or not)
 }
