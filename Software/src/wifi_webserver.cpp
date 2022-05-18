@@ -101,10 +101,10 @@ void init_wlan()
 
 		if (config.get_is_EAP())
 		{
-			esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide identity
-			esp_wifi_sta_wpa2_ent_set_username((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide username --> identity and username is same
-			esp_wifi_sta_wpa2_ent_set_password((uint8_t *)config.get_EAP_password(), strlen(config.get_EAP_password())); // provide password
-			esp_wifi_sta_wpa2_ent_enable();																				 // set config settings to enable function
+			// esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide identity
+			// esp_wifi_sta_wpa2_ent_set_username((uint8_t *)config.get_EAP_identity(), strlen(config.get_EAP_identity())); // provide username --> identity and username is same
+			// esp_wifi_sta_wpa2_ent_set_password((uint8_t *)config.get_EAP_password(), strlen(config.get_EAP_password())); // provide password
+			// esp_wifi_sta_wpa2_ent_enable();																				 // set config settings to enable function
 		}
 
 		while (WiFi.status() != WL_CONNECTED)
