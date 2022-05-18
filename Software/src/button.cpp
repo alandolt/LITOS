@@ -1,17 +1,17 @@
 /**
  * @file button.cpp
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief Class definition file for Button class
  * @version 0.3
  * @date 2020-05-25
- * 
+ *
  */
 #include "button.h"
 
-const byte pin_button_1 = 35;
-const byte pin_button_2 = 34;
-const byte pin_button_3 = 39;
-const byte pin_button_4 = 36;
+const byte pin_button_1 = 36;
+const byte pin_button_2 = 39;
+const byte pin_button_3 = 34;
+const byte pin_button_4 = 35;
 
 Button button_1(pin_button_1); /// Initialization of the buttons
 Button button_2(pin_button_2);
@@ -41,7 +41,7 @@ void Button::Button_u(byte &button_pin)
 }
 /**
  * @brief Function that is used in every CPU cycle to check if button has been pressed
- * 
+ *
  * @return true when button was pressed
  * @return false when button was not pressed
  */
