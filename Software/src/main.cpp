@@ -5,6 +5,7 @@
  * @version 0.3
  * @date 2020-05-25
  */
+
 #include <Arduino.h>
 #include <SPIFFS.h>
 
@@ -15,6 +16,7 @@
 #include "display.h"
 #include "button.h"
 #include "buzzer.h"
+
 unsigned long int current_time;
 const unsigned long refresh_intervall = 100;
 unsigned long last_refresh_time = 0;
@@ -93,32 +95,70 @@ void loop()
 			draw_test_screen();
 		}
 		break;
-	case status_A_screen:		/// A is currently running
-		if (button_4.pressed()) /// abort and go back to home
+	case status_A_screen: /// A is currently running
+		if (QUIT_ON_RED)
 		{
-			plate_A.abort_program();
-			screen = home_screen;
-			draw_home();
+			if (button_1.pressed()) /// abort and go back to home
+			{
+				plate_A.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
 		}
+		else
+		{
+			if (button_4.pressed()) /// abort and go back to home
+			{
+				plate_A.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
+		}
+		break;
+	case status_B_screen: /// B is currently running
+		if (QUIT_ON_RED)
+		{
+			if (button_1.pressed()) /// abort and go back to home
+			{
+				plate_B.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
+		}
+		else
+		{
+			if (button_4.pressed()) /// abort and go back to home
+			{
+				plate_B.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
+		}
+		break;
 
-		break;
-	case status_B_screen:		/// B is currently running
-		if (button_4.pressed()) /// abort and go back to home
+	case status_A_B_screen: /// A and B are running simultanously
+		if (QUIT_ON_RED)
 		{
-			plate_B.abort_program();
-			screen = home_screen;
-			draw_home();
+			if (button_1.pressed()) /// abort and go back to home
+			{
+				plate_A.abort_program();
+				plate_A.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
+		}
+		else
+		{
+			if (button_4.pressed()) /// abort and go back to home
+			{
+				plate_A.abort_program();
+				plate_A.abort_program();
+				screen = home_screen;
+				draw_home();
+			}
 		}
 		break;
-	case status_A_B_screen:		/// A and B are running simultanously
-		if (button_4.pressed()) // abort and go back to home
-		{
-			plate_A.abort_program();
-			plate_B.abort_program();
-			screen = home_screen;
-			draw_home();
-		}
-		break;
+
 	case test_screen:
 		if (button_1.pressed())
 		{

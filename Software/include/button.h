@@ -1,17 +1,35 @@
 /**
  * @file button.h
- * @author Alex Landolt 
- * @brief Header file for button class. Handles pushbutton with Software debounce through checking them multiple times before triggering an action. 
+ * @author Alex Landolt
+ * @brief Header file for button class. Handles pushbutton with Software debounce through checking them multiple times before triggering an action.
  * @version 0.3
  * @date 2020-05-25
  */
+
 #ifndef BUTTON_H
 #define BUTTON_H
+
+#define PIN_BUTTON_1 36
+#define PIN_BUTTON_2 39
+#define PIN_BUTTON_3 34
+#define PIN_BUTTON_4 35
+
+#ifdef LITOS_REV_2
+#undef PIN_BUTTON_1
+#define PIN_BUTTON_1 35
+#undef PIN_BUTTON_2
+#define PIN_BUTTON_2 34
+#undef PIN_BUTTON_3
+#define PIN_BUTTON_3 39
+#undef PIN_BUTTON_4
+#define PIN_BUTTON_4 36
+#endif
+
 #include <Arduino.h>
 
 /**
  * @brief Class to register and handle push button press with Software debounce
- * 
+ *
  */
 class Button
 {

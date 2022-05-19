@@ -6,17 +6,13 @@
  * @date 2020-05-25
  *
  */
+
 #include "button.h"
 
-const byte pin_button_1 = 36;
-const byte pin_button_2 = 39;
-const byte pin_button_3 = 34;
-const byte pin_button_4 = 35;
-
-Button button_1(pin_button_1); /// Initialization of the buttons
-Button button_2(pin_button_2);
-Button button_3(pin_button_3);
-Button button_4(pin_button_4);
+Button button_1(PIN_BUTTON_1); /// Initialization of the buttons
+Button button_2(PIN_BUTTON_2);
+Button button_3(PIN_BUTTON_3);
+Button button_4(PIN_BUTTON_4);
 
 Button::Button(byte button_pin)
 {

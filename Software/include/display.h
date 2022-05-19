@@ -1,12 +1,16 @@
 /**
  * @file display.h
- * @author Alex Landolt 
- * @brief Header files containing functions used to control the OLED screen of LITOS and class to create countdowns. 
+ * @author Alex Landolt
+ * @brief Header files containing functions used to control the OLED screen of LITOS and class to create countdowns.
  * @version 0.3
  * @date 2020-05-25
  */
 #ifndef DISPLAY_H
 #define DISPLAY_H
+
+#ifndef QUIT_ON_RED
+#define QUIT_ON_RED false
+#endif
 
 /// color definitions
 #define BLACK 0x0000
@@ -72,7 +76,7 @@ const char *wellplate_abrev(const type_wellplate &wellplate);                   
 
 /**
  * @brief class created for countdown on status screen
- * 
+ *
  */
 class show_countdown
 {

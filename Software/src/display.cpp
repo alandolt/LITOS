@@ -1,6 +1,6 @@
 /**
  * @file display.cpp
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief C file for display
  * @version 0.3
  * @date 2020-05-25
@@ -225,7 +225,7 @@ void draw_status_screen(bool with_buttons)
         display.setCursor(101, 30);
         display.print(":");
 
-        //here Detail information on A and B (for future versions of LITOS)
+        // here Detail information on A and B (for future versions of LITOS)
     }
     else
     {
@@ -244,7 +244,14 @@ void draw_status_screen(bool with_buttons)
     }
     if (with_buttons)
     {
-        draw_button("Quit", 4);
+        if (QUIT_ON_RED)
+        {
+            draw_button("Quit", 1);
+        }
+        else
+        {
+            draw_button("Quit", 4);
+        }
     }
 }
 
@@ -374,7 +381,7 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
         {
             buzzer.invoke_beep(SHORT_BEEP);
             display.fillRect(x, y, 128, 7, BLACK);
-            //draw_status_screen();
+            // draw_status_screen();
             display.setTextColor(WHITE, BLACK);
             display.setCursor(x, y);
             display.setTextColor(GREEN);
@@ -387,8 +394,8 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
 show_countdown::timepoint show_countdown::seconds_to_timepoint(int seconds_remaining)
 {
     show_countdown::timepoint act_timepoint;
-    //act_timepoint.days = seconds_remaining / 86400;
-    //seconds_remaining -= act_timepoint.days;
+    // act_timepoint.days = seconds_remaining / 86400;
+    // seconds_remaining -= act_timepoint.days;
     act_timepoint.hours = seconds_remaining / 3600;
     seconds_remaining -= act_timepoint.hours * 3600;
     act_timepoint.minutes = seconds_remaining / 60;
