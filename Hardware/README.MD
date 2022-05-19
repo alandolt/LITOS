@@ -1,11 +1,17 @@
 # LITOS Hardware
-In most cases it is recomended to order [LITOS directly](../../wiki/1.-How-to-get-one). 
+In case you want to order LITOS directly from a PCB manufacturing service, the folder [*PCB design data*](PCB%20design%20data) contains the needed information (Gerbers file with PCB position file, schematics, and bill of material). Additionally, you can find the raw KiCad PCB layout project under [*LITOS Kicad Rev4.zip*](PCB%20design%20data/LITOS%20Kicad%20Rev4.zip). 
 
-In case you really want to order LITOS directly from a PCB manufacturing service, this folder contains the needed information (Gerbers file with PCB position file, schematics and bill of material). 
-Additionally, you can find the raw KiCad PCB layout project folder in the folder PCB design data\Kicad project folder.  
+For the proper alignment of the microtiter plate on the LED matrix the blueprints (for building them with a 3D printer or a CNC machine) for two different masks (one / two microplates) are provided under [*Alignment masks*](Alignment%20masks). The mask for one microplate allows its placement in the middle of the LED matrix, whereas the mask for two plates stocks them horizontally. This allows to stimulate two multiwell plates with one LITOS to further increase through-put. Please note that when using the mask for two plates, the first and last row cannot be illuminated. 
 
-***Attention:*** In revision 3 there was an error in the provided PCB files. It was not possible to flash your LITOS over USB, you had to use an external USB-FTDI programmer (connected to LITOS' RX, TX pins on J7) while disconnecting the FTDI USB to serial converter. 
+An optional 3D printed that protects LITOS can be found in the [*3D printed case*](3D%20printed%20case) folder. The case comes in two versions, a solid one, and a more open version with ventilation holes. Albeit, given that LITOS does not heat up excessively, you can use whichever version you prefer. 
 
-This error had been fixed in **revision 4** while improving trace routing too. Further revision 4 now uses more available components derived from LCSC. 
+<br>
+<br>
 
-We are currently in the progress of ordering and testing revision 4 ourselves. Once this is done, we will update this post. However, in the meantime, you are free to try out revision 4 for yourself. The software of revision 3 is compatible with the PCB revision 4, albeit the button order is reversed (the physical red button switches the green button and vice versa). This bug will be fixed as soon as the testing for rev. 4 is completed.  
+***Attention:***  By default, the source code adapted for revision 4 is used during the programming process. When you are still using an older revision 3 board, you can choose the adapted source code for this version by selecting LITOS_Rev2_Rev3 as build environment in PlatformIO. 
+
+
+<img src="https://github.com/alandolt/LITOS/blob/master/images/flash_litos_rev2.png" alt="Chose the build environment LITOS_Rev2_Rev3 when you still use an old Rev2 or Rev3 LITOS, else you can directly choose LITOS as build environment" width="500" class="center"/>
+
+*Chose the build environment LITOS_Rev2_Rev3 when you still use an old Rev2 or Rev3 LITOS, else you can directly choose LITOS as build environment.*
+
