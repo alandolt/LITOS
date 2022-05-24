@@ -907,21 +907,23 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		}
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
-			int size_rect;
+			int x_end, y_end;
 			char *pEnd = strtok(&what[0] + 1, "_:");
+			pEnd = strtok(NULL, "_"); // first strok takes ect, next number
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
-			size_rect = atoi(pEnd);
+			x_end = atoi(pEnd);
+			pEnd = strtok(NULL, "_:");
+			y_end = atoi(pEnd);
 
-			ref_backgroundLayer().fillRect(x, y, size_rect, size_rect, ref_backgroundLayer().color565(r, g, b));
+			ref_backgroundLayer().fillRect(x, y, x_end - x, y_end - y, ref_backgroundLayer().color565(r, g, b));
 		}
 		else if (first_char == 'O' || first_char == 'o') // circle definition
 		{
 			int size_circle;
-			char *pEnd = strtok(&what[0] + 1, "_:");
-
+			char *pEnd = strtok(&what[0] + 1, "_:"); // only one letter, thus only strtok
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
 			y = atoi(pEnd);
