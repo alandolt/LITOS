@@ -1,11 +1,11 @@
 /**
  * @file wellplate.cpp
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief Code file for wepllate class
  * @version 0.3
  * @date 2020-05-26
- * 
- * This columns are out of the matrix if the two plate mask is used 
+ *
+ * This columns are out of the matrix if the two plate mask is used
  * 96 wellplate: 1 & 12 (approx 70-90% outside of matrix)
  * 48 wellplate: 1 & 8 (25-50% outside
  * 24 wellplate 1 & 6 (50 % outside)
@@ -157,7 +157,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					Serial.println("only once");
 #endif
 				}
-				ptr = strtok(buffer, delimiter); //what
+				ptr = strtok(buffer, delimiter); // what
 
 				char what_buffer[50];
 				uint8_t i_is_alpha_num = 0;
@@ -193,20 +193,20 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					strcpy(_well.what, what_buffer);
 				}
 
-				ptr = strtok(NULL, delimiter); //start
+				ptr = strtok(NULL, delimiter); // start
 				if (ptr == nullptr)
 				{
 					goto error_loading;
 				}
 				float start = atof(ptr);
-				ptr = strtok(NULL, delimiter); //start_unit
+				ptr = strtok(NULL, delimiter); // start_unit
 				if (ptr == nullptr)
 				{
 					goto error_loading;
 				}
 				_well.start = start * unit_correction(ptr);
 
-				ptr = strtok(NULL, delimiter); //stim_time
+				ptr = strtok(NULL, delimiter); // stim_time
 				if (ptr == nullptr)
 				{
 					goto error_loading;
@@ -216,7 +216,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					goto error_loading;
 				}
-				ptr = strtok(NULL, delimiter); //stim_time_unit
+				ptr = strtok(NULL, delimiter); // stim_time_unit
 				if (ptr == nullptr)
 				{
 					goto error_loading;
@@ -229,7 +229,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				else
 				{
-					ptr = strtok(NULL, delimiter); //color
+					ptr = strtok(NULL, delimiter); // color
 					if (ptr == nullptr)
 					{
 						goto error_loading;
@@ -238,7 +238,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				if (!only_once)
 				{
-					ptr = strtok(NULL, delimiter); //repeat_every
+					ptr = strtok(NULL, delimiter); // repeat_every
 					if (ptr == nullptr)
 					{
 						goto error_loading;
@@ -249,7 +249,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 						goto error_loading;
 					}
 
-					ptr = strtok(NULL, delimiter); //repeat_every unit
+					ptr = strtok(NULL, delimiter); // repeat_every unit
 					if (ptr == nullptr)
 					{
 						goto error_loading;
@@ -261,14 +261,14 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 					if (last_cycle_defined)
 					{
-						ptr = strtok(NULL, delimiter); //last_cycle
+						ptr = strtok(NULL, delimiter); // last_cycle
 						float last_cycle = atof(ptr);
 						if (ptr == nullptr)
 						{
 							goto error_loading;
 						}
 
-						ptr = strtok(NULL, delimiter); //last_cycle unit
+						ptr = strtok(NULL, delimiter); // last_cycle unit
 						if (ptr == nullptr)
 						{
 							goto error_loading;
@@ -279,7 +279,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					}
 					else
 					{
-						ptr = strtok(NULL, delimiter); //n cycle
+						ptr = strtok(NULL, delimiter); // n cycle
 						if (ptr == nullptr)
 						{
 							goto error_loading;
@@ -898,12 +898,12 @@ bool wellplate::what_switch(char *_what, uint8_t r, uint8_t g, uint8_t b)
 		else if (first_char == 'L' || first_char == 'l') // LED definition
 		{
 			char *pEnd = strtok(&what[0] + 1, "_:");
-
+			pEnd = strtok(NULL, "_:");
 			x = atoi(pEnd);
 			pEnd = strtok(NULL, "_:");
-
 			y = atoi(pEnd);
-			ref_backgroundLayer().drawPixel(x, y, ref_backgroundLayer().color565(r, g, b));
+			ref_backgroundLayer()
+				.drawPixel(x, y, ref_backgroundLayer().color565(r, g, b));
 		}
 		else if (first_char == 'R' || first_char == 'r') // Rect definition
 		{
