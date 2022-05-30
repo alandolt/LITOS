@@ -5,6 +5,8 @@ For the proper alignment of the microtiter plate on the LED matrix the blueprint
 
 An optional 3D printed case that protects LITOS can be found in the [*3D printed case*](3D%20printed%20case) folder. The case comes in two versions, with or without ventilation holes. Albeit, given that LITOS does not heat up excessively, you can use whichever version you prefer. To minimize overhangs, we recommend you print the case in the orientation it is stored in the .stl file, the open side of the case facing the printer plate. To adjust for under- or overextruding printers, changing the scale of the whole design worked well for us (98%-102%). No support structures were needed with our printer (Creality CR 20 Pro).
 
+<img src="https://github.com/alandolt/LITOS/blob/master/images/overview_3d_prints.jpg" alt="a) closed design, b) desgin with ventilation holes, c) photo of printed case with ventilation holes" width="500" class="center"/>
+
 <br>
 
 > **Warning** By default, the source code adapted for revision 4 is used during the programming process. When you are still using an older revision 3 board, you can choose the adapted source code for this version by selecting LITOS_Rev2_Rev3 as build environment in PlatformIO. 
