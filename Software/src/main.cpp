@@ -178,6 +178,9 @@ void loop()
 		}
 		if (button_4.pressed())
 		{
+			plate_A.reset_mark();
+			plate_B.reset_mark();
+			ref_backgroundLayer().clearScreen();
 			draw_home();
 		}
 		break;

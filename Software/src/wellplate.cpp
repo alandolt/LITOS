@@ -20,8 +20,6 @@
 #include "matrix.h"
 #include "display.h"
 
-#define DEBUG
-
 wellplate plate_A('A');
 wellplate plate_B('B');
 
@@ -137,7 +135,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') && (strchr(delimiter, buffer[1]) != NULL && buffer[1] != '\n')) ||
 					((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')))
 				{
-#ifdef DEBUG
+#ifdef DEBUG_SERIAL_OUT
 					Serial.println("empty lines detected");
 #endif
 					goto end_of_file;
@@ -145,7 +143,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]))
 				{
 					last_cycle_defined = true;
-#ifdef DEBUG
+#ifdef DEBUG_SERIAL_OUT
 					Serial.println("last cycle defined");
 #endif
 				}
@@ -153,7 +151,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 						 (strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n'))
 				{
 					only_once = true;
-#ifdef DEBUG
+#ifdef DEBUG_SERIAL_OUT
 					Serial.println("only once");
 #endif
 				}
@@ -381,6 +379,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		bool error_flag = false;
 		unsigned long int temp_longest = 0;
 		total_time_experiment = 0;
+		bool ignore_messages_for_time = false;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
 			if (!what_switch_error((*iter).what))
@@ -388,16 +387,14 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				error_flag = true;
 				break;
 			}
-			if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
+			if (ignore_messages_for_time && ((*iter).what[0] == 'M' || (*iter).what[0] == 'm'))
 			{
+				continue;
 			}
-			else
+			temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
+			if (temp_longest > total_time_experiment)
 			{
-				temp_longest = (*iter).start_last_cycle + (*iter).stimulation_time;
-				if (temp_longest > total_time_experiment)
-				{
-					total_time_experiment = temp_longest;
-				}
+				total_time_experiment = temp_longest;
 			}
 		}
 		if (!error_flag)
@@ -411,7 +408,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			draw_error_screen(identifier, what_error);
 		}
 
-#ifdef DEBUG
+#ifdef DEBUG_SERIAL_OUT
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
 			Serial.println("content");
@@ -646,7 +643,7 @@ bool wellplate::check(unsigned long int time)
 						(*iter).finished = true;
 						number_of_finished_wells += 1;
 					}
-#ifdef DEBUG
+#ifdef DEBUG_SERIAL_OUT
 					Serial.println("");
 					Serial.print((*iter).what);
 					Serial.print(", ");
@@ -1076,13 +1073,12 @@ void wellplate::mark_outlines()
 
 	if (_type_wellplate < 50) // center
 	{
-		ref_backgroundLayer().fillRect(11, 1, 11 + 42, 2 + 27, marking_col.r, marking_col.g, marking_col.b);
-
-		ref_backgroundLayer().fillCircle(7, 3, 2, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+		ref_backgroundLayer().drawRect(11, 1, 43, 29, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
+		ref_backgroundLayer().fillCircle(6, 3, 2, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
 	}
 	else if (_type_wellplate < 100) // corner
 	{
-		ref_backgroundLayer().fillRect(0, 0, 42, 27, marking_col.r, marking_col.g, marking_col.b);
+		ref_backgroundLayer().drawRect(0, 0, 43, 29, ref_backgroundLayer().color565(marking_col.r, marking_col.g, marking_col.b));
 	}
 	else // top bottom
 	{
@@ -1139,4 +1135,10 @@ void wellplate::mark_well()
 
 		well_col(x, y, marking_col.r, marking_col.g, marking_col.b);
 	}
+}
+
+void wellplate::reset_mark()
+{
+	mark_well_on = false;
+	mark_outlines_on = false;
 }

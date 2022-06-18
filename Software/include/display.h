@@ -137,6 +137,7 @@ public:
     void update(const unsigned long current_time);
     bool is_free();
     void reset();
+    
 };
 
 class message_list

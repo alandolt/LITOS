@@ -1,11 +1,11 @@
 /**
  * @file wellplate.h
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief Header file for wellplate class
  * @version 0.3
  * @date 2020-05-26
- * The wellplate class regulates which well of a microtiter plate should be illuminated at which timepoint. 
- * It does also handle the parsing of the CSV which contain the illumination pattern 
+ * The wellplate class regulates which well of a microtiter plate should be illuminated at which timepoint.
+ * It does also handle the parsing of the CSV which contain the illumination pattern
  */
 #ifndef WELLPLATE_H
 #define WELLPLATE_H
@@ -13,7 +13,7 @@
 #include <vector>
 /** instead of using arrays, vectors are used, as so we can adjust the size of the cotnainer containing the illumination pattern rows
  * during the run of the program without recompilation
-*/
+ */
 #include "struct.h"
 
 class wellplate
@@ -51,7 +51,7 @@ private:
 
 public:
 	wellplate(const char _identifier);
-	//void init_wellplate(); deprecated
+	// void init_wellplate(); deprecated
 	void wellplate_setup_u(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, type_wellplate a_type_wellplate);
 	void wellplate_setup(const char *name_config_file, int a_type_wellplate);
@@ -67,7 +67,7 @@ public:
 	void well_black(int x, int y);											  // will shutoff light for well
 
 	void begin(unsigned int long act_time);
-	bool check(unsigned long int time); //loop through led_array to check if well should be illuminated or not.
+	bool check(unsigned long int time); // loop through led_array to check if well should be illuminated or not.
 	bool has_started();
 	bool prog_finished();
 	int get_time_remaining();
@@ -78,6 +78,7 @@ public:
 
 	void mark_outlines();
 	void mark_well();
+	void reset_mark();
 
 	int letter_to_row(char &letter);
 
@@ -88,7 +89,7 @@ public:
 	const char get_identifier();
 };
 
-//two plates on one matrix
+// two plates on one matrix
 extern wellplate plate_A;
 extern wellplate plate_B;
 

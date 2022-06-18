@@ -565,7 +565,7 @@ void message::update(const unsigned long time_ref)
         break;
     }
     case finished:
-        if (time_ref > time_finished + 60000)
+        if (time_ref > time_finished + 10000)
         {
             reset();
         }
