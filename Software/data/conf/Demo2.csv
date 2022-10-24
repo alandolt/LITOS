@@ -1,0 +1,7 @@
+What,Start,,Stimulation time,,Color,Repeat every,,n Cycles,Start last cycle
+1,1,s,500,p,blue,1,s,100,
+2,2,s,250,p,blue,1,s,100,
+3,3,s,100,p,blue,1,s,100,
+4,4,s,50,p,blue,1,s,100,
+5,5,s,25,p,blue,1,s,100,
+6,6,s,10,p,blue,1,s,100,

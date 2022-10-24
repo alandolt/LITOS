@@ -30,27 +30,31 @@ wellplate::wellplate(const char _identifier)
 
 int wellplate::unit_correction(char *ptr)
 {
-	if (ptr[0] == 's' || ptr[0] == 'S')
+	if (ptr[0] == 'p' || ptr[0] == 'P')
 	{
 		return 1;
+	}
+	if (ptr[0] == 's' || ptr[0] == 'S')
+	{
+		return 1000;
 	}
 
 	if (ptr[0] == 'm' || ptr[0] == 'M')
 	{
-		return 60;
+		return 60000;
 	}
 
 	if (ptr[0] == 'h' || ptr[0] == 'H')
 	{
-		return 3600;
+		return 3600000;
 	}
 	if (ptr[0] == 'd' || ptr[0] == 'D')
 	{
-		return 86400;
+		return 86400000;
 	}
 	if (ptr[0] == 'w' || ptr[0] == 'W')
 	{
-		return 604800;
+		return 604800000;
 	}
 
 	return 1;
@@ -594,8 +598,8 @@ bool wellplate::check(unsigned long int time)
 	if (started && !finished)
 	{
 		illumination_in_process = false;
-		unsigned long int time_ref = (time - time_started) / 1000;
-		time_remaining = (total_time_experiment - (time_ref));
+		unsigned long int time_ref = (time - time_started);
+		time_remaining = (total_time_experiment - (time_ref)) / 1000;
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
 			if (!(*iter).finished)
