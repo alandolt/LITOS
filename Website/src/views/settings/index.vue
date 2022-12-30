@@ -124,24 +124,6 @@ import Socket from '@/socket'
 // import { clone, cloneDeep } from 'lodash'
 import { transform, isEqual, isObject, isEmpty } from 'lodash'
 
-/*
-function diff(tgt, src) {
-  // if you got object
-  var rst = {}
-  for (var k in tgt) {
-    // visit all fields
-    if (typeof src[k] === 'object') {
-      // if field contains object (or array because arrays are objects too)
-      rst[k] = diff(tgt[k], src[k]) // diff the contents
-    } else if (src[k] !== tgt[k]) {
-      // if field is not an object and has changed
-      rst[k] = tgt[k] // use new value
-    }
-    // otherwise just skip it
-  }
-  return rst
-}*/
-
 function difference(object, base) {
   function changes(object, base) {
     return transform(object, function(result, value, key) {
@@ -166,20 +148,20 @@ const e_eap_identity = 'Please enter your identity for the eduroam network'
 const e_eap_password =
   'Please enter your password'
 const e_hostname = 'Please enter a valid hostname'
-const e_port = 'Please enter a valid port LITOS\'s webserver'
 
 export default {
   data() {
     var check_AP = (rule, value, callback) => {
+      console.log('ok')
       if (this.config.webserver.mode === 1 && value === '' && value === ' ') {
-        return callback(new Error())
+        return callback(new Error('test'))
       } else {
         callback()
       }
     }
     var check_WPA = (rule, value, callback) => {
-      if (this.config.webserver.mode === 2 && value === '' && value === ' ') {
-        return callback(new Error())
+      if (this.config.webserver.mode === 2 && value === '') {
+        return callback(new Error('test2'))
       } else {
         callback()
       }
@@ -268,7 +250,7 @@ export default {
         ],
         'EAP_mode.EAP_identity': [
           {
-            validator: check_EAP,
+            required: false,
             trigger: 'blur',
             message: e_eap_identity
           }
@@ -285,12 +267,6 @@ export default {
             required: true,
             trigger: 'blur',
             message: e_hostname
-          }
-        ],
-        'webserver.port': [
-          {
-            trigger: 'blur',
-            message: e_port
           }
         ]
       },
