@@ -1,6 +1,5 @@
 const fs = require('fs');
 const zlib = require('zlib');
-var zopfli = require('node-zopfli');
 const { gzip } = require('@gfx/zopfli');
 
 function getByteArray(file) {
@@ -68,7 +67,7 @@ fs.writeFileSync(__dirname + '/dist/webpage.h', source, 'utf8');`;
 input = new Buffer(html);;
 gzip(input, { numiterations: 15 }, (err, output) => {
   indexHTML = output;
-  let source =    `const uint32_t webpage_size = ${indexHTML.length};
+  let source = `const uint32_t webpage_size = ${indexHTML.length};
 const uint8_t webpage[] PROGMEM = { ${indexHTML} };
 `;
 
@@ -78,7 +77,7 @@ const uint8_t webpage[] PROGMEM = { ${indexHTML} };
 
 gzip(fs.readFileSync(__dirname + '/dist/favicon.ico'), { numiterations: 15 }, (err, output) => {
   binary = output;
-  let source =    `const uint32_t favicon_size = ${binary.length};
+  let source = `const uint32_t favicon_size = ${binary.length};
 const uint8_t favicon[] PROGMEM = { ${binary} };
 `;
   fs.writeFileSync(__dirname + '/dist/favicon.h', source, 'utf8');
@@ -87,7 +86,7 @@ const uint8_t favicon[] PROGMEM = { ${binary} };
 
 gzip(fs.readFileSync(__dirname + '/dist/fonts/element-icons.ttf'), { numiterations: 15 }, (err, output) => {
   binary = output;
-  let source =    `const uint32_t element_icons_size = ${binary.length};
+  let source = `const uint32_t element_icons_size = ${binary.length};
 const uint8_t element_icons[] PROGMEM = { ${binary} };
 `;
   fs.writeFileSync(__dirname + '/dist/element_icons.h', source, 'utf8');
