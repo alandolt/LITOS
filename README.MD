@@ -1,5 +1,7 @@
 # LITOS - **L**ed **I**llumination **T**ool for **O**ptogenetic **S**timulation
 
+**Information: Due to an increased interest, Thomas and I decided to sell LITOS through our company OptoLumina GmbH. We are pleased to offer LITOS to universities at cost price (CHF 380.00), and we are also happy to provide quotes to companies interested in purchasing. For more information, please contact us at info[at]optolumina.com.**
+
 The **L**ed **I**llumination **T**ool for **O**ptogenetic **S**timulation (**LITOS**) can be used for the stimulation of cells containing an optogenetic system. A commercially available 32x64 RGB LED matrix is used to illuminate cells placed in various microplate formats (6 well up to 96 wells), petri dishes or cell culture flasks. The control unit for the LED matrix is a custom-built printed circuit board (PCB) containing a screen which shows relevant information during the illumination process. 
 
 During LITOS development, we deliberately focused on user-friendliness. LITOS can be ordered pre-built, thus no complicated assembly process is required. Individual stimulation patterns can be first created in a spreadsheet application, like Microsoft Excel, then they are loaded to LITOS over an easy-to-use interface, accessible as a website hosted on the device itself. Thus, no knowledge of a programming language is needed, and the device can even be operated by nontechnical oriented users. 
