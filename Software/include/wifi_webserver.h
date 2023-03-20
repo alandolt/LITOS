@@ -12,6 +12,7 @@ void init_webserver();
 void init_wlan();
 void init_AP_mode();
 void init_connect_mode();
+void dns_server_next_request();
 //extern DNSServer &ref_DNSServer();
 String processor(const String &var);
 //extern AsyncWebSocket &ref_websocket();

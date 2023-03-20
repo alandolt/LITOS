@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <esp_wpa2.h>
+#include <DNSServer.h>
 #include <ArduinoJson.h>
 
 #include "struct.h"
@@ -13,6 +14,7 @@
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/litosws");
+static DNSServer dnsServer;
 // static DNSServer dnsServer;
 /*
 extern DNSServer &ref_DNSServer()
@@ -24,11 +26,18 @@ extern DNSServer &ref_DNSServer()
 {
 	return ws;
 }*/
+bool is_AP_mode = false;
 
 void init_webserver()
 {
 	server.reset();
 	// server.serveStatic("/", SPIFFS, "/w/").setDefaultFile("index.html");
+
+	server.onNotFound([](AsyncWebServerRequest *request)
+					  {
+		AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", webpage, webpage_size);
+		response->addHeader("Content-Encoding", "gzip");
+		request->send(response); });
 
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
 			  {
@@ -159,7 +168,8 @@ void init_AP_mode()
 	delay(100);
 	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 	config.set_con_mode(AP_mode);
-	// dnsServer.start(DNS_PORT, "*", apIP);
+	dnsServer.start(53, "*", apIP);
+	is_AP_mode = true;
 }
 
 String processor(const String &var)
@@ -402,4 +412,12 @@ void generate_file_list_response(String &result)
 
 	serializeJson(root, result);
 	Serial.println(result);
+}
+
+void dns_server_next_request()
+{
+	if (is_AP_mode)
+	{
+		dnsServer.processNextRequest();
+	}
 }

@@ -204,5 +204,6 @@ void loop()
 		buzzer.check_beep(current_time); // check if a beep has been requested by another part of the programm
 		last_refresh_time += refresh_intervall;
 	}
-	// ref_websocket().cleanupClients(); /// can be used in production to clean up dead websocket connections of the ESP32 webserver (however, it still need to be tested if this effective or not)
+	dns_server_next_request();
+	delay(5);
 }
