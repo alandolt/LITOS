@@ -31,6 +31,9 @@ typedef struct well
   uint8_t blue;
   unsigned int cycle_count;
   unsigned int total_cycle;
+  unsigned int block_n;
+  unsigned int block_total;
+  unsigned long int block_repeat_every;
   bool running;
   bool finished;
 

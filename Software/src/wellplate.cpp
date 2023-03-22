@@ -291,7 +291,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				{
 					_well.running = false;
 					_well.finished = false;
-					_well.repeat_every = _well.stimulation_time + 10;
+					_well.repeat_every = 1;
 					_well.start_last_cycle = _well.start;
 					_well.total_cycle = 1;
 				}
@@ -320,8 +320,8 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					else if (strcasecmp(color_string, "YELLOW") == 0)
 					{
 						_well.red = 255;
-						_well.blue = 255;
-						_well.green = 0;
+						_well.blue = 0;
+						_well.green = 255;
 					}
 					else if (strcasecmp(color_string, "WHITE") == 0)
 					{
@@ -368,7 +368,10 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					}
 					_well.blue = atoi(ptr_color_string);
 				}
-
+				_well.block_n = 1;
+				_well.block_total = 1;
+				_well.block_repeat_every = 30;
+				_well.cycle_count = 0;
 				well_vector.push_back(_well);
 			}
 		}
@@ -598,12 +601,24 @@ bool wellplate::check(unsigned long int time)
 		time_remaining = (total_time_experiment - (time_ref));
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
-			if (!(*iter).finished)
+			if (!(*iter).finished && !(*iter).running && (*iter).start <= time_ref)
 			{
-				if (!(*iter).running && (*iter).start <= time_ref &&
-					(*iter).start_last_cycle >= time_ref &&
-					(time_ref - (*iter).start) % (*iter).repeat_every == 0)
+				int start_last_cycle = (*iter).start_last_cycle;
+				unsigned long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
+				Serial.println("Stoppppp....................");
+
+				Serial.println(time_ref_block_corr);
+				Serial.println((*iter).start_last_cycle);
+				Serial.println((*iter).start);
+				Serial.println((*iter).repeat_every);
+				Serial.println((*iter).cycle_count);
+				Serial.println((*iter).start_last_cycle + 1 >= time_ref_block_corr);
+				Serial.println((time_ref_block_corr - (*iter).start) / (*iter).repeat_every > (*iter).cycle_count);
+				Serial.println("Stoppppp....................");
+				if ((*iter).start_last_cycle + 10 >= time_ref_block_corr &&								 // zählen wie oft der Block durchlaufen wurde
+					(time_ref_block_corr - (*iter).start) / (*iter).repeat_every >= (*iter).cycle_count) // cycle count am anfang 0
 				{
+					Serial.println("hallo");
 #ifdef DEBUG
 					Serial.println("");
 					Serial.print((*iter).what);
@@ -624,24 +639,50 @@ bool wellplate::check(unsigned long int time)
 					}
 					else
 					{
+						Serial.println("running == true");
 						what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
 						(*iter).running = true;
-						(*iter).cycle_count++;
 					}
+					(*iter).cycle_count += 1;
 				}
+			}
 
-				else if ((*iter).running && (*iter).start <= time_ref &&
-						 ((*iter).start_last_cycle + (*iter).stimulation_time) >= time_ref &&
-						 (time_ref - (*iter).start) % (*iter).repeat_every == (*iter).stimulation_time)
+			else if ((*iter).running)
+			{
+				Serial.println("running");
+				unsigned long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
+				Serial.println(time_ref_block_corr);
+				Serial.println((*iter).start_last_cycle);
+				Serial.println((*iter).stimulation_time);
+				Serial.println((*iter).start_last_cycle + (*iter).stimulation_time <= time_ref_block_corr);
+				Serial.println((time_ref_block_corr - (*iter).start) > ((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time);
+				Serial.println("....................");
+				if ((*iter).start_last_cycle + (*iter).stimulation_time <= time_ref_block_corr &&
+					(time_ref_block_corr - (*iter).start) >= ((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time)
 				{
+					Serial.println("abbruch");
+
 					(*iter).running = false;
 
 					what_switch((*iter).what);
+					Serial.println((*iter).cycle_count);
+					Serial.println((*iter).total_cycle);
+					Serial.println((*iter).block_n);
+					Serial.println((*iter).block_total);
 
 					if ((*iter).cycle_count >= (*iter).total_cycle)
 					{
-						(*iter).finished = true;
-						number_of_finished_wells += 1;
+						if ((*iter).block_n >= (*iter).block_total)
+						{
+							(*iter).finished = true;
+							number_of_finished_wells += 1;
+							Serial.println("finished");
+						}
+						else
+						{
+							(*iter).cycle_count = 0;
+							(*iter).block_n += 1;
+						}
 					}
 #ifdef DEBUG_SERIAL_OUT
 					Serial.println("");
@@ -654,12 +695,12 @@ bool wellplate::check(unsigned long int time)
 					Serial.print("inaktiv");
 #endif
 				}
-
-				illumination_in_process = illumination_in_process | (*iter).running;
 			}
+			illumination_in_process = illumination_in_process | (*iter).running;
 		}
 		finished = (number_of_wells - number_of_finished_wells == 0);
 	}
+
 	return illumination_in_process;
 }
 
