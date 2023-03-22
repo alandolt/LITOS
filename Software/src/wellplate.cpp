@@ -400,17 +400,6 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				total_time_experiment = temp_longest;
 			}
 		}
-		if (!error_flag)
-		{
-			draw_home();
-			return;
-		}
-		else
-		{
-			screen = error_screen;
-			draw_error_screen(identifier, what_error);
-		}
-
 #ifdef DEBUG_SERIAL_OUT
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
@@ -436,8 +425,17 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			Serial.println((*iter).total_cycle);
 		}
 		Serial.println(total_time_experiment);
-
 #endif
+		if (!error_flag)
+		{
+			draw_home();
+			return;
+		}
+		else
+		{
+			screen = error_screen;
+			draw_error_screen(identifier, what_error);
+		}
 	}
 
 	else
@@ -615,7 +613,7 @@ bool wellplate::check(unsigned long int time)
 				Serial.println((*iter).start_last_cycle + 1 >= time_ref_block_corr);
 				Serial.println((time_ref_block_corr - (*iter).start) / (*iter).repeat_every > (*iter).cycle_count);
 				Serial.println("Stoppppp....................");
-				if ((*iter).start_last_cycle + 10 >= time_ref_block_corr &&								 // zählen wie oft der Block durchlaufen wurde
+				if ((*iter).cycle_count <= (*iter).total_cycle &&										 // zählen wie oft der Block durchlaufen wurde
 					(time_ref_block_corr - (*iter).start) / (*iter).repeat_every >= (*iter).cycle_count) // cycle count am anfang 0
 				{
 					Serial.println("hallo");
@@ -657,8 +655,7 @@ bool wellplate::check(unsigned long int time)
 				Serial.println((*iter).start_last_cycle + (*iter).stimulation_time <= time_ref_block_corr);
 				Serial.println((time_ref_block_corr - (*iter).start) > ((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time);
 				Serial.println("....................");
-				if ((*iter).start_last_cycle + (*iter).stimulation_time <= time_ref_block_corr &&
-					(time_ref_block_corr - (*iter).start) >= ((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time)
+				if ((time_ref_block_corr - (*iter).start) >= ((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time)
 				{
 					Serial.println("abbruch");
 
