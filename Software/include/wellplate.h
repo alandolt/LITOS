@@ -75,6 +75,7 @@ public:
 	bool what_switch(char *what, uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
 	bool what_switch_error(char *what);
 	void start_end_well_col_row(type_wellplate &_type_wellplate);
+	bool test_if_valid(char *field);
 
 	void mark_outlines();
 	void mark_well();

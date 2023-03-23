@@ -100,7 +100,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 	well_vector.clear();
 
-	byte buffer_size = 200;
+	byte buffer_size = 250;
 	char buffer[buffer_size];
 	if (SPIFFS.exists(name_config_file))
 	{
@@ -109,17 +109,12 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 		const char delimiter[] = "\t,;";
 		const char delim_color[] = "_/- ";
 
-		char *ptr;
-
 		well _well;
 		char color_string[13];
 
 		bool first_line = true;
 		while (file.available())
 		{
-
-			bool last_cycle_defined(false);
-			bool only_once(false);
 			if (first_line)
 			{
 				file.readBytesUntil('\n', buffer, buffer_size);
@@ -130,43 +125,65 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 				byte length = file.readBytesUntil('\n', buffer, buffer_size);
 				buffer[length] = '\0';
+				Serial.println(buffer);
 
 				if ((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') ||
 					((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') && (strchr(delimiter, buffer[1]) != NULL && buffer[1] != '\n')) ||
-					((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')))
+					((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')) ||
+					!(isAlphaNumeric(buffer[0])) || (strlen(buffer) == 1 && buffer[0] == '\n'))
 				{
 #ifdef DEBUG_SERIAL_OUT
 					Serial.println("empty lines detected");
 #endif
 					goto end_of_file;
 				}
-				if (isAlpha(buffer[strlen(buffer) - 1]) || isAlpha(buffer[strlen(buffer) - 2]))
-				{
-					last_cycle_defined = true;
-#ifdef DEBUG_SERIAL_OUT
-					Serial.println("last cycle defined");
-#endif
-				}
-				else if ((strchr(delimiter, buffer[strlen(buffer) - 3]) != NULL && buffer[strlen(buffer) - 3] != '\n') &&
-						 (strchr(delimiter, buffer[strlen(buffer) - 4]) != NULL && buffer[strlen(buffer) - 4] != '\n'))
-				{
-					only_once = true;
-#ifdef DEBUG_SERIAL_OUT
-					Serial.println("only once");
-#endif
-				}
-				ptr = strtok(buffer, delimiter); // what
 
+				int max_fields = 13;
+				char *fields[max_fields] = {NULL};
+				int num_fields = 0;
+				char *token = strtok(buffer, delimiter);
+				while (token != NULL && (isalpha(token[0]) || isdigit(token[0])) && num_fields < max_fields)
+				{
+#ifdef DEBUG_SERIAL_OUT
+					Serial.println("Token: ");
+					Serial.println(token);
+					Serial.println(num_fields);
+					for (int i = 0; i < strlen(token); i++)
+					{
+						Serial.print((int)token[i]);
+						Serial.print(" ");
+					}
+					Serial.println();
+					Serial.println();
+#endif
+					fields[num_fields++] = token;
+					token = strtok(NULL, delimiter);
+				}
+				Serial.println("vor gnom");
+				for (int i = 0; i <= 5; i++)
+				{
+					if (!test_if_valid(fields[i]))
+					{
+#ifdef DEBUG_SERIAL_OUT
+						Serial.println(fields[i]);
+						Serial.println("No valid entry gnom: ");
+						Serial.println(i);
+#endif
+						goto error_loading;
+					}
+				}
+
+				// what
 				char what_buffer[50];
 				uint8_t i_is_alpha_num = 0;
 				uint8_t j_index = 0;
-				while (!isAlphaNumeric(ptr[i_is_alpha_num]))
+				while (!isAlphaNumeric(fields[0][i_is_alpha_num]))
 				{
 					i_is_alpha_num++;
 				}
 				uint8_t end_i_is_alpha_num = i_is_alpha_num;
 
-				while (ptr[end_i_is_alpha_num] != '\0')
+				while (fields[0][end_i_is_alpha_num] != '\0')
 				{
 					end_i_is_alpha_num++;
 				}
@@ -176,7 +193,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				for (uint8_t i = i_is_alpha_num; i <= end_i_is_alpha_num; i++)
 				{
-					char c = ptr[i];
+					char c = fields[0][i];
 					what_buffer[j_index] = c;
 					j_index++;
 				}
@@ -191,35 +208,18 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					strcpy(_well.what, what_buffer);
 				}
 
-				ptr = strtok(NULL, delimiter); // start
-				if (ptr == nullptr)
+				float start = atof(fields[1]);
+				if (start == 0)
 				{
 					goto error_loading;
 				}
-				float start = atof(ptr);
-				ptr = strtok(NULL, delimiter); // start_unit
-				if (ptr == nullptr)
-				{
-					goto error_loading;
-				}
-				_well.start = start * unit_correction(ptr);
-
-				ptr = strtok(NULL, delimiter); // stim_time
-				if (ptr == nullptr)
-				{
-					goto error_loading;
-				}
-				float stim_time = atof(ptr);
+				_well.start = start * unit_correction(fields[2]);
+				float stim_time = atof(fields[3]);
 				if (stim_time == 0)
 				{
 					goto error_loading;
 				}
-				ptr = strtok(NULL, delimiter); // stim_time_unit
-				if (ptr == nullptr)
-				{
-					goto error_loading;
-				}
-				_well.stimulation_time = stim_time * unit_correction(ptr);
+				_well.stimulation_time = stim_time * unit_correction(fields[4]);
 
 				if (_well.what[0] == 'M')
 				{
@@ -227,78 +227,130 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				}
 				else
 				{
-					ptr = strtok(NULL, delimiter); // color
-					if (ptr == nullptr)
-					{
-						goto error_loading;
-					}
-					strcpy(color_string, ptr);
-				}
-				if (!only_once)
-				{
-					ptr = strtok(NULL, delimiter); // repeat_every
-					if (ptr == nullptr)
-					{
-						goto error_loading;
-					}
-					float repeat_every = atof(ptr);
-					if (repeat_every == 0)
-					{
-						goto error_loading;
-					}
-
-					ptr = strtok(NULL, delimiter); // repeat_every unit
-					if (ptr == nullptr)
-					{
-						goto error_loading;
-					}
-					_well.repeat_every = repeat_every * unit_correction(ptr);
-
-					_well.running = false;
-					_well.finished = false;
-
-					if (last_cycle_defined)
-					{
-						ptr = strtok(NULL, delimiter); // last_cycle
-						float last_cycle = atof(ptr);
-						if (ptr == nullptr)
-						{
-							goto error_loading;
-						}
-
-						ptr = strtok(NULL, delimiter); // last_cycle unit
-						if (ptr == nullptr)
-						{
-							goto error_loading;
-						}
-						_well.start_last_cycle = last_cycle * unit_correction(ptr);
-
-						_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every) + 1;
-					}
-					else
-					{
-						ptr = strtok(NULL, delimiter); // n cycle
-						if (ptr == nullptr)
-						{
-							goto error_loading;
-						}
-						_well.total_cycle = atoi(ptr);
-						_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
-					}
-
-					_well.block_total = 2;
-					_well.block_repeat_every = 30;
+					strcpy(color_string, fields[5]);
 				}
 
-				else // only once
+				float repeat_every;
+				float last_cycle;
+				int n_cycles;
+				int block_total;
+				float block_repeat;
+
+				Serial.println("vor switch");
+				Serial.println(num_fields);
+				switch (num_fields)
 				{
-					_well.running = false;
-					_well.finished = false;
+				case 6:
 					_well.repeat_every = 1;
 					_well.start_last_cycle = _well.start;
 					_well.total_cycle = 1;
 					_well.block_total = 1;
 					_well.block_repeat_every = 30;
+					break;
+
+				case 9: // n cycles
+					for (int i = 6; i < 9; i++)
+					{
+						if (!test_if_valid(fields[i]))
+						{
+
+							goto error_loading;
+						}
+					}
+					repeat_every = atof(fields[6]);
+					if (repeat_every == 0)
+					{
+
+						goto error_loading;
+					}
+					_well.repeat_every = repeat_every * unit_correction(fields[7]);
+
+					n_cycles = atoi(fields[8]);
+					if (n_cycles == 0)
+					{
+						goto error_loading;
+					}
+					_well.total_cycle = n_cycles;
+					_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
+					_well.block_total = 1;
+					_well.block_repeat_every = 30;
+					break;
+
+				case 10: // last cycle
+					for (int i = 6; i < 10; i++)
+					{
+						if (!test_if_valid(fields[i]))
+						{
+							goto error_loading;
+						}
+					}
+					repeat_every = atof(fields[6]);
+					if (repeat_every == 0)
+					{
+						goto error_loading;
+					}
+					_well.repeat_every = repeat_every * unit_correction(fields[7]);
+
+					last_cycle = atof(fields[8]);
+					if (last_cycle == 0)
+					{
+						goto error_loading;
+					}
+					_well.start_last_cycle = last_cycle * unit_correction(fields[9]);
+					_well.total_cycle = ((_well.start_last_cycle - _well.start) / _well.repeat_every) + 1;
+					_well.block_total = 1;
+					_well.block_repeat_every = 30;
+					break;
+
+				case 12: // block repeat
+					for (int i = 6; i < 12; i++)
+					{
+						Serial.println(fields[i]);
+						Serial.println(i);
+						if (!test_if_valid(fields[i]))
+						{
+#if DEBUG_SERIAL_OUT
+							Serial.println("Gumba entry: ");
+							Serial.println(fields[i]);
+							Serial.println(i);
+#endif
+							goto error_loading;
+						}
+					}
+					repeat_every = atof(fields[6]);
+					if (repeat_every == 0)
+					{
+						goto error_loading;
+					}
+					_well.repeat_every = repeat_every * unit_correction(fields[7]);
+
+					n_cycles = atoi(fields[8]);
+					if (n_cycles == 0)
+					{
+						goto error_loading;
+					}
+					_well.total_cycle = n_cycles;
+					_well.start_last_cycle = _well.start + _well.repeat_every * (_well.total_cycle - 1);
+
+					block_total = atoi(fields[9]);
+					if (block_total == 0)
+					{
+						goto error_loading;
+					}
+					_well.block_total = block_total;
+					block_repeat = atof(fields[10]);
+					if (block_repeat == 0)
+					{
+#if DEBUG_SERIAL_OUT
+						Serial.println("No valid block repeat");
+#endif
+						goto error_loading;
+					}
+					_well.block_repeat_every = block_repeat * unit_correction(fields[11]);
+					break;
+
+				default:
+					goto error_loading;
 				}
 
 				// color interpretation
@@ -373,6 +425,8 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					}
 					_well.blue = atoi(ptr_color_string);
 				}
+				_well.running = false;
+				_well.finished = false;
 				_well.block_n = 1;
 				_well.cycle_count = 0;
 				well_vector.push_back(_well);
@@ -450,6 +504,15 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 error_loading:
 	screen = error_screen;
 	draw_error_screen(identifier, pattern_error);
+}
+
+bool wellplate::test_if_valid(char *field)
+{
+	if (field == nullptr || strlen(field) == 0)
+	{
+		return false;
+	}
+	return true;
 }
 
 int wellplate::well_to_x(int col) // transform from well to x/y matrix // hier noch für andere Plates definieren

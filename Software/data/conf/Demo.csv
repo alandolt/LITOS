@@ -1,2 +1,3 @@
-What,Start,,Stimulation time,,Color,Repeat every,,n Cycles,Start last cycle
-1,0,s,2,s,blue,5,s,2,
+What;Start;start_unit;stim_time;stim_time_unit;Color;repeat_every;repeat_every_unit;n_cycles;start_last_cycle;start_last_cycle_unit;n_block;block_repeat;block_repeat_unit
+A1;1;s;30;s;yellow;50;s;6;;;30;120;s
+
