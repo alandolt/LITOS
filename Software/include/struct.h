@@ -22,18 +22,18 @@ typedef struct well
 { // Definition of the structure of a well, is used internal
   well() : cycle_count(0), running(false), finished(false) {}
   char what[20];                 /// name of the well. letters for rows, numbers for coloumns, designators, e.g. B23 for individual wells or pixels with Px34_23 possible.
-  unsigned long int start;       // timepoint in ms, when well will begin to light
-  unsigned int stimulation_time; // exposure
-  unsigned long int repeat_every;
-  unsigned long int start_last_cycle;
+  long int start;                // timepoint in ms, when well will begin to light
+  int stimulation_time;          // exposure
+  long int repeat_every;
+  long int start_last_cycle;
   uint8_t red;
   uint8_t green;
   uint8_t blue;
-  unsigned int cycle_count;
-  unsigned int total_cycle;
-  unsigned int block_n;
-  unsigned int block_total;
-  unsigned long int block_repeat_every;
+  int cycle_count;
+  int total_cycle;
+  int block_n;
+  int block_total;
+  long int block_repeat_every;
   bool running;
   bool finished;
 
