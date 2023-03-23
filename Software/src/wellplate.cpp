@@ -639,7 +639,7 @@ bool wellplate::check(unsigned long int time)
 			{
 				long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
 				if ((*iter).cycle_count <= (*iter).total_cycle &&																										  // zählen wie oft der Block durchlaufen wurde
-					floor(((time_ref_block_corr - (*iter).start) - (*iter).cycle_count * (*iter).stimulation_time) / float((*iter).repeat_every)) >= (*iter).cycle_count) // cycle count am anfang 0
+					floor(((time_ref_block_corr - (*iter).start) ) / float((*iter).repeat_every)) >= (*iter).cycle_count) // cycle count am anfang 0
 				{
 
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
@@ -661,7 +661,7 @@ bool wellplate::check(unsigned long int time)
 			else if ((*iter).running)
 			{
 				long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
-				if ((time_ref_block_corr - (*iter).start) >= (((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).cycle_count * (*iter).stimulation_time))
+				if ((time_ref_block_corr - (*iter).start) >= (((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).stimulation_time))
 				{
 
 					(*iter).running = false;
