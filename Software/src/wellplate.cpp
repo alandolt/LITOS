@@ -125,16 +125,13 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 
 				byte length = file.readBytesUntil('\n', buffer, buffer_size);
 				buffer[length] = '\0';
-				Serial.println(buffer);
 
 				if ((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') ||
 					((strchr(delimiter, buffer[0]) != NULL && buffer[0] != '\n') && (strchr(delimiter, buffer[1]) != NULL && buffer[1] != '\n')) ||
 					((strchr(delimiter, buffer[0]) != NULL && buffer[3] != '\n') && (strchr(delimiter, buffer[4]) != NULL && buffer[0] != '\n')) ||
 					!(isAlphaNumeric(buffer[0])) || (strlen(buffer) == 1 && buffer[0] == '\n'))
 				{
-#ifdef DEBUG_SERIAL_OUT
-					Serial.println("empty lines detected");
-#endif
+
 					goto end_of_file;
 				}
 
@@ -144,31 +141,13 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				char *token = strtok(buffer, delimiter);
 				while (token != NULL && (isalpha(token[0]) || isdigit(token[0])) && num_fields < max_fields)
 				{
-#ifdef DEBUG_SERIAL_OUT
-					Serial.println("Token: ");
-					Serial.println(token);
-					Serial.println(num_fields);
-					for (int i = 0; i < strlen(token); i++)
-					{
-						Serial.print((int)token[i]);
-						Serial.print(" ");
-					}
-					Serial.println();
-					Serial.println();
-#endif
-					fields[num_fields++] = token;
+										fields[num_fields++] = token;
 					token = strtok(NULL, delimiter);
 				}
-				Serial.println("vor gnom");
 				for (int i = 0; i <= 5; i++)
 				{
 					if (!test_if_valid(fields[i]))
 					{
-#ifdef DEBUG_SERIAL_OUT
-						Serial.println(fields[i]);
-						Serial.println("No valid entry gnom: ");
-						Serial.println(i);
-#endif
 						goto error_loading;
 					}
 				}
@@ -208,11 +187,12 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					strcpy(_well.what, what_buffer);
 				}
 
-				float start = atof(fields[1]);
-				if (start == 0)
+				if (!(isdigit(fields[1][0])))
 				{
 					goto error_loading;
 				}
+				float start = atof(fields[1]);
+
 				_well.start = start * unit_correction(fields[2]);
 				float stim_time = atof(fields[3]);
 				if (stim_time == 0)
@@ -235,9 +215,6 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				int n_cycles;
 				int block_total;
 				float block_repeat;
-
-				Serial.println("vor switch");
-				Serial.println(num_fields);
 				switch (num_fields)
 				{
 				case 6:
@@ -305,16 +282,9 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				case 12: // block repeat
 					for (int i = 6; i < 12; i++)
 					{
-						Serial.println(fields[i]);
-						Serial.println(i);
 						if (!test_if_valid(fields[i]))
 						{
-#if DEBUG_SERIAL_OUT
-							Serial.println("Gumba entry: ");
-							Serial.println(fields[i]);
-							Serial.println(i);
-#endif
-							goto error_loading;
+														goto error_loading;
 						}
 					}
 					repeat_every = atof(fields[6]);
@@ -668,31 +638,10 @@ bool wellplate::check(unsigned long int time)
 			if (!(*iter).finished && !(*iter).running && (*iter).start <= time_ref)
 			{
 				long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
-				Serial.println("Stoppppp....................");
-
-				Serial.println(time_ref);
-				Serial.println(time_ref_block_corr);
-				Serial.println((*iter).start_last_cycle);
-				Serial.println((*iter).start);
-				Serial.println((*iter).repeat_every);
-				Serial.println((*iter).cycle_count);
-				Serial.println((*iter).cycle_count <= (*iter).total_cycle);
-				Serial.println(floor(((time_ref_block_corr - (*iter).start) - (*iter).cycle_count * (*iter).stimulation_time) / float((*iter).repeat_every)));
-				Serial.println("Stoppppp....................");
 				if ((*iter).cycle_count <= (*iter).total_cycle &&																										  // zählen wie oft der Block durchlaufen wurde
 					floor(((time_ref_block_corr - (*iter).start) - (*iter).cycle_count * (*iter).stimulation_time) / float((*iter).repeat_every)) >= (*iter).cycle_count) // cycle count am anfang 0
 				{
-					Serial.println("hallo");
-#ifdef DEBUG
-					Serial.println("");
-					Serial.print((*iter).what);
-					Serial.print(", ");
-					Serial.print((*iter).cycle_count);
-					Serial.print(", ");
-					Serial.print((*iter).total_cycle);
-					Serial.print(": ");
-					Serial.print("aktiv");
-#endif
+
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
 					{
 						int storage_index = atoi(&((*iter).what)[0] + 2);
@@ -703,37 +652,20 @@ bool wellplate::check(unsigned long int time)
 					}
 					else
 					{
-						Serial.println("running == true");
 						what_switch(((*iter).what), (*iter).red, (*iter).green, (*iter).blue);
 						(*iter).running = true;
 					}
 					(*iter).cycle_count += 1;
 				}
 			}
-
 			else if ((*iter).running)
 			{
-				Serial.println("running");
 				long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
-				Serial.println(time_ref_block_corr);
-				Serial.println((*iter).start);
-				Serial.println((*iter).block_n);
-				Serial.println((*iter).cycle_count);
-				Serial.println((*iter).repeat_every);
-				Serial.println((*iter).stimulation_time);
-
-				Serial.println("....................");
 				if ((time_ref_block_corr - (*iter).start) >= (((*iter).cycle_count - 1) * (*iter).repeat_every + (*iter).cycle_count * (*iter).stimulation_time))
 				{
-					Serial.println("abbruch");
 
 					(*iter).running = false;
-
 					what_switch((*iter).what);
-					Serial.println((*iter).cycle_count);
-					Serial.println((*iter).total_cycle);
-					Serial.println((*iter).block_n);
-					Serial.println((*iter).block_total);
 
 					if ((*iter).cycle_count >= (*iter).total_cycle)
 					{
@@ -742,23 +674,12 @@ bool wellplate::check(unsigned long int time)
 						{
 							(*iter).finished = true;
 							number_of_finished_wells += 1;
-							Serial.println("finished");
 						}
 						else
 						{
 							(*iter).cycle_count = 0;
 						}
 					}
-#ifdef DEBUG_SERIAL_OUT
-					Serial.println("");
-					Serial.print((*iter).what);
-					Serial.print(", ");
-					Serial.print((*iter).cycle_count);
-					Serial.print(", ");
-					Serial.print((*iter).finished);
-					Serial.print(": ");
-					Serial.print("inaktiv");
-#endif
 				}
 			}
 			illumination_in_process = illumination_in_process | (*iter).running;
