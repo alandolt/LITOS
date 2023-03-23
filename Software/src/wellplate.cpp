@@ -421,7 +421,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 			{
 				continue;
 			}
-			temp_longest = (((*iter).block_total - 1) * (*iter).block_repeat_every) + ((*iter).total_cycle - 1) * (*iter).repeat_every + (*iter).total_cycle * (*iter).stimulation_time + (*iter).start;
+			temp_longest = (((*iter).block_total - 1) * (*iter).block_repeat_every) + ((*iter).total_cycle - 1) * (*iter).repeat_every + (*iter).stimulation_time + (*iter).start;
 			if (temp_longest > total_time_experiment)
 			{
 				total_time_experiment = temp_longest;
