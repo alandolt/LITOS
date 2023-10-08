@@ -53,7 +53,6 @@ void setup()
 void loop()
 {
 	current_time = millis();
-
 	switch (screen)
 	{
 	case home_screen:
@@ -190,6 +189,7 @@ void loop()
 
 	if (plate_A.check(current_time) | plate_B.check(current_time)) /// power on / power off Matrix through MOSFET high/low pin
 	{
+
 		matrix_on();
 	}
 	else

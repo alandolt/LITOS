@@ -1,6 +1,6 @@
 /**
  * @file matrix.cpp
- * @author Alex Landolt 
+ * @author Alex Landolt
  * @brief C file containing functions needed for controlling the LED matrix and the MOSFET
  * @version 0.3
  * @date 2020-05-25
@@ -35,7 +35,7 @@ static bool is_matrix_on;
 
 /**
  * @brief Used to generate reference to LED matrix, as so we can control it in the wellplate part of LITOS code
- * 
+ *
  * @return RGB64x32MatrixPanel_I2S_DMA&, that is nothing more than a reference to the LED matrix
  */
 RGB64x32MatrixPanel_I2S_DMA &ref_backgroundLayer()
@@ -45,17 +45,18 @@ RGB64x32MatrixPanel_I2S_DMA &ref_backgroundLayer()
 
 /**
  * @brief called in void setup to initialize matrix
- * 
+ *
  */
 void init_matrix()
 {
-    //matrix_on();
+    // matrix_on();
     digitalWrite(led_matrix_mosfet, HIGH);
     reset_panel();
     digitalWrite(led_matrix_mosfet, LOW);
 
     backgroundLayer.setBrightness8(220);
     backgroundLayer.begin(R1, G1, BL1, R2, G2, BL2, CH_A, CH_B, CH_C, CH_D, CH_E, LAT, OE, CLK);
+    backgroundLayer.setMinRefreshRate(50);
     digitalWrite(led_matrix_mosfet, HIGH);
     matrix_off(); /// helper function to cut off data lines
 }
@@ -68,8 +69,8 @@ void init_matrix_power()
 }
 
 /**
- * @brief helper function to cut off data lines and power through MOSFET and internal pull down resistors 
- * 
+ * @brief helper function to cut off data lines and power through MOSFET and internal pull down resistors
+ *
  */
 void matrix_off()
 {
@@ -83,8 +84,8 @@ void matrix_off()
     }
 }
 /**
- * @brief activate matrix by supplying power through internal MOSFET 
- * 
+ * @brief activate matrix by supplying power through internal MOSFET
+ *
  */
 void matrix_on()
 {

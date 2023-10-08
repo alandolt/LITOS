@@ -30,27 +30,31 @@ wellplate::wellplate(const char _identifier)
 
 int wellplate::unit_correction(char *ptr)
 {
-	if (ptr[0] == 's' || ptr[0] == 'S')
+	if (ptr[0] == 'p' || ptr[0] == 'P')
 	{
 		return 1;
+	}
+	if (ptr[0] == 's' || ptr[0] == 'S')
+	{
+		return 1000;
 	}
 
 	if (ptr[0] == 'm' || ptr[0] == 'M')
 	{
-		return 60;
+		return 60000;
 	}
 
 	if (ptr[0] == 'h' || ptr[0] == 'H')
 	{
-		return 3600;
+		return 3600000;
 	}
 	if (ptr[0] == 'd' || ptr[0] == 'D')
 	{
-		return 86400;
+		return 86400000;
 	}
 	if (ptr[0] == 'w' || ptr[0] == 'W')
 	{
-		return 604800;
+		return 604800000;
 	}
 
 	return 1;
@@ -141,7 +145,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 				char *token = strtok(buffer, delimiter);
 				while (token != NULL && (isalpha(token[0]) || isdigit(token[0])) && num_fields < max_fields)
 				{
-										fields[num_fields++] = token;
+					fields[num_fields++] = token;
 					token = strtok(NULL, delimiter);
 				}
 				for (int i = 0; i <= 5; i++)
@@ -284,7 +288,7 @@ void wellplate::wellplate_setup_u(const char *name_config_file, type_wellplate a
 					{
 						if (!test_if_valid(fields[i]))
 						{
-														goto error_loading;
+							goto error_loading;
 						}
 					}
 					repeat_every = atof(fields[6]);
@@ -638,8 +642,8 @@ bool wellplate::check(unsigned long int time)
 			if (!(*iter).finished && !(*iter).running && (*iter).start <= time_ref)
 			{
 				long int time_ref_block_corr = time_ref - ((*iter).block_n - 1) * (*iter).block_repeat_every;
-				if ((*iter).cycle_count <= (*iter).total_cycle &&																										  // zählen wie oft der Block durchlaufen wurde
-					floor(((time_ref_block_corr - (*iter).start) ) / float((*iter).repeat_every)) >= (*iter).cycle_count) // cycle count am anfang 0
+				if ((*iter).cycle_count <= (*iter).total_cycle &&														 // zählen wie oft der Block durchlaufen wurde
+					floor(((time_ref_block_corr - (*iter).start)) / float((*iter).repeat_every)) >= (*iter).cycle_count) // cycle count am anfang 0
 				{
 
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
