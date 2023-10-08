@@ -57,7 +57,7 @@ int wellplate::unit_correction(char *ptr)
 		return 604800000;
 	}
 
-	return 1;
+	return 1000;
 }
 
 void wellplate::wellplate_setup() // default file from config
@@ -635,7 +635,7 @@ bool wellplate::check(unsigned long int time)
 	if (started && !finished)
 	{
 		illumination_in_process = false;
-		long int time_ref = (time - time_started) / 1000;
+		long int time_ref = (time - time_started);
 		time_remaining = (total_time_experiment - (time_ref));
 		for (iter = well_vector.begin(); iter != well_vector.end(); ++iter)
 		{
@@ -649,7 +649,7 @@ bool wellplate::check(unsigned long int time)
 					if ((*iter).what[0] == 'M' || (*iter).what[0] == 'm') // message definition
 					{
 						int storage_index = atoi(&((*iter).what)[0] + 2);
-						messages.add_message(storage_index, identifier, (*iter).stimulation_time);
+						messages.add_message(storage_index, identifier, (*iter).stimulation_time / 1000);
 						(*iter).finished = true;
 						(*iter).running = false;
 						number_of_finished_wells += 1;
@@ -706,7 +706,7 @@ bool wellplate::prog_finished()
 
 int wellplate::get_time_remaining()
 {
-	return time_remaining;
+	return time_remaining / 1000;
 }
 
 int wellplate::letter_to_row(char &letter)

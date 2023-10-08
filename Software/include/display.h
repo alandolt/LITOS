@@ -93,7 +93,7 @@ public:
         int minutes = 99999999;
         int seconds = 99999999;
     } timepoint;
-    timepoint seconds_to_timepoint(int seconds);
+    timepoint seconds_to_timepoint(unsigned long int seconds);
 
 private:
     unsigned long int last_plate_time_remaining;

@@ -391,7 +391,7 @@ void show_countdown::update_countdown(const bool &prog_finished, const unsigned 
     }
 }
 
-show_countdown::timepoint show_countdown::seconds_to_timepoint(int seconds_remaining)
+show_countdown::timepoint show_countdown::seconds_to_timepoint(unsigned long int seconds_remaining)
 {
     show_countdown::timepoint act_timepoint;
     // act_timepoint.days = seconds_remaining / 86400;
