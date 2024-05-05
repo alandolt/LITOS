@@ -54,7 +54,7 @@ void init_matrix()
     reset_panel();
     digitalWrite(led_matrix_mosfet, LOW);
 
-    backgroundLayer.setBrightness8(220);
+    backgroundLayer.setPanelBrightness(60);
     backgroundLayer.begin(R1, G1, BL1, R2, G2, BL2, CH_A, CH_B, CH_C, CH_D, CH_E, LAT, OE, CLK);
     digitalWrite(led_matrix_mosfet, HIGH);
     matrix_off(); /// helper function to cut off data lines
