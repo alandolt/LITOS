@@ -1,5 +1,5 @@
 # LITOS Hardware
-In case you want to order LITOS directly from a PCB manufacturing service, the folder [*PCB design data*](PCB%20design%20data) contains the needed information (Gerbers file with PCB position file, schematics, and bill of material). Additionally, you can find the raw KiCad PCB layout project under [*LITOS Kicad Rev4.zip*](PCB%20design%20data/LITOS%20Kicad%20Rev4.zip). 
+In case you want to order LITOS directly from a PCB manufacturing service, the folder [*PCB design data*](PCB%20design%20data) contains the needed information (Gerbers file with PCB position file, schematics, and bill of material). Additionally, you can find the raw KiCad PCB layout project under [*LITOS Kicad Rev4.3.zip*](PCB%20design%20data/LITOS%20Kicad%20Rev4.3.zip). 
 
 For the proper alignment of the microtiter plate on the LED matrix the blueprints (for building them with a 3D printer or a CNC machine) for two different masks (one / two microplates) are provided under [*Alignment masks*](Alignment%20masks). The mask for one microplate allows its placement in the middle of the LED matrix, whereas the mask for two plates stocks them horizontally. This allows to stimulate two multiwell plates with one LITOS to further increase through-put. Please note that when using the mask for two plates, the first and last row cannot be illuminated. 
 
